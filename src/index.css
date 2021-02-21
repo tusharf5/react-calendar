@@ -1,13 +1,64 @@
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
+    "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
 code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+  font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
     monospace;
+}
+
+.App {
+  display: flex;
+  align-items: flex-start;
+  flex-direction: column;
+}
+
+.weekdays-header {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+}
+
+.weekdays-header-day {
+  width: 36px;
+  display: block;
+  text-align: left;
+  padding: 8px;
+}
+
+.weekdays-header-day + .weekdays-header-day {
+  margin-left: 8px;
+}
+
+.date-header {
+  display: flex;
+}
+
+.date-header span {
+  display: inline-block;
+}
+
+.date-header span {
+  margin-left: 8px;
+  margin-right: 8px;
+}
+
+.days-cell {
+  width: calc(36px + 8px);
+  height: calc(36px + 8px);
+  display: inline-block;
+  text-align: left;
+  padding: 8px;
+  opacity: 0.5;
+}
+
+.days-cell.active-in-view {
+  opacity: 1;
+  font-weight: 600;
 }
