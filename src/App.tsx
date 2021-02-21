@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 
 import "./App.css";
 
@@ -15,7 +15,10 @@ const YEARS = Array.from(
   (v, k) => 1960 + k
 );
 
-const WEEK_DAYS: Record<number, string> = {
+/**
+ * This weekday index-label map is what is used by the Date object
+ */
+const DEFAULT_WEEKDAY_INDEX: Record<number, string> = {
   0: "Sun",
   1: "Mon",
   2: "Tue",
@@ -41,7 +44,6 @@ const MONTHS: Record<number, string> = {
 };
 
 function getDaysInMonth(year: number, month: number) {
-  console.log(year, month);
   const map: Record<number, number> = {
     0: 31,
     1: isALeapYear(year) ? 29 : 28,
@@ -60,6 +62,59 @@ function getDaysInMonth(year: number, month: number) {
   return map[month];
 }
 
+/**
+ * Creates and return a new weekday index-label map as per the **start**
+ * parameter. By default this will return the same weekday index-label map
+ * used by the Date object.
+ * @param start index of the day to be considered as start of the week
+ */
+function getWeekDaysIndexToLabelMap(start = 0): Record<number, string> {
+  // we break the [0,1,2,3,4,5,6] in two parts
+  // [start,4,5,6] and [0,1,2] and join them with their labels
+  // this is just to re-order the label in the **correct order**
+  return Object.keys(DEFAULT_WEEKDAY_INDEX)
+    .slice(start, 7)
+    .concat(Object.keys(DEFAULT_WEEKDAY_INDEX).slice(0, start))
+    .reduce((acc, curr, index) => {
+      // acc[0] = DEFAULT_WEEKDAY_INDEX[3]
+      acc[Number(index)] = DEFAULT_WEEKDAY_INDEX[Number(curr)];
+      return acc;
+    }, {} as Record<number, string>);
+}
+
+/**
+ * Finds and returns the corresponding day-of-the-week as per the **start of the week**
+ * for a default day-of-the-week which is as per the Date object
+ * @param weekdaydefaultIndex day-of-the-week as per the Date object
+ * @param start index of the day to be considered as start of the week
+ */
+function getWeekDayIndexAsPerStartDay(
+  weekdaydefaultIndex: number,
+  start = 0
+): number {
+  return weekdaydefaultIndex >= start
+    ? weekdaydefaultIndex - start
+    : 6 - start + 1 + weekdaydefaultIndex;
+}
+
+/**
+ * Gives the index of day-of-the-week on the 1st of the provided month-year.
+ * @param year Specify a year
+ * @param month Specify a month
+ * @param start index of the day to be considered as start of the week
+ */
+function getWeekDayOnFirstDateOfMonth(
+  year: number,
+  month: number,
+  start: number
+) {
+  const date = new Date();
+  date.setDate(1);
+  date.setMonth(month);
+  date.setFullYear(year);
+  return getWeekDayIndexAsPerStartDay(date.getDay(), start);
+}
+
 function getPreviousMonth(month: number) {
   return month === 0 ? 11 : month - 1;
 }
@@ -72,21 +127,18 @@ function getPreviousYear(year: number) {
   return year - 1;
 }
 
-function getWeekDayOnFirstDateOfMonth(year: number, month: number) {
-  const date = new Date();
-  date.setDate(1);
-  date.setMonth(month);
-  date.setFullYear(year);
-  return date.getDay();
-}
-
 function getCalendarViewMatrix(
   year: number,
-  month: number
+  month: number,
+  startOfWeek: number
 ): { date: number; month: number; year: number; activeMonthInView: boolean }[] {
   const matrix = [];
 
-  const currentMonthDatesStartIndex = getWeekDayOnFirstDateOfMonth(year, month);
+  const currentMonthDatesStartIndex = getWeekDayOnFirstDateOfMonth(
+    year,
+    month,
+    startOfWeek
+  );
 
   const totalDaysInCurrentMonth = getDaysInMonth(year, month);
 
@@ -98,14 +150,9 @@ function getCalendarViewMatrix(
     getPreviousMonth(month)
   );
 
-  console.log("totalDaysInPrevMonth", totalDaysInPrevMonth);
-  console.log("daysStartFromIndex", currentMonthDatesStartIndex);
-
   //  31 - (6 - 1) === 26
   const lastMonthDateStartFrom =
     totalDaysInPrevMonth - (currentMonthDatesStartIndex - 1);
-
-  console.log("lastMonthDateStartFrom", lastMonthDateStartFrom);
 
   // first loop to fill cell values of last month
   for (let i = lastMonthDateStartFrom; i <= totalDaysInPrevMonth; i++) {
@@ -142,6 +189,10 @@ function getCalendarViewMatrix(
 
 function App() {
   // in view state
+  const start = 3;
+  const WEEK_DAYS = useMemo(() => {
+    return getWeekDaysIndexToLabelMap(start);
+  }, [start]);
   const [monthInView, setMonthInView] = useState(new Date().getMonth());
   const [dayOfMonthInView] = useState(new Date().getDate());
   const [yearInView, setYearInView] = useState(new Date().getFullYear());
@@ -157,7 +208,7 @@ function App() {
     },
     [setYearInView]
   );
-  const matrix = getCalendarViewMatrix(yearInView, monthInView);
+  const matrix = getCalendarViewMatrix(yearInView, monthInView, start);
   return (
     <section className="App">
       <header>
@@ -189,42 +240,72 @@ function App() {
       <main>
         <div>
           {matrix.slice(0, 7).map((num) => (
-            <div key={num.date} className={`days-cell ${num.activeMonthInView ? 'active-in-view' : ''}`}>
+            <div
+              key={num.date}
+              className={`days-cell ${
+                num.activeMonthInView ? "active-in-view" : ""
+              }`}
+            >
               {num.date}
             </div>
           ))}
         </div>
         <div>
           {matrix.slice(7, 14).map((num) => (
-            <div key={num.date} className={`days-cell ${num.activeMonthInView ? 'active-in-view' : ''}`}>
+            <div
+              key={num.date}
+              className={`days-cell ${
+                num.activeMonthInView ? "active-in-view" : ""
+              }`}
+            >
               {num.date}
             </div>
           ))}
         </div>
         <div>
           {matrix.slice(14, 21).map((num) => (
-            <div key={num.date} className={`days-cell ${num.activeMonthInView ? 'active-in-view' : ''}`}>
+            <div
+              key={num.date}
+              className={`days-cell ${
+                num.activeMonthInView ? "active-in-view" : ""
+              }`}
+            >
               {num.date}
             </div>
           ))}
         </div>
         <div>
           {matrix.slice(21, 28).map((num) => (
-            <div key={num.date} className={`days-cell ${num.activeMonthInView ? 'active-in-view' : ''}`}>
+            <div
+              key={num.date}
+              className={`days-cell ${
+                num.activeMonthInView ? "active-in-view" : ""
+              }`}
+            >
               {num.date}
             </div>
           ))}
         </div>
         <div>
           {matrix.slice(28, 35).map((num) => (
-            <div key={num.date} className={`days-cell ${num.activeMonthInView ? 'active-in-view' : ''}`}>
+            <div
+              key={num.date}
+              className={`days-cell ${
+                num.activeMonthInView ? "active-in-view" : ""
+              }`}
+            >
               {num.date}
             </div>
           ))}
         </div>
         <div>
           {matrix.slice(35, 42).map((num) => (
-            <div key={num.date} className={`days-cell ${num.activeMonthInView ? 'active-in-view' : ''}`}>
+            <div
+              key={num.date}
+              className={`days-cell ${
+                num.activeMonthInView ? "active-in-view" : ""
+              }`}
+            >
               {num.date}
             </div>
           ))}
