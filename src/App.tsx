@@ -1,3 +1,4 @@
+/* eslint-disable no-loop-func */
 import React, { useCallback, useMemo, useState } from "react";
 
 import "./App.css";
@@ -88,7 +89,7 @@ function getWeekDaysIndexToLabelMap(start = 0): Record<number, string> {
  * @param weekdaydefaultIndex day-of-the-week as per the Date object
  * @param start index of the day to be considered as start of the week
  */
-function getWeekDayIndexAsPerStartDay(
+function getNativeWeekDayIndexAsPerAStartDay(
   weekdaydefaultIndex: number,
   start = 0
 ): number {
@@ -112,7 +113,25 @@ function getWeekDayOnFirstDateOfMonth(
   date.setDate(1);
   date.setMonth(month);
   date.setFullYear(year);
-  return getWeekDayIndexAsPerStartDay(date.getDay(), start);
+  return getNativeWeekDayIndexAsPerAStartDay(date.getDay(), start);
+}
+
+function getWeekendColumns(start: number) {
+  if (start === 0) {
+    return { weekend: [7, 1], saturday: 7, sunday: 1 };
+  } else if (start === 1) {
+    return { weekend: [6, 7], saturday: 6, sunday: 7 };
+  } else if (start === 2) {
+    return { weekend: [5, 6], saturday: 5, sunday: 6 };
+  } else if (start === 3) {
+    return { weekend: [4, 5], saturday: 4, sunday: 5 };
+  } else if (start === 4) {
+    return { weekend: [3, 4], saturday: 3, sunday: 4 };
+  } else if (start === 5) {
+    return { weekend: [2, 3], saturday: 2, sunday: 3 };
+  } else {
+    return { weekend: [1, 2], saturday: 1, sunday: 2 };
+  }
 }
 
 function getPreviousMonth(month: number) {
@@ -131,8 +150,34 @@ function getCalendarViewMatrix(
   year: number,
   month: number,
   startOfWeek: number
-): { date: number; month: number; year: number; activeMonthInView: boolean }[] {
-  const matrix = [];
+): Array<{
+  date: number;
+  month: number;
+  year: number;
+  activeMonthInView: boolean;
+  isWeekend: boolean;
+  isSat: boolean;
+  isToday: boolean;
+  isFirstRow: boolean;
+  isLastRow: boolean;
+  isFirsColumn: boolean;
+  isLastColumn: boolean;
+  isSun: boolean;
+}>[] {
+  const matrix: Array<{
+    date: number;
+    month: number;
+    year: number;
+    activeMonthInView: boolean;
+    isWeekend: boolean;
+    isToday: boolean;
+    isSat: boolean;
+    isFirstRow: boolean;
+    isLastRow: boolean;
+    isFirsColumn: boolean;
+    isLastColumn: boolean;
+    isSun: boolean;
+  }>[] = [[], [], [], [], [], []];
 
   const currentMonthDatesStartIndex = getWeekDayOnFirstDateOfMonth(
     year,
@@ -140,6 +185,8 @@ function getCalendarViewMatrix(
     startOfWeek
   );
 
+  const weekends = getWeekendColumns(startOfWeek);
+  const todaysDate = new Date().getDate();
   const totalDaysInCurrentMonth = getDaysInMonth(year, month);
 
   const isPrevMonthFromLastYear = month === 0;
@@ -150,38 +197,92 @@ function getCalendarViewMatrix(
     getPreviousMonth(month)
   );
 
+  // calendar has 6 rows (0 - 5)
+  let row = 0;
+  let columnAdded = 0;
+
   //  31 - (6 - 1) === 26
   const lastMonthDateStartFrom =
     totalDaysInPrevMonth - (currentMonthDatesStartIndex - 1);
 
   // first loop to fill cell values of last month
   for (let i = lastMonthDateStartFrom; i <= totalDaysInPrevMonth; i++) {
-    matrix.push({
+    if (columnAdded === 7) {
+      columnAdded = 0;
+      row++;
+    }
+    console.log(row, "row");
+    matrix[row].push({
       date: i,
       month: getPreviousMonth(month),
       activeMonthInView: false,
       year: isPrevMonthFromLastYear ? getPreviousYear(year) : year,
+      isWeekend: weekends.weekend.find((c) => c === columnAdded + 1)
+        ? true
+        : false,
+      isSat: weekends.saturday === columnAdded + 1,
+      isSun: weekends.sunday === columnAdded + 1,
+      isToday: false,
+      isFirstRow: row === 0,
+      isLastRow: row === 5,
+      isFirsColumn: columnAdded + 1 === 1,
+      isLastColumn: columnAdded + 1 === 7,
     });
+    columnAdded++;
   }
 
   // second loop to fill cell values of current month
   for (let k = 1; k <= totalDaysInCurrentMonth; k++) {
-    matrix.push({
+    if (columnAdded === 7) {
+      columnAdded = 0;
+      row++;
+    }
+    console.log(row, "row");
+    matrix[row].push({
       date: k,
       month: month,
       activeMonthInView: true,
       year: year,
+      isWeekend: weekends.weekend.find((c) => c === columnAdded + 1)
+        ? true
+        : false,
+      isSat: weekends.saturday === columnAdded + 1,
+      isSun: weekends.sunday === columnAdded + 1,
+      isToday: k === todaysDate,
+      isFirstRow: row === 0,
+      isLastRow: row === 5,
+      isFirsColumn: columnAdded + 1 === 1,
+      isLastColumn: columnAdded + 1 === 7,
     });
+    columnAdded++;
   }
-  const remainingCellsCount = MAX_CELLS - matrix.length;
+
+  let k = 1;
   // last loop to fill cell values of next month
-  for (let k = 1; k <= remainingCellsCount; k++) {
-    matrix.push({
+
+  while (matrix[5].length < 7) {
+    if (columnAdded === 7) {
+      columnAdded = 0;
+      row++;
+    }
+    matrix[row].push({
       date: k,
       month: getNextMonth(month),
       activeMonthInView: false,
       year: isCurrentMonthLast ? year + 1 : year,
+      isWeekend: weekends.weekend.find((c) => c === columnAdded + 1)
+        ? true
+        : false,
+      isSat: weekends.saturday === columnAdded + 1,
+      isSun: weekends.sunday === columnAdded + 1,
+      isToday: false,
+      isFirstRow: row === 0,
+      isLastRow: row === 5,
+      isFirsColumn: columnAdded + 1 === 1,
+      isLastColumn: columnAdded + 1 === 7,
     });
+    columnAdded++;
+    k++;
   }
 
   return matrix;
@@ -189,7 +290,7 @@ function getCalendarViewMatrix(
 
 function App() {
   // in view state
-  const start = 3;
+  const start = 4;
   const WEEK_DAYS = useMemo(() => {
     return getWeekDaysIndexToLabelMap(start);
   }, [start]);
@@ -239,74 +340,26 @@ function App() {
       </header>
       <main>
         <div>
-          {matrix.slice(0, 7).map((num) => (
-            <div
-              key={num.date}
-              className={`days-cell ${
-                num.activeMonthInView ? "active-in-view" : ""
-              }`}
-            >
-              {num.date}
-            </div>
-          ))}
-        </div>
-        <div>
-          {matrix.slice(7, 14).map((num) => (
-            <div
-              key={num.date}
-              className={`days-cell ${
-                num.activeMonthInView ? "active-in-view" : ""
-              }`}
-            >
-              {num.date}
-            </div>
-          ))}
-        </div>
-        <div>
-          {matrix.slice(14, 21).map((num) => (
-            <div
-              key={num.date}
-              className={`days-cell ${
-                num.activeMonthInView ? "active-in-view" : ""
-              }`}
-            >
-              {num.date}
-            </div>
-          ))}
-        </div>
-        <div>
-          {matrix.slice(21, 28).map((num) => (
-            <div
-              key={num.date}
-              className={`days-cell ${
-                num.activeMonthInView ? "active-in-view" : ""
-              }`}
-            >
-              {num.date}
-            </div>
-          ))}
-        </div>
-        <div>
-          {matrix.slice(28, 35).map((num) => (
-            <div
-              key={num.date}
-              className={`days-cell ${
-                num.activeMonthInView ? "active-in-view" : ""
-              }`}
-            >
-              {num.date}
-            </div>
-          ))}
-        </div>
-        <div>
-          {matrix.slice(35, 42).map((num) => (
-            <div
-              key={num.date}
-              className={`days-cell ${
-                num.activeMonthInView ? "active-in-view" : ""
-              }`}
-            >
-              {num.date}
+          {matrix.map((row) => (
+            <div>
+              {row.map((cell) => (
+                <div
+                  key={cell.date}
+                  className={`days-cell${
+                    cell.activeMonthInView ? " active-month" : ""
+                  }${cell.isWeekend ? " weekend" : ""}${
+                    cell.isSat ? " saturday" : ""
+                  }${cell.isSun ? " sunday" : ""}${
+                    cell.isToday ? " today" : ""
+                  }${cell.isFirstRow ? " fr" : ""}${
+                    cell.isLastRow ? " lr" : ""
+                  }${cell.isFirsColumn ? " fc" : ""}${
+                    cell.isLastColumn ? " lc" : ""
+                  }`}
+                >
+                  {cell.date}
+                </div>
+              ))}
             </div>
           ))}
         </div>

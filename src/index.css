@@ -58,7 +58,7 @@ code {
   opacity: 0.5;
 }
 
-.days-cell.active-in-view {
+.days-cell.active-month {
   opacity: 1;
   font-weight: 600;
 }
