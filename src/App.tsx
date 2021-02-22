@@ -67,7 +67,9 @@ function getDaysInMonth(year: number, month: number) {
  * used by the Date object.
  * @param startOfTheWeek index of the day to be considered as start of the week
  */
-function getWeekDaysIndexToLabelMapForAStartOfTheWeek(startOfTheWeek = 0): Record<number, string> {
+function getWeekDaysIndexToLabelMapForAStartOfTheWeek(
+  startOfTheWeek = 0
+): Record<number, string> {
   // we break the [0,1,2,3,4,5,6] in two parts
   // [start,4,5,6] and [0,1,2] and join them with their labels
   // this is just to re-order the label in the **correct order**
@@ -209,7 +211,6 @@ function getCalendarViewMatrix(
       columnAdded = 0;
       row++;
     }
-    console.log(row, "row");
     matrix[row].push({
       date: i,
       month: getPreviousMonth(month),
@@ -235,7 +236,6 @@ function getCalendarViewMatrix(
       columnAdded = 0;
       row++;
     }
-    console.log(row, "row");
     matrix[row].push({
       date: k,
       month: month,
@@ -288,7 +288,7 @@ function getCalendarViewMatrix(
 
 function App() {
   // in view state
-  const startOfTheWeek = 4;
+  const startOfTheWeek = 1;
   const WEEK_DAYS = useMemo(() => {
     return getWeekDaysIndexToLabelMapForAStartOfTheWeek(startOfTheWeek);
   }, [startOfTheWeek]);
@@ -307,7 +307,11 @@ function App() {
     },
     [setYearInView]
   );
-  const matrix = getCalendarViewMatrix(yearInView, monthInView, startOfTheWeek);
+
+  const matrix = useMemo(() => {
+    return getCalendarViewMatrix(yearInView, monthInView, startOfTheWeek);
+  }, [yearInView, monthInView, startOfTheWeek]);
+
   return (
     <section className="App">
       <header>
@@ -338,8 +342,8 @@ function App() {
       </header>
       <main>
         <div>
-          {matrix.map((row) => (
-            <div>
+          {matrix.map((row, index) => (
+            <div key={index}>
               {row.map((cell) => (
                 <div
                   key={cell.date}
