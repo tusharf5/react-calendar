@@ -7,8 +7,6 @@ function isALeapYear(year: number) {
   return (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0;
 }
 
-const MAX_CELLS = 42;
-
 const YEARS = Array.from(
   {
     length: 2100 - 1960,
@@ -17,7 +15,7 @@ const YEARS = Array.from(
 );
 
 /**
- * This weekday index-label map is what is used by the Date object
+ * This weekday index-to-label map is what is used by the Date object
  */
 const DEFAULT_WEEKDAY_INDEX: Record<number, string> = {
   0: "Sun",
@@ -67,15 +65,15 @@ function getDaysInMonth(year: number, month: number) {
  * Creates and return a new weekday index-label map as per the **start**
  * parameter. By default this will return the same weekday index-label map
  * used by the Date object.
- * @param start index of the day to be considered as start of the week
+ * @param startOfTheWeek index of the day to be considered as start of the week
  */
-function getWeekDaysIndexToLabelMap(start = 0): Record<number, string> {
+function getWeekDaysIndexToLabelMapForAStartOfTheWeek(startOfTheWeek = 0): Record<number, string> {
   // we break the [0,1,2,3,4,5,6] in two parts
   // [start,4,5,6] and [0,1,2] and join them with their labels
   // this is just to re-order the label in the **correct order**
   return Object.keys(DEFAULT_WEEKDAY_INDEX)
-    .slice(start, 7)
-    .concat(Object.keys(DEFAULT_WEEKDAY_INDEX).slice(0, start))
+    .slice(startOfTheWeek, 7)
+    .concat(Object.keys(DEFAULT_WEEKDAY_INDEX).slice(0, startOfTheWeek))
     .reduce((acc, curr, index) => {
       // acc[0] = DEFAULT_WEEKDAY_INDEX[3]
       acc[Number(index)] = DEFAULT_WEEKDAY_INDEX[Number(curr)];
@@ -86,48 +84,48 @@ function getWeekDaysIndexToLabelMap(start = 0): Record<number, string> {
 /**
  * Finds and returns the corresponding day-of-the-week as per the **start of the week**
  * for a default day-of-the-week which is as per the Date object
- * @param weekdaydefaultIndex day-of-the-week as per the Date object
- * @param start index of the day to be considered as start of the week
+ * @param weekdayAsPerNativeIndex day-of-the-week as per the Date object
+ * @param startOfTheWeek index of the day to be considered as start of the week
  */
 function getNativeWeekDayIndexAsPerAStartDay(
-  weekdaydefaultIndex: number,
-  start = 0
+  weekdayAsPerNativeIndex: number,
+  startOfTheWeek = 0
 ): number {
-  return weekdaydefaultIndex >= start
-    ? weekdaydefaultIndex - start
-    : 6 - start + 1 + weekdaydefaultIndex;
+  return weekdayAsPerNativeIndex >= startOfTheWeek
+    ? weekdayAsPerNativeIndex - startOfTheWeek
+    : 6 - startOfTheWeek + 1 + weekdayAsPerNativeIndex;
 }
 
 /**
  * Gives the index of day-of-the-week on the 1st of the provided month-year.
  * @param year Specify a year
  * @param month Specify a month
- * @param start index of the day to be considered as start of the week
+ * @param startOfTheWeek index of the day to be considered as start of the week
  */
 function getWeekDayOnFirstDateOfMonth(
   year: number,
   month: number,
-  start: number
+  startOfTheWeek: number
 ) {
   const date = new Date();
   date.setDate(1);
   date.setMonth(month);
   date.setFullYear(year);
-  return getNativeWeekDayIndexAsPerAStartDay(date.getDay(), start);
+  return getNativeWeekDayIndexAsPerAStartDay(date.getDay(), startOfTheWeek);
 }
 
-function getWeekendColumns(start: number) {
-  if (start === 0) {
+function getWeekendColumns(startOfTheWeek: number) {
+  if (startOfTheWeek === 0) {
     return { weekend: [7, 1], saturday: 7, sunday: 1 };
-  } else if (start === 1) {
+  } else if (startOfTheWeek === 1) {
     return { weekend: [6, 7], saturday: 6, sunday: 7 };
-  } else if (start === 2) {
+  } else if (startOfTheWeek === 2) {
     return { weekend: [5, 6], saturday: 5, sunday: 6 };
-  } else if (start === 3) {
+  } else if (startOfTheWeek === 3) {
     return { weekend: [4, 5], saturday: 4, sunday: 5 };
-  } else if (start === 4) {
+  } else if (startOfTheWeek === 4) {
     return { weekend: [3, 4], saturday: 3, sunday: 4 };
-  } else if (start === 5) {
+  } else if (startOfTheWeek === 5) {
     return { weekend: [2, 3], saturday: 2, sunday: 3 };
   } else {
     return { weekend: [1, 2], saturday: 1, sunday: 2 };
@@ -149,7 +147,7 @@ function getPreviousYear(year: number) {
 function getCalendarViewMatrix(
   year: number,
   month: number,
-  startOfWeek: number
+  startOfTheWeek: number
 ): Array<{
   date: number;
   month: number;
@@ -182,10 +180,10 @@ function getCalendarViewMatrix(
   const currentMonthDatesStartIndex = getWeekDayOnFirstDateOfMonth(
     year,
     month,
-    startOfWeek
+    startOfTheWeek
   );
 
-  const weekends = getWeekendColumns(startOfWeek);
+  const weekends = getWeekendColumns(startOfTheWeek);
   const todaysDate = new Date().getDate();
   const totalDaysInCurrentMonth = getDaysInMonth(year, month);
 
@@ -290,10 +288,10 @@ function getCalendarViewMatrix(
 
 function App() {
   // in view state
-  const start = 4;
+  const startOfTheWeek = 4;
   const WEEK_DAYS = useMemo(() => {
-    return getWeekDaysIndexToLabelMap(start);
-  }, [start]);
+    return getWeekDaysIndexToLabelMapForAStartOfTheWeek(startOfTheWeek);
+  }, [startOfTheWeek]);
   const [monthInView, setMonthInView] = useState(new Date().getMonth());
   const [dayOfMonthInView] = useState(new Date().getDate());
   const [yearInView, setYearInView] = useState(new Date().getFullYear());
@@ -309,7 +307,7 @@ function App() {
     },
     [setYearInView]
   );
-  const matrix = getCalendarViewMatrix(yearInView, monthInView, start);
+  const matrix = getCalendarViewMatrix(yearInView, monthInView, startOfTheWeek);
   return (
     <section className="App">
       <header>
