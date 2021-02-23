@@ -3,6 +3,22 @@ import React, { useCallback, useMemo, useState } from "react";
 
 import "./App.css";
 
+interface Cell {
+  date: number;
+  month: number;
+  year: number;
+  activeMonthInView: boolean;
+  isWeekend: boolean;
+  isToday: boolean;
+  isSat: boolean;
+  isFirstRow: boolean;
+  isLastRow: boolean;
+  isFirsColumn: boolean;
+  isSelected: boolean;
+  isLastColumn: boolean;
+  isSun: boolean;
+}
+
 function isALeapYear(year: number) {
   return (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0;
 }
@@ -153,54 +169,33 @@ function getPreviousYear(year: number) {
 }
 
 function getCalendarViewMatrix(
-  year: number,
-  month: number,
-  startOfTheWeek: number
-): Array<{
-  date: number;
-  month: number;
-  year: number;
-  activeMonthInView: boolean;
-  isWeekend: boolean;
-  isSat: boolean;
-  isToday: boolean;
-  isFirstRow: boolean;
-  isLastRow: boolean;
-  isFirsColumn: boolean;
-  isLastColumn: boolean;
-  isSun: boolean;
-}>[] {
-  const matrix: Array<{
-    date: number;
-    month: number;
-    year: number;
-    activeMonthInView: boolean;
-    isWeekend: boolean;
-    isToday: boolean;
-    isSat: boolean;
-    isFirstRow: boolean;
-    isLastRow: boolean;
-    isFirsColumn: boolean;
-    isLastColumn: boolean;
-    isSun: boolean;
-  }>[] = [[], [], [], [], [], []];
+  yearInView: number,
+  monthInView: number,
+  startOfTheWeek: number,
+  selectedYear: number,
+  selectedMonth: number,
+  selectedDayOfMonth: number
+): Array<Cell>[] {
+  const matrix: Array<Cell>[] = [[], [], [], [], [], []];
 
   const currentMonthDatesStartIndex = getWeekDayOnFirstDateOfMonth(
-    year,
-    month,
+    yearInView,
+    monthInView,
     startOfTheWeek
   );
 
   const weekends = getWeekendColumns(startOfTheWeek);
   const todaysDate = new Date().getDate();
-  const totalDaysInCurrentMonth = getDaysInMonth(year, month);
+  const todaysMonth = new Date().getMonth();
+  const todaysYear = new Date().getFullYear();
+  const totalDaysInCurrentMonth = getDaysInMonth(yearInView, monthInView);
 
-  const isPrevMonthFromLastYear = month === 0;
-  const isCurrentMonthLast = month === 11;
+  const isPrevMonthFromLastYear = monthInView === 0;
+  const isCurrentMonthLast = monthInView === 11;
 
   const totalDaysInPrevMonth = getDaysInMonth(
-    isPrevMonthFromLastYear ? getPreviousYear(year) : year,
-    getPreviousMonth(month)
+    isPrevMonthFromLastYear ? getPreviousYear(yearInView) : yearInView,
+    getPreviousMonth(monthInView)
   );
 
   // calendar has 6 rows (0 - 5)
@@ -219,19 +214,28 @@ function getCalendarViewMatrix(
     }
     matrix[row].push({
       date: i,
-      month: getPreviousMonth(month),
+      month: getPreviousMonth(monthInView),
       activeMonthInView: false,
-      year: isPrevMonthFromLastYear ? getPreviousYear(year) : year,
+      year: isPrevMonthFromLastYear ? getPreviousYear(yearInView) : yearInView,
       isWeekend: weekends.weekend.find((c) => c === columnAdded + 1)
         ? true
         : false,
       isSat: weekends.saturday === columnAdded + 1,
       isSun: weekends.sunday === columnAdded + 1,
-      isToday: false,
+      isToday:
+        i === todaysDate &&
+        getPreviousMonth(monthInView) === todaysMonth &&
+        (isPrevMonthFromLastYear ? getPreviousYear(yearInView) : yearInView) ===
+          todaysYear,
       isFirstRow: row === 0,
       isLastRow: row === 5,
       isFirsColumn: columnAdded + 1 === 1,
       isLastColumn: columnAdded + 1 === 7,
+      isSelected:
+        getPreviousMonth(monthInView) === selectedMonth &&
+        (isPrevMonthFromLastYear ? getPreviousYear(yearInView) : yearInView) ===
+          selectedYear &&
+        i === selectedDayOfMonth,
     });
     columnAdded++;
   }
@@ -244,19 +248,26 @@ function getCalendarViewMatrix(
     }
     matrix[row].push({
       date: k,
-      month: month,
+      month: monthInView,
       activeMonthInView: true,
-      year: year,
+      year: yearInView,
       isWeekend: weekends.weekend.find((c) => c === columnAdded + 1)
         ? true
         : false,
       isSat: weekends.saturday === columnAdded + 1,
       isSun: weekends.sunday === columnAdded + 1,
-      isToday: k === todaysDate,
+      isToday:
+        k === todaysDate &&
+        monthInView === todaysMonth &&
+        yearInView === todaysYear,
       isFirstRow: row === 0,
       isLastRow: row === 5,
       isFirsColumn: columnAdded + 1 === 1,
       isLastColumn: columnAdded + 1 === 7,
+      isSelected:
+        monthInView === selectedMonth &&
+        yearInView === selectedYear &&
+        k === selectedDayOfMonth,
     });
     columnAdded++;
   }
@@ -271,19 +282,26 @@ function getCalendarViewMatrix(
     }
     matrix[row].push({
       date: k,
-      month: getNextMonth(month),
+      month: getNextMonth(monthInView),
       activeMonthInView: false,
-      year: isCurrentMonthLast ? year + 1 : year,
+      year: isCurrentMonthLast ? yearInView + 1 : yearInView,
       isWeekend: weekends.weekend.find((c) => c === columnAdded + 1)
         ? true
         : false,
       isSat: weekends.saturday === columnAdded + 1,
       isSun: weekends.sunday === columnAdded + 1,
-      isToday: false,
+      isToday:
+        k === todaysDate &&
+        getNextMonth(monthInView) === todaysMonth &&
+        (isCurrentMonthLast ? yearInView + 1 : yearInView) === todaysYear,
       isFirstRow: row === 0,
       isLastRow: row === 5,
       isFirsColumn: columnAdded + 1 === 1,
       isLastColumn: columnAdded + 1 === 7,
+      isSelected:
+        getNextMonth(monthInView) === selectedMonth &&
+        (isCurrentMonthLast ? yearInView + 1 : yearInView) === selectedYear &&
+        k === selectedDayOfMonth,
     });
     columnAdded++;
     k++;
@@ -292,15 +310,37 @@ function getCalendarViewMatrix(
   return matrix;
 }
 
-function App() {
+interface Props {
+  value?: string;
+  startOfWeek?: number;
+}
+
+function App({ value, startOfWeek = 1 }: Props) {
   // in view state
-  const startOfTheWeek = 1;
+  const [startOfTheWeek] = useState(startOfWeek);
   const WEEK_DAYS = useMemo(() => {
     return getWeekDaysIndexToLabelMapForAStartOfTheWeek(startOfTheWeek);
   }, [startOfTheWeek]);
-  const [monthInView, setMonthInView] = useState(new Date().getMonth());
-  const [dayOfMonthInView] = useState(new Date().getDate());
-  const [yearInView, setYearInView] = useState(new Date().getFullYear());
+  // in view
+  const [monthInView, setMonthInView] = useState(
+    value ? new Date(value).getMonth() : new Date().getMonth()
+  );
+  const [dayOfMonthInView, setDayOfMonthInView] = useState(
+    value ? new Date(value).getDate() : new Date().getDate()
+  );
+  const [yearInView, setYearInView] = useState(
+    value ? new Date(value).getFullYear() : new Date().getFullYear()
+  );
+  // set date value
+  const [month, setMonth] = useState(
+    value ? new Date(value).getMonth() : new Date().getMonth()
+  );
+  const [dayOfMonth, setDayOfMonth] = useState(
+    value ? new Date(value).getDate() : new Date().getDate()
+  );
+  const [year, setYear] = useState(
+    value ? new Date(value).getFullYear() : new Date().getFullYear()
+  );
   const onMonthChange = useCallback(
     (e) => {
       setMonthInView(Number(e.target.value));
@@ -314,9 +354,28 @@ function App() {
     [setYearInView]
   );
 
+  const onSelectDate = useCallback(
+    (cell: Cell) => {
+      setMonth(cell.month);
+      setMonthInView(cell.month);
+      setYear(cell.year);
+      setYearInView(cell.year);
+      setDayOfMonth(cell.date);
+      setDayOfMonthInView(cell.date);
+    },
+    [setMonth, setYear, setDayOfMonth]
+  );
+
   const matrix = useMemo(() => {
-    return getCalendarViewMatrix(yearInView, monthInView, startOfTheWeek);
-  }, [yearInView, monthInView, startOfTheWeek]);
+    return getCalendarViewMatrix(
+      yearInView,
+      monthInView,
+      startOfTheWeek,
+      year,
+      month,
+      dayOfMonth
+    );
+  }, [yearInView, monthInView, startOfTheWeek, year, month, dayOfMonth]);
 
   return (
     <section className="App">
@@ -352,6 +411,7 @@ function App() {
             <div key={index}>
               {row.map((cell) => (
                 <div
+                  onClick={() => onSelectDate(cell)}
                   key={cell.date}
                   className={`days-cell${
                     cell.activeMonthInView ? " active-month" : ""
@@ -363,7 +423,7 @@ function App() {
                     cell.isLastRow ? " lr" : ""
                   }${cell.isFirsColumn ? " fc" : ""}${
                     cell.isLastColumn ? " lc" : ""
-                  }`}
+                  }${cell.isSelected ? " selected" : ""}`}
                 >
                   {cell.date}
                 </div>

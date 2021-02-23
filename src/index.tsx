@@ -6,7 +6,7 @@ import reportWebVitals from './reportWebVitals';
 
 ReactDOM.render(
   <React.StrictMode>
-    <App />
+    <App startOfWeek={1} value={new Date(2011, 5, 4).toISOString()} />
   </React.StrictMode>,
   document.getElementById('root')
 );
