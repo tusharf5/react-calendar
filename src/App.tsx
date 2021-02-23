@@ -17,7 +17,7 @@ const YEARS = Array.from(
 /**
  * This weekday index-to-label map is what is used by the Date object
  */
-const DEFAULT_WEEKDAY_INDEX: Record<number, string> = {
+const NATIVE_INDEX_TO_LABEL_WEEKDAY_MAP: Record<number, string> = {
   0: "Sun",
   1: "Mon",
   2: "Tue",
@@ -27,7 +27,7 @@ const DEFAULT_WEEKDAY_INDEX: Record<number, string> = {
   6: "Sat",
 };
 
-const MONTHS: Record<number, string> = {
+const NATIVE_INDEX_TO_LABEL_MONTHS_MAP: Record<number, string> = {
   0: "Jan",
   1: "Feb",
   2: "Mar",
@@ -65,6 +65,9 @@ function getDaysInMonth(year: number, month: number) {
  * Creates and return a new weekday index-label map as per the **start**
  * parameter. By default this will return the same weekday index-label map
  * used by the Date object.
+ * 0 means Sun - if we follow the native Date convention
+ * Now if someone wants to start their week from Mon, then 0 would mean Monday which is different from
+ * the convention used by the Date methods.
  * @param startOfTheWeek index of the day to be considered as start of the week
  */
 function getWeekDaysIndexToLabelMapForAStartOfTheWeek(
@@ -73,19 +76,19 @@ function getWeekDaysIndexToLabelMapForAStartOfTheWeek(
   // we break the [0,1,2,3,4,5,6] in two parts
   // [start,4,5,6] and [0,1,2] and join them with their labels
   // this is just to re-order the label in the **correct order**
-  return Object.keys(DEFAULT_WEEKDAY_INDEX)
+  return Object.keys(NATIVE_INDEX_TO_LABEL_WEEKDAY_MAP)
     .slice(startOfTheWeek, 7)
-    .concat(Object.keys(DEFAULT_WEEKDAY_INDEX).slice(0, startOfTheWeek))
+    .concat(Object.keys(NATIVE_INDEX_TO_LABEL_WEEKDAY_MAP).slice(0, startOfTheWeek))
     .reduce((acc, curr, index) => {
       // acc[0] = DEFAULT_WEEKDAY_INDEX[3]
-      acc[Number(index)] = DEFAULT_WEEKDAY_INDEX[Number(curr)];
+      acc[Number(index)] = NATIVE_INDEX_TO_LABEL_WEEKDAY_MAP[Number(curr)];
       return acc;
     }, {} as Record<number, string>);
 }
 
 /**
  * Finds and returns the corresponding day-of-the-week as per the **start of the week**
- * for a default day-of-the-week which is as per the Date object
+ * for a default day-of-the-week which is as per the Date object.
  * @param weekdayAsPerNativeIndex day-of-the-week as per the Date object
  * @param startOfTheWeek index of the day to be considered as start of the week
  */
@@ -317,9 +320,9 @@ function App() {
       <header>
         <div className="date-header">
           <select value={monthInView} onChange={onMonthChange}>
-            {Object.keys(MONTHS).map((month) => (
+            {Object.keys(NATIVE_INDEX_TO_LABEL_MONTHS_MAP).map((month) => (
               <option key={month} value={month}>
-                {MONTHS[Number(month)]}
+                {NATIVE_INDEX_TO_LABEL_MONTHS_MAP[Number(month)]}
               </option>
             ))}
           </select>
