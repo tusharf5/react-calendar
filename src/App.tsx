@@ -78,7 +78,9 @@ function getWeekDaysIndexToLabelMapForAStartOfTheWeek(
   // this is just to re-order the label in the **correct order**
   return Object.keys(NATIVE_INDEX_TO_LABEL_WEEKDAY_MAP)
     .slice(startOfTheWeek, 7)
-    .concat(Object.keys(NATIVE_INDEX_TO_LABEL_WEEKDAY_MAP).slice(0, startOfTheWeek))
+    .concat(
+      Object.keys(NATIVE_INDEX_TO_LABEL_WEEKDAY_MAP).slice(0, startOfTheWeek)
+    )
     .reduce((acc, curr, index) => {
       // acc[0] = DEFAULT_WEEKDAY_INDEX[3]
       acc[Number(index)] = NATIVE_INDEX_TO_LABEL_WEEKDAY_MAP[Number(curr)];
@@ -87,12 +89,13 @@ function getWeekDaysIndexToLabelMapForAStartOfTheWeek(
 }
 
 /**
- * Finds and returns the corresponding day-of-the-week as per the **start of the week**
- * for a default day-of-the-week which is as per the Date object.
+ * So if the Date object says that some date has 3 day-of-the-week. No this 3 means Wednesday as per the native index for week days.
+ * But if a calendar starts from Monday, then wednesday will not be at 3 but it will be at some other index which is according to a different index-label map.
+ * So this method returns that index for wednesday.
  * @param weekdayAsPerNativeIndex day-of-the-week as per the Date object
  * @param startOfTheWeek index of the day to be considered as start of the week
  */
-function getNativeWeekDayIndexAsPerAStartDay(
+function getWeekDayIndexAsPerAStartDay(
   weekdayAsPerNativeIndex: number,
   startOfTheWeek = 0
 ): number {
@@ -116,7 +119,7 @@ function getWeekDayOnFirstDateOfMonth(
   date.setDate(1);
   date.setMonth(month);
   date.setFullYear(year);
-  return getNativeWeekDayIndexAsPerAStartDay(date.getDay(), startOfTheWeek);
+  return getWeekDayIndexAsPerAStartDay(date.getDay(), startOfTheWeek);
 }
 
 function getWeekendColumns(startOfTheWeek: number) {
