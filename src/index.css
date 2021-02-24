@@ -105,6 +105,11 @@ main {
   height: 36px;
   color: #b6b6b7;
 }
+
+.weekdays-header-day.weekend {
+  color: red;
+}
+
 .weekdays-header-day + .weekdays-header-day {
   margin-left: 6px;
 }
@@ -130,6 +135,10 @@ main {
   margin-left: 6px;
 }
 
+.month-dates-cell.active-month {
+  color: #000;
+  font-weight: 500;
+}
 
 .month-dates-cell.lc {
 }
@@ -157,11 +166,11 @@ main {
 }
 
 .month-dates-cell.weekend {
+  color: #f3a0a0;
 }
 
-.month-dates-cell.active-month {
-  color: #000;
-  font-weight: 500;
+.month-dates-cell.weekend.active-month {
+  color: red;
 }
 
 .month-dates-cell.selected {
@@ -169,4 +178,8 @@ main {
   border-radius: 6px;
   color: #fff;
   font-weight: 500;
+}
+
+.month-dates-cell.selected.weekend {
+  color: #fff;
 }

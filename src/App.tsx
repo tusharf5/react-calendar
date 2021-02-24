@@ -23,13 +23,6 @@ function isALeapYear(year: number) {
   return (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0;
 }
 
-const YEARS = Array.from(
-  {
-    length: 2100 - 1960,
-  },
-  (v, k) => 1960 + k
-);
-
 /**
  * This weekday index-to-label map is what is used by the Date object
  */
@@ -53,7 +46,7 @@ const NATIVE_INDEX_TO_LABEL_MONTHS_MAP: Record<number, string> = {
   6: "July",
   7: "August",
   8: "September",
-  9: "August",
+  9: "October",
   10: "November",
   11: "December",
 };
@@ -338,17 +331,25 @@ function App({ value, startOfWeek = 1 }: Props) {
   const [selectedYear, setSelectedYear] = useState(
     value ? new Date(value).getFullYear() : new Date().getFullYear()
   );
-  const onMonthChange = useCallback(
+  const onPrevMonth = useCallback(
     (e) => {
-      setMonthInView(Number(e.target.value));
+      const isPrevMonthFromLastYear = monthInView === 0;
+      if (isPrevMonthFromLastYear) {
+        setYearInView(getPreviousYear(yearInView));
+      }
+      setMonthInView(getPreviousMonth(monthInView));
     },
-    [setMonthInView]
+    [setMonthInView, monthInView, setYearInView, yearInView]
   );
-  const onYearChange = useCallback(
+  const onNextMonth = useCallback(
     (e) => {
-      setYearInView(Number(e.target.value));
+      const isCurrentMonthLast = monthInView === 11;
+      if (isCurrentMonthLast) {
+        setYearInView(yearInView + 1);
+      }
+      setMonthInView(getNextMonth(monthInView));
     },
-    [setYearInView]
+    [setMonthInView, monthInView, setYearInView, yearInView]
   );
 
   const onSelectDate = useCallback(
@@ -389,24 +390,7 @@ function App({ value, startOfWeek = 1 }: Props) {
   return (
     <section className="App">
       <header>
-        {/* <div className="date-header">
-          <select value={monthInView} onChange={onMonthChange}>
-            {Object.keys(NATIVE_INDEX_TO_LABEL_MONTHS_MAP).map((month) => (
-              <option key={month} value={month}>
-                {NATIVE_INDEX_TO_LABEL_MONTHS_MAP[Number(month)]}
-              </option>
-            ))}
-          </select>
-          <span>{selectedDate}</span>
-          <select value={yearInView} onChange={onYearChange}>
-            {YEARS.map((year) => (
-              <option key={year} value={year}>
-                {year}
-              </option>
-            ))}
-          </select>
-        </div> */}
-        <button>←</button>
+        <button onClick={onPrevMonth}>←</button>
         <div>
           <div>
             <span>{NATIVE_INDEX_TO_LABEL_MONTHS_MAP[monthInView]}</span>
@@ -415,12 +399,20 @@ function App({ value, startOfWeek = 1 }: Props) {
             <span>{yearInView}</span>
           </div>
         </div>
-        <button>→</button>
+        <button onClick={onNextMonth}>→</button>
       </header>
       <main>
         <ul className="weekdays-header">
           {Object.keys(WEEK_DAYS).map((weekDay) => (
-            <li key={weekDay} className="weekdays-header-day">
+            <li
+              key={weekDay}
+              className={`weekdays-header-day${
+                WEEK_DAYS[Number(weekDay)] === "Sa" ||
+                WEEK_DAYS[Number(weekDay)] === "Su"
+                  ? " weekend"
+                  : ""
+              }`}
+            >
               {WEEK_DAYS[Number(weekDay)]}
             </li>
           ))}
