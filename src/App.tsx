@@ -34,28 +34,28 @@ const YEARS = Array.from(
  * This weekday index-to-label map is what is used by the Date object
  */
 const NATIVE_INDEX_TO_LABEL_WEEKDAY_MAP: Record<number, string> = {
-  0: "Sun",
-  1: "Mon",
-  2: "Tue",
-  3: "Wed",
-  4: "Thu",
-  5: "Fri",
-  6: "Sat",
+  0: "Su",
+  1: "Mo",
+  2: "Tu",
+  3: "We",
+  4: "Th",
+  5: "Fr",
+  6: "Sa",
 };
 
 const NATIVE_INDEX_TO_LABEL_MONTHS_MAP: Record<number, string> = {
-  0: "Jan",
-  1: "Feb",
-  2: "Mar",
-  3: "Apr",
+  0: "January",
+  1: "February",
+  2: "March",
+  3: "April",
   4: "May",
-  5: "Jun",
-  6: "Jul",
-  7: "Aug",
-  8: "Sept",
-  9: "Aug",
-  10: "Nov",
-  11: "Dec",
+  5: "June",
+  6: "July",
+  7: "August",
+  8: "September",
+  9: "August",
+  10: "November",
+  11: "December",
 };
 
 function getDaysInMonth(year: number, month: number) {
@@ -325,20 +325,17 @@ function App({ value, startOfWeek = 1 }: Props) {
   const [monthInView, setMonthInView] = useState(
     value ? new Date(value).getMonth() : new Date().getMonth()
   );
-  const [dayOfMonthInView, setDayOfMonthInView] = useState(
-    value ? new Date(value).getDate() : new Date().getDate()
-  );
   const [yearInView, setYearInView] = useState(
     value ? new Date(value).getFullYear() : new Date().getFullYear()
   );
   // set date value
-  const [month, setMonth] = useState(
+  const [selectedMonth, setSelectedMonth] = useState(
     value ? new Date(value).getMonth() : new Date().getMonth()
   );
-  const [dayOfMonth, setDayOfMonth] = useState(
+  const [selectedDate, setSelectedDate] = useState(
     value ? new Date(value).getDate() : new Date().getDate()
   );
-  const [year, setYear] = useState(
+  const [selectedYear, setSelectedYear] = useState(
     value ? new Date(value).getFullYear() : new Date().getFullYear()
   );
   const onMonthChange = useCallback(
@@ -356,14 +353,19 @@ function App({ value, startOfWeek = 1 }: Props) {
 
   const onSelectDate = useCallback(
     (cell: Cell) => {
-      setMonth(cell.month);
+      setSelectedMonth(cell.month);
       setMonthInView(cell.month);
-      setYear(cell.year);
+      setSelectedYear(cell.year);
       setYearInView(cell.year);
-      setDayOfMonth(cell.date);
-      setDayOfMonthInView(cell.date);
+      setSelectedDate(cell.date);
     },
-    [setMonth, setYear, setDayOfMonth]
+    [
+      setSelectedMonth,
+      setMonthInView,
+      setSelectedYear,
+      setYearInView,
+      setSelectedDate,
+    ]
   );
 
   const matrix = useMemo(() => {
@@ -371,16 +373,23 @@ function App({ value, startOfWeek = 1 }: Props) {
       yearInView,
       monthInView,
       startOfTheWeek,
-      year,
-      month,
-      dayOfMonth
+      selectedYear,
+      selectedMonth,
+      selectedDate
     );
-  }, [yearInView, monthInView, startOfTheWeek, year, month, dayOfMonth]);
+  }, [
+    yearInView,
+    monthInView,
+    startOfTheWeek,
+    selectedYear,
+    selectedMonth,
+    selectedDate,
+  ]);
 
   return (
     <section className="App">
       <header>
-        <div className="date-header">
+        {/* <div className="date-header">
           <select value={monthInView} onChange={onMonthChange}>
             {Object.keys(NATIVE_INDEX_TO_LABEL_MONTHS_MAP).map((month) => (
               <option key={month} value={month}>
@@ -388,7 +397,7 @@ function App({ value, startOfWeek = 1 }: Props) {
               </option>
             ))}
           </select>
-          <span>{dayOfMonthInView}</span>
+          <span>{selectedDate}</span>
           <select value={yearInView} onChange={onYearChange}>
             {YEARS.map((year) => (
               <option key={year} value={year}>
@@ -396,7 +405,19 @@ function App({ value, startOfWeek = 1 }: Props) {
               </option>
             ))}
           </select>
+        </div> */}
+        <button>←</button>
+        <div>
+          <div>
+            <span>{NATIVE_INDEX_TO_LABEL_MONTHS_MAP[monthInView]}</span>
+          </div>
+          <div>
+            <span>{yearInView}</span>
+          </div>
         </div>
+        <button>→</button>
+      </header>
+      <main>
         <ul className="weekdays-header">
           {Object.keys(WEEK_DAYS).map((weekDay) => (
             <li key={weekDay} className="weekdays-header-day">
@@ -404,16 +425,15 @@ function App({ value, startOfWeek = 1 }: Props) {
             </li>
           ))}
         </ul>
-      </header>
-      <main>
-        <div>
+        <div className="month-dates" role="grid">
           {matrix.map((row, index) => (
-            <div key={index}>
+            <div className="month-dates-row" key={index}>
               {row.map((cell) => (
                 <div
+                  tabIndex={0}
                   onClick={() => onSelectDate(cell)}
                   key={cell.date}
-                  className={`days-cell${
+                  className={`month-dates-cell${
                     cell.activeMonthInView ? " active-month" : ""
                   }${cell.isWeekend ? " weekend" : ""}${
                     cell.isSat ? " saturday" : ""
