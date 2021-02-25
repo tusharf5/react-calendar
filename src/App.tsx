@@ -1,7 +1,7 @@
 /* eslint-disable no-loop-func */
-import React, { useCallback, useMemo, useState } from "react";
+import React, { useCallback, useMemo, useState } from 'react';
 
-import "./App.css";
+import './App.css';
 
 interface Cell {
   date: number;
@@ -27,28 +27,28 @@ function isALeapYear(year: number) {
  * This weekday index-to-label map is what is used by the Date object
  */
 const NATIVE_INDEX_TO_LABEL_WEEKDAY_MAP: Record<number, string> = {
-  0: "Su",
-  1: "Mo",
-  2: "Tu",
-  3: "We",
-  4: "Th",
-  5: "Fr",
-  6: "Sa",
+  0: 'Su',
+  1: 'Mo',
+  2: 'Tu',
+  3: 'We',
+  4: 'Th',
+  5: 'Fr',
+  6: 'Sa',
 };
 
 const NATIVE_INDEX_TO_LABEL_MONTHS_MAP: Record<number, string> = {
-  0: "January",
-  1: "February",
-  2: "March",
-  3: "April",
-  4: "May",
-  5: "June",
-  6: "July",
-  7: "August",
-  8: "September",
-  9: "October",
-  10: "November",
-  11: "December",
+  0: 'January',
+  1: 'February',
+  2: 'March',
+  3: 'April',
+  4: 'May',
+  5: 'June',
+  6: 'July',
+  7: 'August',
+  8: 'September',
+  9: 'October',
+  10: 'November',
+  11: 'December',
 };
 
 function getDaysInMonth(year: number, month: number) {
@@ -79,17 +79,13 @@ function getDaysInMonth(year: number, month: number) {
  * the convention used by the Date methods.
  * @param startOfTheWeek index of the day to be considered as start of the week
  */
-function getWeekDaysIndexToLabelMapForAStartOfTheWeek(
-  startOfTheWeek = 0
-): Record<number, string> {
+function getWeekDaysIndexToLabelMapForAStartOfTheWeek(startOfTheWeek = 0): Record<number, string> {
   // we break the [0,1,2,3,4,5,6] in two parts
   // [start,4,5,6] and [0,1,2] and join them with their labels
   // this is just to re-order the label in the **correct order**
   return Object.keys(NATIVE_INDEX_TO_LABEL_WEEKDAY_MAP)
     .slice(startOfTheWeek, 7)
-    .concat(
-      Object.keys(NATIVE_INDEX_TO_LABEL_WEEKDAY_MAP).slice(0, startOfTheWeek)
-    )
+    .concat(Object.keys(NATIVE_INDEX_TO_LABEL_WEEKDAY_MAP).slice(0, startOfTheWeek))
     .reduce((acc, curr, index) => {
       // acc[0] = DEFAULT_WEEKDAY_INDEX[3]
       acc[Number(index)] = NATIVE_INDEX_TO_LABEL_WEEKDAY_MAP[Number(curr)];
@@ -104,10 +100,7 @@ function getWeekDaysIndexToLabelMapForAStartOfTheWeek(
  * @param weekdayAsPerNativeIndex day-of-the-week as per the Date object
  * @param startOfTheWeek index of the day to be considered as start of the week
  */
-function getWeekDayIndexAsPerAStartDay(
-  weekdayAsPerNativeIndex: number,
-  startOfTheWeek = 0
-): number {
+function getWeekDayIndexAsPerAStartDay(weekdayAsPerNativeIndex: number, startOfTheWeek = 0): number {
   return weekdayAsPerNativeIndex >= startOfTheWeek
     ? weekdayAsPerNativeIndex - startOfTheWeek
     : 6 - startOfTheWeek + 1 + weekdayAsPerNativeIndex;
@@ -119,11 +112,7 @@ function getWeekDayIndexAsPerAStartDay(
  * @param month Specify a month
  * @param startOfTheWeek index of the day to be considered as start of the week
  */
-function getWeekDayOnFirstDateOfMonth(
-  year: number,
-  month: number,
-  startOfTheWeek: number
-) {
+function getWeekDayOnFirstDateOfMonth(year: number, month: number, startOfTheWeek: number) {
   const date = new Date();
   date.setDate(1);
   date.setMonth(month);
@@ -161,6 +150,41 @@ function getPreviousYear(year: number) {
   return year - 1;
 }
 
+// 1 - 36
+// 37 - 72
+// 73 - 108
+
+function getStartOfRangeForAYear(year: number) {
+  // last cell will always be a perfect multiple of 36
+  // take 2016 as an example
+  if (year % 36 === 0) {
+    return 36 * (year / 36 - 1) + 1;
+  }
+  // logic derived from a few examples like 2021, 1981, 1973
+  return 36 * Number((year / 36).toFixed(0)) + 1;
+}
+
+function getYearsViewMatrixForAStartOfRangeYear(rangeStartYear: number) {
+  return Array.from({ length: 36 }, (v, index) => {
+    return rangeStartYear + index;
+  });
+}
+
+function getPreviousYearsViewMatrixForARange(rangeStartYear: number) {
+  if (rangeStartYear === 1) {
+    return 1;
+  }
+  return getStartOfRangeForAYear(rangeStartYear - 1);
+}
+
+function getNextYearsViewMatrixForARange(rangeStartYear: number) {
+  return getStartOfRangeForAYear(rangeStartYear + 36);
+}
+
+function getYearRangeForAStartYear(rangeStartYear: number) {
+  return [rangeStartYear, rangeStartYear + 35];
+}
+
 function getCalendarViewMatrix(
   yearInView: number,
   monthInView: number,
@@ -171,11 +195,7 @@ function getCalendarViewMatrix(
 ): Array<Cell>[] {
   const matrix: Array<Cell>[] = [[], [], [], [], [], []];
 
-  const currentMonthDatesStartIndex = getWeekDayOnFirstDateOfMonth(
-    yearInView,
-    monthInView,
-    startOfTheWeek
-  );
+  const currentMonthDatesStartIndex = getWeekDayOnFirstDateOfMonth(yearInView, monthInView, startOfTheWeek);
 
   const weekends = getWeekendColumns(startOfTheWeek);
   const todaysDate = new Date().getDate();
@@ -196,8 +216,7 @@ function getCalendarViewMatrix(
   let columnAdded = 0;
 
   //  31 - (6 - 1) === 26
-  const lastMonthDateStartFrom =
-    totalDaysInPrevMonth - (currentMonthDatesStartIndex - 1);
+  const lastMonthDateStartFrom = totalDaysInPrevMonth - (currentMonthDatesStartIndex - 1);
 
   // first loop to fill cell values of last month
   for (let i = lastMonthDateStartFrom; i <= totalDaysInPrevMonth; i++) {
@@ -210,24 +229,20 @@ function getCalendarViewMatrix(
       month: getPreviousMonth(monthInView),
       activeMonthInView: false,
       year: isPrevMonthFromLastYear ? getPreviousYear(yearInView) : yearInView,
-      isWeekend: weekends.weekend.find((c) => c === columnAdded + 1)
-        ? true
-        : false,
+      isWeekend: weekends.weekend.find((c) => c === columnAdded + 1) ? true : false,
       isSat: weekends.saturday === columnAdded + 1,
       isSun: weekends.sunday === columnAdded + 1,
       isToday:
         i === todaysDate &&
         getPreviousMonth(monthInView) === todaysMonth &&
-        (isPrevMonthFromLastYear ? getPreviousYear(yearInView) : yearInView) ===
-          todaysYear,
+        (isPrevMonthFromLastYear ? getPreviousYear(yearInView) : yearInView) === todaysYear,
       isFirstRow: row === 0,
       isLastRow: row === 5,
       isFirsColumn: columnAdded + 1 === 1,
       isLastColumn: columnAdded + 1 === 7,
       isSelected:
         getPreviousMonth(monthInView) === selectedMonth &&
-        (isPrevMonthFromLastYear ? getPreviousYear(yearInView) : yearInView) ===
-          selectedYear &&
+        (isPrevMonthFromLastYear ? getPreviousYear(yearInView) : yearInView) === selectedYear &&
         i === selectedDayOfMonth,
     });
     columnAdded++;
@@ -244,23 +259,15 @@ function getCalendarViewMatrix(
       month: monthInView,
       activeMonthInView: true,
       year: yearInView,
-      isWeekend: weekends.weekend.find((c) => c === columnAdded + 1)
-        ? true
-        : false,
+      isWeekend: weekends.weekend.find((c) => c === columnAdded + 1) ? true : false,
       isSat: weekends.saturday === columnAdded + 1,
       isSun: weekends.sunday === columnAdded + 1,
-      isToday:
-        k === todaysDate &&
-        monthInView === todaysMonth &&
-        yearInView === todaysYear,
+      isToday: k === todaysDate && monthInView === todaysMonth && yearInView === todaysYear,
       isFirstRow: row === 0,
       isLastRow: row === 5,
       isFirsColumn: columnAdded + 1 === 1,
       isLastColumn: columnAdded + 1 === 7,
-      isSelected:
-        monthInView === selectedMonth &&
-        yearInView === selectedYear &&
-        k === selectedDayOfMonth,
+      isSelected: monthInView === selectedMonth && yearInView === selectedYear && k === selectedDayOfMonth,
     });
     columnAdded++;
   }
@@ -278,9 +285,7 @@ function getCalendarViewMatrix(
       month: getNextMonth(monthInView),
       activeMonthInView: false,
       year: isCurrentMonthLast ? yearInView + 1 : yearInView,
-      isWeekend: weekends.weekend.find((c) => c === columnAdded + 1)
-        ? true
-        : false,
+      isWeekend: weekends.weekend.find((c) => c === columnAdded + 1) ? true : false,
       isSat: weekends.saturday === columnAdded + 1,
       isSun: weekends.sunday === columnAdded + 1,
       isToday:
@@ -315,41 +320,61 @@ function App({ value, startOfWeek = 1 }: Props) {
     return getWeekDaysIndexToLabelMapForAStartOfTheWeek(startOfTheWeek);
   }, [startOfTheWeek]);
   // in view
-  const [monthInView, setMonthInView] = useState(
-    value ? new Date(value).getMonth() : new Date().getMonth()
-  );
-  const [yearInView, setYearInView] = useState(
-    value ? new Date(value).getFullYear() : new Date().getFullYear()
-  );
+
+  const [view, setView] = useState<'years' | 'months' | 'month_dates'>('month_dates');
+  const [monthInView, setMonthInView] = useState(value ? new Date(value).getMonth() : new Date().getMonth());
+  const [yearInView, setYearInView] = useState(value ? new Date(value).getFullYear() : new Date().getFullYear());
+  const [startingYearForCurrRange, setStartingYearForCurrRange] = useState(getStartOfRangeForAYear(yearInView));
   // set date value
-  const [selectedMonth, setSelectedMonth] = useState(
-    value ? new Date(value).getMonth() : new Date().getMonth()
-  );
-  const [selectedDate, setSelectedDate] = useState(
-    value ? new Date(value).getDate() : new Date().getDate()
-  );
-  const [selectedYear, setSelectedYear] = useState(
-    value ? new Date(value).getFullYear() : new Date().getFullYear()
-  );
+  const [selectedMonth, setSelectedMonth] = useState(value ? new Date(value).getMonth() : new Date().getMonth());
+  const [selectedDate, setSelectedDate] = useState(value ? new Date(value).getDate() : new Date().getDate());
+  const [selectedYear, setSelectedYear] = useState(value ? new Date(value).getFullYear() : new Date().getFullYear());
   const onPrevMonth = useCallback(
     (e) => {
-      const isPrevMonthFromLastYear = monthInView === 0;
-      if (isPrevMonthFromLastYear) {
-        setYearInView(getPreviousYear(yearInView));
+      if (view === 'month_dates') {
+        const isPrevMonthFromLastYear = monthInView === 0;
+        if (isPrevMonthFromLastYear) {
+          setYearInView(getPreviousYear(yearInView));
+        }
+        setMonthInView(getPreviousMonth(monthInView));
       }
-      setMonthInView(getPreviousMonth(monthInView));
+      if (view === 'years') {
+        setStartingYearForCurrRange(getPreviousYearsViewMatrixForARange(startingYearForCurrRange));
+      }
     },
-    [setMonthInView, monthInView, setYearInView, yearInView]
+    [
+      setMonthInView,
+      monthInView,
+      setYearInView,
+      yearInView,
+      view,
+      setStartingYearForCurrRange,
+      startingYearForCurrRange,
+    ]
   );
   const onNextMonth = useCallback(
     (e) => {
-      const isCurrentMonthLast = monthInView === 11;
-      if (isCurrentMonthLast) {
-        setYearInView(yearInView + 1);
+      if (view === 'month_dates') {
+        const isCurrentMonthLast = monthInView === 11;
+        if (isCurrentMonthLast) {
+          setYearInView(yearInView + 1);
+        }
+        setMonthInView(getNextMonth(monthInView));
       }
-      setMonthInView(getNextMonth(monthInView));
+
+      if (view === 'years') {
+        setStartingYearForCurrRange(getNextYearsViewMatrixForARange(startingYearForCurrRange));
+      }
     },
-    [setMonthInView, monthInView, setYearInView, yearInView]
+    [
+      setMonthInView,
+      monthInView,
+      setYearInView,
+      yearInView,
+      view,
+      setStartingYearForCurrRange,
+      startingYearForCurrRange,
+    ]
   );
 
   const onSelectDate = useCallback(
@@ -360,90 +385,89 @@ function App({ value, startOfWeek = 1 }: Props) {
       setYearInView(cell.year);
       setSelectedDate(cell.date);
     },
-    [
-      setSelectedMonth,
-      setMonthInView,
-      setSelectedYear,
-      setYearInView,
-      setSelectedDate,
-    ]
+    [setSelectedMonth, setMonthInView, setSelectedYear, setYearInView, setSelectedDate]
   );
 
+  const yearMatrix = useMemo(() => {
+    return getYearsViewMatrixForAStartOfRangeYear(startingYearForCurrRange);
+  }, [startingYearForCurrRange]);
+
+  const [yearMatrixRangeStart, yearMatrixRangeEnd] = useMemo(() => {
+    return getYearRangeForAStartYear(startingYearForCurrRange);
+  }, [startingYearForCurrRange]);
+
   const matrix = useMemo(() => {
-    return getCalendarViewMatrix(
-      yearInView,
-      monthInView,
-      startOfTheWeek,
-      selectedYear,
-      selectedMonth,
-      selectedDate
-    );
-  }, [
-    yearInView,
-    monthInView,
-    startOfTheWeek,
-    selectedYear,
-    selectedMonth,
-    selectedDate,
-  ]);
+    return getCalendarViewMatrix(yearInView, monthInView, startOfTheWeek, selectedYear, selectedMonth, selectedDate);
+  }, [yearInView, monthInView, startOfTheWeek, selectedYear, selectedMonth, selectedDate]);
 
   return (
-    <section className="App">
+    <section className='App'>
       <header>
         <button onClick={onPrevMonth}>←</button>
-        <div>
-          <div>
-            <span>{NATIVE_INDEX_TO_LABEL_MONTHS_MAP[monthInView]}</span>
+        {view === 'month_dates' ? (
+          <div onClick={() => setView('years')}>
+            <div>
+              <span>{NATIVE_INDEX_TO_LABEL_MONTHS_MAP[monthInView]}</span>
+            </div>
+            <div>
+              <span>{yearInView}</span>
+            </div>
           </div>
+        ) : view === 'months' ? (
           <div>
-            <span>{yearInView}</span>
+            <div>
+              <span>{yearInView}</span>
+            </div>
           </div>
-        </div>
+        ) : (
+          <div>
+            <div>
+              <span>
+                {yearMatrixRangeStart}-{yearMatrixRangeEnd}
+              </span>
+            </div>
+          </div>
+        )}
         <button onClick={onNextMonth}>→</button>
       </header>
-      <main>
-        <ul className="weekdays-header">
-          {Object.keys(WEEK_DAYS).map((weekDay) => (
-            <li
-              key={weekDay}
-              className={`weekdays-header-day${
-                WEEK_DAYS[Number(weekDay)] === "Sa" ||
-                WEEK_DAYS[Number(weekDay)] === "Su"
-                  ? " weekend"
-                  : ""
-              }`}
-            >
-              {WEEK_DAYS[Number(weekDay)]}
-            </li>
-          ))}
-        </ul>
-        <div className="month-dates" role="grid">
-          {matrix.map((row, index) => (
-            <div className="month-dates-row" key={index}>
-              {row.map((cell) => (
-                <div
-                  tabIndex={0}
-                  onClick={() => onSelectDate(cell)}
-                  key={cell.date}
-                  className={`month-dates-cell${
-                    cell.activeMonthInView ? " active-month" : ""
-                  }${cell.isWeekend ? " weekend" : ""}${
-                    cell.isSat ? " saturday" : ""
-                  }${cell.isSun ? " sunday" : ""}${
-                    cell.isToday ? " today" : ""
-                  }${cell.isFirstRow ? " fr" : ""}${
-                    cell.isLastRow ? " lr" : ""
-                  }${cell.isFirsColumn ? " fc" : ""}${
-                    cell.isLastColumn ? " lc" : ""
-                  }${cell.isSelected ? " selected" : ""}`}
-                >
-                  {cell.date}
-                </div>
-              ))}
-            </div>
-          ))}
-        </div>
-      </main>
+      {view === 'months' && <main>Months</main>}
+      {view === 'years' && <main>{JSON.stringify(yearMatrix)}</main>}
+      {view === 'month_dates' && (
+        <main>
+          <ul className='weekdays-header'>
+            {Object.keys(WEEK_DAYS).map((weekDay) => (
+              <li
+                key={weekDay}
+                className={`weekdays-header-day${
+                  WEEK_DAYS[Number(weekDay)] === 'Sa' || WEEK_DAYS[Number(weekDay)] === 'Su' ? ' weekend' : ''
+                }`}>
+                {WEEK_DAYS[Number(weekDay)]}
+              </li>
+            ))}
+          </ul>
+          <div className='month-dates' role='grid'>
+            {matrix.map((row, index) => (
+              <div className='month-dates-row' key={index}>
+                {row.map((cell) => (
+                  <div
+                    tabIndex={0}
+                    onClick={() => onSelectDate(cell)}
+                    key={cell.date}
+                    className={`month-dates-cell${cell.activeMonthInView ? ' active-month' : ''}${
+                      cell.isWeekend ? ' weekend' : ''
+                    }${cell.isSat ? ' saturday' : ''}${cell.isSun ? ' sunday' : ''}${cell.isToday ? ' today' : ''}${
+                      cell.isFirstRow ? ' fr' : ''
+                    }${cell.isLastRow ? ' lr' : ''}${cell.isFirsColumn ? ' fc' : ''}${cell.isLastColumn ? ' lc' : ''}${
+                      cell.isSelected ? ' selected' : ''
+                    }`}>
+                    {cell.date}
+                  </div>
+                ))}
+              </div>
+            ))}
+          </div>
+        </main>
+      )}
     </section>
   );
 }
