@@ -104,10 +104,12 @@ main {
   width: 36px;
   height: 36px;
   color: #b6b6b7;
+  font-size: 13px;
+  text-transform: uppercase;
 }
 
 .weekdays-header-day.weekend {
-  color: red;
+  color: #f3a0a0;
 }
 
 .weekdays-header-day + .weekdays-header-day {
@@ -129,6 +131,8 @@ main {
   align-items: center;
   justify-content: center;
   color: #b6b6b7;
+  font-size: 13px;
+  cursor: pointer;
 }
 
 .month-dates-cell + .month-dates-cell {
@@ -155,7 +159,6 @@ main {
 .month-dates-cell.today {
   border: 1px solid #0e12ff;
   border-radius: 6px;
-  color: #fff;
   font-weight: 500;
 }
 
