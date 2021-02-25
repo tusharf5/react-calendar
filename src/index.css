@@ -20,7 +20,7 @@ code {
   display: flex;
   align-items: flex-start;
   flex-direction: column;
-  width: 288px;
+  width: 260px;
   overflow: hidden;
   margin: 2rem;
 }
@@ -52,8 +52,8 @@ button::-moz-focus-inner {
 
 button {
   box-shadow: 0 0px 4px 2px #f1f1f1;
-  width: 26px;
-  height: 26px;
+  width: 28px;
+  height: 28px;
   border-radius: 6px;
   cursor: pointer;
 }
@@ -66,7 +66,7 @@ header {
 }
 
 header > button {
-  flex: 0 0 26px;
+  flex: 0 0 28px;
 }
 
 header > div {
@@ -95,14 +95,15 @@ main {
   padding: 0;
   display: flex;
   width: 100%;
+  border-bottom: 1px solid #f7f7f7;
 }
 
 .weekdays-header-day {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 36px;
-  height: 36px;
+  width: 32px;
+  height: 32px;
   color: #b6b6b7;
   font-size: 13px;
   text-transform: uppercase;
@@ -125,8 +126,8 @@ main {
 }
 
 .month-dates-cell {
-  width: 36px;
-  height: 36px;
+  width: 32px;
+  height: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -157,9 +158,9 @@ main {
 }
 
 .month-dates-cell.today {
-  border: 1px solid #0e12ff;
   border-radius: 6px;
   font-weight: 500;
+  color: #448fff;
 }
 
 .month-dates-cell.sunday {
@@ -177,10 +178,15 @@ main {
 }
 
 .month-dates-cell.selected {
-  background-color: #0e12ff;
+  box-shadow: 0px 0px 1px 1px #0c57c5;
+  background-color: #5599ff;
   border-radius: 6px;
   color: #fff;
   font-weight: 500;
+}
+
+.month-dates-cell.selected:focus {
+  outline: none;
 }
 
 .month-dates-cell.selected.weekend {
