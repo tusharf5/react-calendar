@@ -212,18 +212,18 @@ function getPreviousYear(year: number) {
   return year - 1;
 }
 
-// 1 - 36 (36 years in one range block)
+// 1 - 20 (20 years in one range block)
 // 37 - 72
 // 73 - 108
 
 function getStartOfRangeForAYear(year: number) {
-  // last cell will always be a perfect multiple of 36
+  // last cell will always be a perfect multiple of 20
   // take 2016 as an example
-  if (year % 36 === 0) {
-    return 36 * (year / 36 - 1) + 1;
+  if (year % 20 === 0) {
+    return 20 * (year / 20 - 1) + 1;
   }
   // logic derived from a few examples like 2021, 1981, 1973
-  return 36 * Number((year / 36).toFixed(0)) + 1;
+  return 20 * Number((year / 20).toFixed(0)) + 1;
 }
 
 function getMonthsRangeMatrix(selectedMonth: number): Array<MonthCell>[] {
@@ -245,29 +245,22 @@ function getPreviousYearsViewMatrixForARange(rangeStartYear: number) {
 }
 
 function getNextYearsViewMatrixForARange(rangeStartYear: number) {
-  return getStartOfRangeForAYear(rangeStartYear + 36);
+  return getStartOfRangeForAYear(rangeStartYear + 20);
 }
 
 function getYearRangeForAStartYear(rangeStartYear: number) {
-  return [rangeStartYear, rangeStartYear + 35];
+  return [rangeStartYear, rangeStartYear + 19];
 }
 
 function getYearsViewMatrixForAStartOfRangeYear(rangeStartYear: number, selectedYear: number): Array<YearCell>[] {
-  const years = Array.from({ length: 36 }, (v, index) => {
+  const years = Array.from({ length: 20 }, (v, index) => {
     return {
       year: rangeStartYear + index,
       isCurrentYear: new Date().getFullYear() === rangeStartYear + index,
       isSelectedYear: selectedYear === rangeStartYear + index,
     };
   });
-  return [
-    years.slice(0, 6),
-    years.slice(6, 12),
-    years.slice(12, 18),
-    years.slice(18, 24),
-    years.slice(24, 30),
-    years.slice(30, 36),
-  ];
+  return [years.slice(0, 5), years.slice(5, 10), years.slice(10, 15), years.slice(15, 20)];
 }
 
 function getCalendarViewMatrix(
@@ -284,6 +277,7 @@ function getCalendarViewMatrix(
   const currentMonthDatesStartIndex = getWeekDayOnFirstDateOfMonth(yearInView, monthInView, startOfTheWeek);
 
   const weekends = getWeekendColumns(startOfTheWeek);
+
   const todaysDate = new Date().getDate();
   const todaysMonth = new Date().getMonth();
   const todaysYear = new Date().getFullYear();
@@ -315,7 +309,7 @@ function getCalendarViewMatrix(
       month: getPreviousMonth(monthInView),
       activeMonthInView: false,
       year: isPrevMonthFromLastYear ? getPreviousYear(yearInView) : yearInView,
-      isWeekend: weekends.weekend.find((c) => c === columnAdded) ? true : false,
+      isWeekend: typeof weekends.weekend.find((c) => c === columnAdded) === 'number' ? true : false,
       isSat: weekends.saturday === columnAdded,
       isSun: weekends.sunday === columnAdded,
       isToday:
@@ -324,7 +318,7 @@ function getCalendarViewMatrix(
         (isPrevMonthFromLastYear ? getPreviousYear(yearInView) : yearInView) === todaysYear,
       isFirstRow: row === 0,
       isLastRow: row === 5,
-      isFirsColumn: columnAdded === 1,
+      isFirsColumn: columnAdded === 0,
       isLastColumn: columnAdded === 6,
       isSelected:
         getPreviousMonth(monthInView) === selectedMonth &&
@@ -353,13 +347,13 @@ function getCalendarViewMatrix(
       month: monthInView,
       activeMonthInView: true,
       year: yearInView,
-      isWeekend: weekends.weekend.find((c) => c === columnAdded) ? true : false,
+      isWeekend: typeof weekends.weekend.find((c) => c === columnAdded) === 'number' ? true : false,
       isSat: weekends.saturday === columnAdded,
       isSun: weekends.sunday === columnAdded,
       isToday: k === todaysDate && monthInView === todaysMonth && yearInView === todaysYear,
       isFirstRow: row === 0,
       isLastRow: row === 5,
-      isFirsColumn: columnAdded === 1,
+      isFirsColumn: columnAdded === 0,
       isLastColumn: columnAdded === 6,
       isSelected: monthInView === selectedMonth && yearInView === selectedYear && k === selectedDayOfMonth,
       isDisabled: isDisabled({
@@ -385,7 +379,7 @@ function getCalendarViewMatrix(
       month: getNextMonth(monthInView),
       activeMonthInView: false,
       year: isCurrentMonthLast ? yearInView + 1 : yearInView,
-      isWeekend: weekends.weekend.find((c) => c === columnAdded) ? true : false,
+      isWeekend: typeof weekends.weekend.find((c) => c === columnAdded) === 'number' ? true : false,
       isSat: weekends.saturday === columnAdded,
       isSun: weekends.sunday === columnAdded,
       isToday:
@@ -394,7 +388,7 @@ function getCalendarViewMatrix(
         (isCurrentMonthLast ? yearInView + 1 : yearInView) === todaysYear,
       isFirstRow: row === 0,
       isLastRow: row === 5,
-      isFirsColumn: columnAdded === 1,
+      isFirsColumn: columnAdded === 0,
       isLastColumn: columnAdded === 6,
       isSelected:
         getNextMonth(monthInView) === selectedMonth &&
@@ -543,7 +537,7 @@ function App({ value, startOfWeek = 1, isDisabled }: Props) {
       <header>
         <button onClick={onPrevMonth}>←</button>
         {view === 'month_dates' ? (
-          <div onClick={() => setView('years')}>
+          <div className='header-action' onClick={() => setView('years')}>
             <div>
               <span>{NATIVE_INDEX_TO_LABEL_MONTHS_MAP[monthInView]}</span>
             </div>
@@ -552,13 +546,13 @@ function App({ value, startOfWeek = 1, isDisabled }: Props) {
             </div>
           </div>
         ) : view === 'months' ? (
-          <div>
+          <div className='header-action'>
             <div onClick={() => setView('years')}>
               <span>{yearInView}</span>
             </div>
           </div>
         ) : (
-          <div onClick={() => setView('month_dates')}>
+          <div className='header-action' onClick={() => setView('month_dates')}>
             <div>
               <span>
                 {yearMatrixRangeStart}-{yearMatrixRangeEnd}

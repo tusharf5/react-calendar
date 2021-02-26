@@ -76,10 +76,24 @@ header > div {
 
 header > div > div span {
   font-weight: 500;
+  font-size: 14px;
 }
 
 header > div > div + div {
   margin-left: 8px;
+}
+
+.header-action {
+  flex: 1 1 auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 0px 4px 2px #f1f1f1;
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  cursor: pointer;
+  margin: 0 12px;
 }
 
 main {
@@ -258,8 +272,8 @@ main {
 }
 
 .year-cell {
-  width: 42px;
-  height: 42px;
+  width: 52px;
+  height: 52px;
   display: flex;
   align-items: center;
   justify-content: center;

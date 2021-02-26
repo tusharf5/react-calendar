@@ -55,3 +55,9 @@ https://www.smashingmagazine.com/2017/07/designing-perfect-date-time-picker/
 http://ui-patterns.com/patterns/CalendarPicker
 https://uxdesign.cc/date-picker-design-5c5ef8f35286
 https://material.angular.io/components/datepicker/overview
+
+- highlights
+- max
+- min
+- custom class names
+- shortcuts

@@ -17,7 +17,7 @@ function isDisabled(params: IsDisabledParams) {
 
 ReactDOM.render(
   <React.StrictMode>
-    <App isDisabled={isDisabled} startOfWeek={1} value={new Date(2020, 5, 23).toISOString()} />
+    <App isDisabled={isDisabled} startOfWeek={0} value={new Date(2021, 1, 23).toISOString()} />
   </React.StrictMode>,
   document.getElementById('root')
 );
