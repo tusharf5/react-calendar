@@ -4,9 +4,20 @@ import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 
+interface IsDisabledParams {
+  date: number;
+  year: number;
+  month: number;
+  weekday: number;
+}
+
+function isDisabled(params: IsDisabledParams) {
+  return params.date === 5 || params.date === 10 || params.date === 22 || params.date === 16;
+}
+
 ReactDOM.render(
   <React.StrictMode>
-    <App startOfWeek={1} value={new Date(2021, 1, 23).toISOString()} />
+    <App isDisabled={isDisabled} startOfWeek={1} value={new Date(2020, 5, 23).toISOString()} />
   </React.StrictMode>,
   document.getElementById('root')
 );

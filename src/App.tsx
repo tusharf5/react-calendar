@@ -3,7 +3,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 
 import './App.css';
 
-interface Cell {
+interface DayOfMonthCell {
   date: number;
   month: number;
   year: number;
@@ -17,6 +17,19 @@ interface Cell {
   isSelected: boolean;
   isLastColumn: boolean;
   isSun: boolean;
+  isDisabled: boolean;
+}
+
+interface YearCell {
+  year: number;
+  isCurrentYear: boolean;
+  isSelectedYear: boolean;
+}
+
+interface MonthCell {
+  month: number;
+  isCurrentMonth: boolean;
+  isSelectedMonth: boolean;
 }
 
 function isALeapYear(year: number) {
@@ -164,8 +177,15 @@ function getStartOfRangeForAYear(year: number) {
   return 36 * Number((year / 36).toFixed(0)) + 1;
 }
 
-function getMonthsRangeMatrix(): number[] {
-  return Array.from({ length: 12 }, (v, k) => k);
+function getMonthsRangeMatrix(selectedMonth: number): Array<MonthCell>[] {
+  const months = Array.from({ length: 12 }, (v, k) => {
+    return {
+      month: k,
+      isCurrentMonth: new Date().getMonth() === k,
+      isSelectedMonth: selectedMonth === k,
+    };
+  });
+  return [months.slice(0, 3), months.slice(3, 6), months.slice(6, 9), months.slice(9, 12)];
 }
 
 function getPreviousYearsViewMatrixForARange(rangeStartYear: number) {
@@ -183,10 +203,22 @@ function getYearRangeForAStartYear(rangeStartYear: number) {
   return [rangeStartYear, rangeStartYear + 35];
 }
 
-function getYearsViewMatrixForAStartOfRangeYear(rangeStartYear: number) {
-  return Array.from({ length: 36 }, (v, index) => {
-    return rangeStartYear + index;
+function getYearsViewMatrixForAStartOfRangeYear(rangeStartYear: number, selectedYear: number): Array<YearCell>[] {
+  const years = Array.from({ length: 36 }, (v, index) => {
+    return {
+      year: rangeStartYear + index,
+      isCurrentYear: new Date().getFullYear() === rangeStartYear + index,
+      isSelectedYear: selectedYear === rangeStartYear + index,
+    };
   });
+  return [
+    years.slice(0, 6),
+    years.slice(6, 12),
+    years.slice(12, 18),
+    years.slice(18, 24),
+    years.slice(24, 30),
+    years.slice(30, 36),
+  ];
 }
 
 function getCalendarViewMatrix(
@@ -195,9 +227,10 @@ function getCalendarViewMatrix(
   startOfTheWeek: number,
   selectedYear: number,
   selectedMonth: number,
-  selectedDayOfMonth: number
-): Array<Cell>[] {
-  const matrix: Array<Cell>[] = [[], [], [], [], [], []];
+  selectedDayOfMonth: number,
+  isDisabled: (params: IsDisabledParams) => boolean
+): Array<DayOfMonthCell>[] {
+  const matrix: Array<DayOfMonthCell>[] = [[], [], [], [], [], []];
 
   const currentMonthDatesStartIndex = getWeekDayOnFirstDateOfMonth(yearInView, monthInView, startOfTheWeek);
 
@@ -248,6 +281,14 @@ function getCalendarViewMatrix(
         getPreviousMonth(monthInView) === selectedMonth &&
         (isPrevMonthFromLastYear ? getPreviousYear(yearInView) : yearInView) === selectedYear &&
         i === selectedDayOfMonth,
+      // TODO change weekday logic to include native index
+      // not modified
+      isDisabled: isDisabled({
+        year: isPrevMonthFromLastYear ? getPreviousYear(yearInView) : yearInView,
+        month: getPreviousMonth(monthInView),
+        weekday: columnAdded + 1,
+        date: i,
+      }),
     });
     columnAdded++;
   }
@@ -272,6 +313,12 @@ function getCalendarViewMatrix(
       isFirsColumn: columnAdded + 1 === 1,
       isLastColumn: columnAdded + 1 === 7,
       isSelected: monthInView === selectedMonth && yearInView === selectedYear && k === selectedDayOfMonth,
+      isDisabled: isDisabled({
+        year: yearInView,
+        month: monthInView,
+        weekday: columnAdded + 1,
+        date: k,
+      }),
     });
     columnAdded++;
   }
@@ -304,6 +351,12 @@ function getCalendarViewMatrix(
         getNextMonth(monthInView) === selectedMonth &&
         (isCurrentMonthLast ? yearInView + 1 : yearInView) === selectedYear &&
         k === selectedDayOfMonth,
+      isDisabled: isDisabled({
+        year: isCurrentMonthLast ? yearInView + 1 : yearInView,
+        month: getNextMonth(monthInView),
+        weekday: columnAdded + 1,
+        date: k,
+      }),
     });
     columnAdded++;
     k++;
@@ -312,12 +365,20 @@ function getCalendarViewMatrix(
   return matrix;
 }
 
+interface IsDisabledParams {
+  date: number;
+  year: number;
+  month: number;
+  weekday: number;
+}
+
 interface Props {
   value?: string;
   startOfWeek?: number;
+  isDisabled: (params: IsDisabledParams) => boolean;
 }
 
-function App({ value, startOfWeek = 1 }: Props) {
+function App({ value, startOfWeek = 1, isDisabled }: Props) {
   // in view state
   const [startOfTheWeek] = useState(startOfWeek);
   const WEEK_DAYS = useMemo(() => {
@@ -390,7 +451,7 @@ function App({ value, startOfWeek = 1 }: Props) {
   );
 
   const onSelectDate = useCallback(
-    (cell: Cell) => {
+    (cell: DayOfMonthCell) => {
       setSelectedMonth(cell.month);
       setMonthInView(cell.month);
       setSelectedYear(cell.year);
@@ -404,21 +465,29 @@ function App({ value, startOfWeek = 1 }: Props) {
     setStartingYearForCurrRange(getStartOfRangeForAYear(yearInView));
   }, [yearInView, setStartingYearForCurrRange]);
 
-  const yearMatrix = useMemo(() => {
-    return getYearsViewMatrixForAStartOfRangeYear(startingYearForCurrRange);
-  }, [startingYearForCurrRange]);
+  const yearMatrix = useMemo<YearCell[][]>(() => {
+    return getYearsViewMatrixForAStartOfRangeYear(startingYearForCurrRange, selectedYear);
+  }, [startingYearForCurrRange, selectedYear]);
 
-  const monthMatrix = useMemo<number[]>(() => {
-    return getMonthsRangeMatrix();
-  }, []);
+  const monthMatrix = useMemo<MonthCell[][]>(() => {
+    return getMonthsRangeMatrix(selectedMonth);
+  }, [selectedMonth]);
 
   const [yearMatrixRangeStart, yearMatrixRangeEnd] = useMemo(() => {
     return getYearRangeForAStartYear(startingYearForCurrRange);
   }, [startingYearForCurrRange]);
 
   const matrix = useMemo(() => {
-    return getCalendarViewMatrix(yearInView, monthInView, startOfTheWeek, selectedYear, selectedMonth, selectedDate);
-  }, [yearInView, monthInView, startOfTheWeek, selectedYear, selectedMonth, selectedDate]);
+    return getCalendarViewMatrix(
+      yearInView,
+      monthInView,
+      startOfTheWeek,
+      selectedYear,
+      selectedMonth,
+      selectedDate,
+      isDisabled
+    );
+  }, [yearInView, monthInView, startOfTheWeek, selectedYear, selectedMonth, selectedDate, isDisabled]);
 
   return (
     <section className='App'>
@@ -452,28 +521,50 @@ function App({ value, startOfWeek = 1 }: Props) {
       </header>
       {view === 'months' && (
         <main>
-          {monthMatrix.map((month) => (
-            <div
-              onClick={() => {
-                setMonthInView(month);
-                setView('month_dates');
-              }}>
-              {NATIVE_INDEX_TO_LABEL_MONTHS_MAP[month]}
-            </div>
-          ))}
+          <div className='months'>
+            {monthMatrix.map((row, index) => (
+              <div className='months-row' key={index}>
+                {row.map((cell) => (
+                  <div
+                    tabIndex={0}
+                    onClick={() => {
+                      setMonthInView(cell.month);
+                      setView('month_dates');
+                    }}
+                    className={`month-cell${cell.isCurrentMonth ? ' current-month' : ''}${
+                      cell.isSelectedMonth ? ' selected' : ''
+                    }`}
+                    key={cell.month}>
+                    {NATIVE_INDEX_TO_LABEL_MONTHS_MAP[cell.month]}
+                  </div>
+                ))}
+              </div>
+            ))}
+          </div>
         </main>
       )}
       {view === 'years' && (
         <main>
-          {yearMatrix.map((year) => (
-            <div
-              onClick={() => {
-                setYearInView(year);
-                setView('months');
-              }}>
-              {year}
-            </div>
-          ))}
+          <div className='years'>
+            {yearMatrix.map((row, index) => (
+              <div className='years-row' key={index}>
+                {row.map((cell) => (
+                  <div
+                    tabIndex={0}
+                    onClick={() => {
+                      setYearInView(cell.year);
+                      setView('months');
+                    }}
+                    className={`year-cell${cell.isCurrentYear ? ' current-year' : ''}${
+                      cell.isSelectedYear ? ' selected' : ''
+                    }`}
+                    key={cell.year}>
+                    {cell.year}
+                  </div>
+                ))}
+              </div>
+            ))}
+          </div>
         </main>
       )}
       {view === 'month_dates' && (
@@ -503,6 +594,8 @@ function App({ value, startOfWeek = 1 }: Props) {
                       cell.isFirstRow ? ' fr' : ''
                     }${cell.isLastRow ? ' lr' : ''}${cell.isFirsColumn ? ' fc' : ''}${cell.isLastColumn ? ' lc' : ''}${
                       cell.isSelected ? ' selected' : ''
+                    }${
+                      cell.isDisabled ? ' disabled' : ''
                     }`}>
                     {cell.date}
                   </div>
