@@ -590,7 +590,7 @@ function App({ value, startOfWeek = 1, isDisabled }: Props) {
               <div className='months-row' key={index}>
                 {row.map((cell) => (
                   <div
-                    tabIndex={0}
+                    tabIndex={cell.isDisabled ? -1 : 0}
                     onClick={() => {
                       setMonthInView(cell.month);
                       setView('month_dates');
@@ -614,7 +614,7 @@ function App({ value, startOfWeek = 1, isDisabled }: Props) {
               <div className='years-row' key={index}>
                 {row.map((cell) => (
                   <div
-                    tabIndex={0}
+                    tabIndex={cell.isDisabled ? -1 : 0}
                     onClick={() => {
                       setYearInView(cell.year);
                       setView('months');
@@ -649,7 +649,7 @@ function App({ value, startOfWeek = 1, isDisabled }: Props) {
               <div className='month-dates-row' key={index}>
                 {row.map((cell) => (
                   <div
-                    tabIndex={0}
+                    tabIndex={cell.isDisabled ? -1 : 0}
                     onClick={() => onSelectDate(cell)}
                     key={cell.date}
                     className={`month-dates-cell${cell.activeMonthInView ? ' active-month' : ''}${
