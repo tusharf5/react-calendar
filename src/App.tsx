@@ -1,5 +1,5 @@
 /* eslint-disable no-loop-func */
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 
 import './App.css';
 
@@ -150,7 +150,7 @@ function getPreviousYear(year: number) {
   return year - 1;
 }
 
-// 1 - 36
+// 1 - 36 (36 years in one range block)
 // 37 - 72
 // 73 - 108
 
@@ -164,10 +164,8 @@ function getStartOfRangeForAYear(year: number) {
   return 36 * Number((year / 36).toFixed(0)) + 1;
 }
 
-function getYearsViewMatrixForAStartOfRangeYear(rangeStartYear: number) {
-  return Array.from({ length: 36 }, (v, index) => {
-    return rangeStartYear + index;
-  });
+function getMonthsRangeMatrix(): number[] {
+  return Array.from({ length: 12 }, (v, k) => k);
 }
 
 function getPreviousYearsViewMatrixForARange(rangeStartYear: number) {
@@ -183,6 +181,12 @@ function getNextYearsViewMatrixForARange(rangeStartYear: number) {
 
 function getYearRangeForAStartYear(rangeStartYear: number) {
   return [rangeStartYear, rangeStartYear + 35];
+}
+
+function getYearsViewMatrixForAStartOfRangeYear(rangeStartYear: number) {
+  return Array.from({ length: 36 }, (v, index) => {
+    return rangeStartYear + index;
+  });
 }
 
 function getCalendarViewMatrix(
@@ -341,6 +345,10 @@ function App({ value, startOfWeek = 1 }: Props) {
       if (view === 'years') {
         setStartingYearForCurrRange(getPreviousYearsViewMatrixForARange(startingYearForCurrRange));
       }
+
+      if (view === 'months') {
+        setYearInView(yearInView !== 1 ? yearInView - 1 : 1);
+      }
     },
     [
       setMonthInView,
@@ -365,6 +373,10 @@ function App({ value, startOfWeek = 1 }: Props) {
       if (view === 'years') {
         setStartingYearForCurrRange(getNextYearsViewMatrixForARange(startingYearForCurrRange));
       }
+
+      if (view === 'months') {
+        setYearInView(yearInView + 1);
+      }
     },
     [
       setMonthInView,
@@ -388,9 +400,17 @@ function App({ value, startOfWeek = 1 }: Props) {
     [setSelectedMonth, setMonthInView, setSelectedYear, setYearInView, setSelectedDate]
   );
 
+  useEffect(() => {
+    setStartingYearForCurrRange(getStartOfRangeForAYear(yearInView));
+  }, [yearInView, setStartingYearForCurrRange]);
+
   const yearMatrix = useMemo(() => {
     return getYearsViewMatrixForAStartOfRangeYear(startingYearForCurrRange);
   }, [startingYearForCurrRange]);
+
+  const monthMatrix = useMemo<number[]>(() => {
+    return getMonthsRangeMatrix();
+  }, []);
 
   const [yearMatrixRangeStart, yearMatrixRangeEnd] = useMemo(() => {
     return getYearRangeForAStartYear(startingYearForCurrRange);
@@ -415,12 +435,12 @@ function App({ value, startOfWeek = 1 }: Props) {
           </div>
         ) : view === 'months' ? (
           <div>
-            <div>
+            <div onClick={() => setView('years')}>
               <span>{yearInView}</span>
             </div>
           </div>
         ) : (
-          <div>
+          <div onClick={() => setView('month_dates')}>
             <div>
               <span>
                 {yearMatrixRangeStart}-{yearMatrixRangeEnd}
@@ -430,8 +450,32 @@ function App({ value, startOfWeek = 1 }: Props) {
         )}
         <button onClick={onNextMonth}>→</button>
       </header>
-      {view === 'months' && <main>Months</main>}
-      {view === 'years' && <main>{JSON.stringify(yearMatrix)}</main>}
+      {view === 'months' && (
+        <main>
+          {monthMatrix.map((month) => (
+            <div
+              onClick={() => {
+                setMonthInView(month);
+                setView('month_dates');
+              }}>
+              {NATIVE_INDEX_TO_LABEL_MONTHS_MAP[month]}
+            </div>
+          ))}
+        </main>
+      )}
+      {view === 'years' && (
+        <main>
+          {yearMatrix.map((year) => (
+            <div
+              onClick={() => {
+                setYearInView(year);
+                setView('months');
+              }}>
+              {year}
+            </div>
+          ))}
+        </main>
+      )}
       {view === 'month_dates' && (
         <main>
           <ul className='weekdays-header'>
