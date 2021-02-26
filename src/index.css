@@ -263,6 +263,24 @@ main {
   color: #448fff;
 }
 
+.month-cell.disabled {
+  position: relative;
+  color: #c9c9ca;
+  cursor: none;
+  pointer-events: none;
+}
+
+.month-cell.disabled::before {
+  content: '';
+  position: absolute;
+  transform: rotate(45deg);
+  font-weight: 300;
+  display: block;
+  height: 70%;
+  background-color: #b6b6b7;
+  width: 1px;
+}
+
 .years {
 }
 
@@ -279,6 +297,24 @@ main {
   justify-content: center;
   font-size: 13px;
   cursor: pointer;
+}
+
+.year-cell.disabled {
+  position: relative;
+  color: #c9c9ca;
+  cursor: none;
+  pointer-events: none;
+}
+
+.year-cell.disabled::before {
+  content: '';
+  position: absolute;
+  transform: rotate(45deg);
+  font-weight: 300;
+  display: block;
+  height: 70%;
+  background-color: #b6b6b7;
+  width: 1px;
 }
 
 .year-cell.selected {

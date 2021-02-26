@@ -24,12 +24,14 @@ interface YearCell {
   year: number;
   isCurrentYear: boolean;
   isSelectedYear: boolean;
+  isDisabled: boolean;
 }
 
 interface MonthCell {
   month: number;
   isCurrentMonth: boolean;
   isSelectedMonth: boolean;
+  isDisabled: boolean;
 }
 
 function isALeapYear(year: number) {
@@ -226,12 +228,21 @@ function getStartOfRangeForAYear(year: number) {
   return 20 * Number((year / 20).toFixed(0)) + 1;
 }
 
-function getMonthsRangeMatrix(selectedMonth: number): Array<MonthCell>[] {
+function getMonthsRangeMatrix(
+  selectedMonth: number,
+  isDisabled: (params: IsDisabledParams) => boolean
+): Array<MonthCell>[] {
   const months = Array.from({ length: 12 }, (v, k) => {
     return {
       month: k,
       isCurrentMonth: new Date().getMonth() === k,
       isSelectedMonth: selectedMonth === k,
+      isDisabled: isDisabled({
+        year: -1,
+        month: k,
+        weekday: -1,
+        date: -1,
+      }),
     };
   });
   return [months.slice(0, 3), months.slice(3, 6), months.slice(6, 9), months.slice(9, 12)];
@@ -252,12 +263,22 @@ function getYearRangeForAStartYear(rangeStartYear: number) {
   return [rangeStartYear, rangeStartYear + 19];
 }
 
-function getYearsViewMatrixForAStartOfRangeYear(rangeStartYear: number, selectedYear: number): Array<YearCell>[] {
+function getYearsViewMatrixForAStartOfRangeYear(
+  rangeStartYear: number,
+  selectedYear: number,
+  isDisabled: (params: IsDisabledParams) => boolean
+): Array<YearCell>[] {
   const years = Array.from({ length: 20 }, (v, index) => {
     return {
       year: rangeStartYear + index,
       isCurrentYear: new Date().getFullYear() === rangeStartYear + index,
       isSelectedYear: selectedYear === rangeStartYear + index,
+      isDisabled: isDisabled({
+        year: rangeStartYear + index,
+        month: -1,
+        weekday: -1,
+        date: -1,
+      }),
     };
   });
   return [years.slice(0, 5), years.slice(5, 10), years.slice(10, 15), years.slice(15, 20)];
@@ -509,12 +530,12 @@ function App({ value, startOfWeek = 1, isDisabled }: Props) {
   }, [yearInView, setStartingYearForCurrRange]);
 
   const yearMatrix = useMemo<YearCell[][]>(() => {
-    return getYearsViewMatrixForAStartOfRangeYear(startingYearForCurrRange, selectedYear);
-  }, [startingYearForCurrRange, selectedYear]);
+    return getYearsViewMatrixForAStartOfRangeYear(startingYearForCurrRange, selectedYear, isDisabled);
+  }, [startingYearForCurrRange, selectedYear, isDisabled]);
 
   const monthMatrix = useMemo<MonthCell[][]>(() => {
-    return getMonthsRangeMatrix(selectedMonth);
-  }, [selectedMonth]);
+    return getMonthsRangeMatrix(selectedMonth, isDisabled);
+  }, [selectedMonth, isDisabled]);
 
   const [yearMatrixRangeStart, yearMatrixRangeEnd] = useMemo(() => {
     return getYearRangeForAStartYear(startingYearForCurrRange);
@@ -576,7 +597,7 @@ function App({ value, startOfWeek = 1, isDisabled }: Props) {
                     }}
                     className={`month-cell${cell.isCurrentMonth ? ' current-month' : ''}${
                       cell.isSelectedMonth ? ' selected' : ''
-                    }`}
+                    }${cell.isDisabled ? ' disabled' : ''}`}
                     key={cell.month}>
                     {NATIVE_INDEX_TO_LABEL_MONTHS_MAP[cell.month]}
                   </div>
@@ -600,7 +621,7 @@ function App({ value, startOfWeek = 1, isDisabled }: Props) {
                     }}
                     className={`year-cell${cell.isCurrentYear ? ' current-year' : ''}${
                       cell.isSelectedYear ? ' selected' : ''
-                    }`}
+                    }${cell.isDisabled ? ' disabled' : ''}`}
                     key={cell.year}>
                     {cell.year}
                   </div>

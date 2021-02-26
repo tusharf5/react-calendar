@@ -12,7 +12,7 @@ interface IsDisabledParams {
 }
 
 function isDisabled(params: IsDisabledParams) {
-  return params.date === 5 || params.date === 10 || params.date === 22 || params.date === 16 || params.weekday === 3 || params.weekday === 0;
+  return params.date === 5 || params.date === 10 || params.date === 22 || params.date === 16 || params.weekday === 3 || params.weekday === 0 || params.year === 2001 || params.month === 4;
 }
 
 ReactDOM.render(
