@@ -119,6 +119,55 @@ function getWeekDayIndexAsPerAStartDay(weekdayAsPerNativeIndex: number, startOfT
     : 6 - startOfTheWeek + 1 + weekdayAsPerNativeIndex;
 }
 
+// {
+//   0: 'Mo',
+//   1: 'Tu',
+//   2: 'We',
+//   3: 'Th',
+//   4: 'Fr',
+//   5: 'Sa',
+//   6: 'Su'
+// };
+// start = 1
+// 6 - 1 = 5
+// influencedIndex = 3 (Thu)
+// 3 <= 5 so 3 + 1 = 4 (Thu) (native)
+// influencedIndex = 2 (Wed)
+// 2 <= 5 so 2 + 1 = 3 (Wed) (native)
+// influencedIndex = 5 (Sa)
+// 5 <= 5 so 5 + 1 = 6 (Sa) (native)
+// influencedIndex = 6 (Su)
+// 6 > 5 so ((6 - 5) - 1) = 0 (su) (native)
+
+// {
+//   0: 'Tu',
+//   1: 'We',
+//   2: 'Th',
+//   3: 'Fr',
+//   4: 'Sa',
+//   5: 'Su',
+//   6: 'Mo'
+// };
+// start = 2
+// 6 - 2 = 4
+// influencedIndex = 3 (Fr)
+// 3 <= 4 so 3 + 2 = 5 (Fr) (native)
+// influencedIndex = 2 (Th)
+// 2 <= 4 so 2 + 2 = 4 (Th) (native)
+// influencedIndex = 5 (Su)
+// 5 > 4 so ((5 - 4) - 1) = 0 (Su) (native)
+// influencedIndex = 6 (Mo)
+// 6 > 4 so ((6 - 4) - 1) = 1 (Mo) (native)
+function getNativeWeekDayIndexFromAStartDayInfluencedIndex(
+  weekdayAsPerChangedIndex: number,
+  startOfTheWeek: number
+): number {
+  const diversion = 6 - startOfTheWeek;
+  return weekdayAsPerChangedIndex <= diversion
+    ? weekdayAsPerChangedIndex + startOfTheWeek
+    : weekdayAsPerChangedIndex - diversion - 1;
+}
+
 /**
  * Gives the index of day-of-the-week on the 1st of the provided month-year.
  * @param year Specify a year
@@ -135,19 +184,19 @@ function getWeekDayOnFirstDateOfMonth(year: number, month: number, startOfTheWee
 
 function getWeekendColumns(startOfTheWeek: number) {
   if (startOfTheWeek === 0) {
-    return { weekend: [7, 1], saturday: 7, sunday: 1 };
+    return { weekend: [6, 0], saturday: 6, sunday: 0 };
   } else if (startOfTheWeek === 1) {
-    return { weekend: [6, 7], saturday: 6, sunday: 7 };
-  } else if (startOfTheWeek === 2) {
     return { weekend: [5, 6], saturday: 5, sunday: 6 };
-  } else if (startOfTheWeek === 3) {
+  } else if (startOfTheWeek === 2) {
     return { weekend: [4, 5], saturday: 4, sunday: 5 };
-  } else if (startOfTheWeek === 4) {
+  } else if (startOfTheWeek === 3) {
     return { weekend: [3, 4], saturday: 3, sunday: 4 };
-  } else if (startOfTheWeek === 5) {
+  } else if (startOfTheWeek === 4) {
     return { weekend: [2, 3], saturday: 2, sunday: 3 };
-  } else {
+  } else if (startOfTheWeek === 5) {
     return { weekend: [1, 2], saturday: 1, sunday: 2 };
+  } else {
+    return { weekend: [0, 1], saturday: 0, sunday: 1 };
   }
 }
 
@@ -266,17 +315,17 @@ function getCalendarViewMatrix(
       month: getPreviousMonth(monthInView),
       activeMonthInView: false,
       year: isPrevMonthFromLastYear ? getPreviousYear(yearInView) : yearInView,
-      isWeekend: weekends.weekend.find((c) => c === columnAdded + 1) ? true : false,
-      isSat: weekends.saturday === columnAdded + 1,
-      isSun: weekends.sunday === columnAdded + 1,
+      isWeekend: weekends.weekend.find((c) => c === columnAdded) ? true : false,
+      isSat: weekends.saturday === columnAdded,
+      isSun: weekends.sunday === columnAdded,
       isToday:
         i === todaysDate &&
         getPreviousMonth(monthInView) === todaysMonth &&
         (isPrevMonthFromLastYear ? getPreviousYear(yearInView) : yearInView) === todaysYear,
       isFirstRow: row === 0,
       isLastRow: row === 5,
-      isFirsColumn: columnAdded + 1 === 1,
-      isLastColumn: columnAdded + 1 === 7,
+      isFirsColumn: columnAdded === 1,
+      isLastColumn: columnAdded === 6,
       isSelected:
         getPreviousMonth(monthInView) === selectedMonth &&
         (isPrevMonthFromLastYear ? getPreviousYear(yearInView) : yearInView) === selectedYear &&
@@ -286,7 +335,7 @@ function getCalendarViewMatrix(
       isDisabled: isDisabled({
         year: isPrevMonthFromLastYear ? getPreviousYear(yearInView) : yearInView,
         month: getPreviousMonth(monthInView),
-        weekday: columnAdded + 1,
+        weekday: getNativeWeekDayIndexFromAStartDayInfluencedIndex(columnAdded, startOfTheWeek),
         date: i,
       }),
     });
@@ -304,19 +353,19 @@ function getCalendarViewMatrix(
       month: monthInView,
       activeMonthInView: true,
       year: yearInView,
-      isWeekend: weekends.weekend.find((c) => c === columnAdded + 1) ? true : false,
-      isSat: weekends.saturday === columnAdded + 1,
-      isSun: weekends.sunday === columnAdded + 1,
+      isWeekend: weekends.weekend.find((c) => c === columnAdded) ? true : false,
+      isSat: weekends.saturday === columnAdded,
+      isSun: weekends.sunday === columnAdded,
       isToday: k === todaysDate && monthInView === todaysMonth && yearInView === todaysYear,
       isFirstRow: row === 0,
       isLastRow: row === 5,
-      isFirsColumn: columnAdded + 1 === 1,
-      isLastColumn: columnAdded + 1 === 7,
+      isFirsColumn: columnAdded === 1,
+      isLastColumn: columnAdded === 6,
       isSelected: monthInView === selectedMonth && yearInView === selectedYear && k === selectedDayOfMonth,
       isDisabled: isDisabled({
         year: yearInView,
         month: monthInView,
-        weekday: columnAdded + 1,
+        weekday: getNativeWeekDayIndexFromAStartDayInfluencedIndex(columnAdded, startOfTheWeek),
         date: k,
       }),
     });
@@ -336,17 +385,17 @@ function getCalendarViewMatrix(
       month: getNextMonth(monthInView),
       activeMonthInView: false,
       year: isCurrentMonthLast ? yearInView + 1 : yearInView,
-      isWeekend: weekends.weekend.find((c) => c === columnAdded + 1) ? true : false,
-      isSat: weekends.saturday === columnAdded + 1,
-      isSun: weekends.sunday === columnAdded + 1,
+      isWeekend: weekends.weekend.find((c) => c === columnAdded) ? true : false,
+      isSat: weekends.saturday === columnAdded,
+      isSun: weekends.sunday === columnAdded,
       isToday:
         k === todaysDate &&
         getNextMonth(monthInView) === todaysMonth &&
         (isCurrentMonthLast ? yearInView + 1 : yearInView) === todaysYear,
       isFirstRow: row === 0,
       isLastRow: row === 5,
-      isFirsColumn: columnAdded + 1 === 1,
-      isLastColumn: columnAdded + 1 === 7,
+      isFirsColumn: columnAdded === 1,
+      isLastColumn: columnAdded === 6,
       isSelected:
         getNextMonth(monthInView) === selectedMonth &&
         (isCurrentMonthLast ? yearInView + 1 : yearInView) === selectedYear &&
@@ -354,7 +403,7 @@ function getCalendarViewMatrix(
       isDisabled: isDisabled({
         year: isCurrentMonthLast ? yearInView + 1 : yearInView,
         month: getNextMonth(monthInView),
-        weekday: columnAdded + 1,
+        weekday: getNativeWeekDayIndexFromAStartDayInfluencedIndex(columnAdded, startOfTheWeek),
         date: k,
       }),
     });
@@ -594,9 +643,7 @@ function App({ value, startOfWeek = 1, isDisabled }: Props) {
                       cell.isFirstRow ? ' fr' : ''
                     }${cell.isLastRow ? ' lr' : ''}${cell.isFirsColumn ? ' fc' : ''}${cell.isLastColumn ? ' lc' : ''}${
                       cell.isSelected ? ' selected' : ''
-                    }${
-                      cell.isDisabled ? ' disabled' : ''
-                    }`}>
+                    }${cell.isDisabled ? ' disabled' : ''}`}>
                     {cell.date}
                   </div>
                 ))}
