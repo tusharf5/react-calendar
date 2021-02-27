@@ -14,7 +14,7 @@ code {
   box-sizing: border-box;
 }
 
-.App {
+.arc {
   display: flex;
   align-items: flex-start;
   flex-direction: column;
@@ -29,31 +29,18 @@ button {
   padding: 0;
   width: auto;
   overflow: visible;
-
   background: transparent;
-
   color: inherit;
   font: inherit;
-
   line-height: normal;
-
   -webkit-font-smoothing: inherit;
   -moz-osx-font-smoothing: inherit;
-
   -webkit-appearance: none;
 }
 
 button::-moz-focus-inner {
   border: 0;
   padding: 0;
-}
-
-button {
-  box-shadow: 0 0px 4px 2px #f1f1f1;
-  width: 28px;
-  height: 28px;
-  border-radius: 6px;
-  cursor: pointer;
 }
 
 /** Header **/
@@ -65,24 +52,13 @@ button {
   padding: 8px 8px 4px;
 }
 
-.arc_header > button {
+.arc_header_nav {
   flex: 0 0 28px;
-}
-
-.arc_header > div {
-  flex: 1 1 auto;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.arc_header > div > div span {
-  font-weight: 500;
-  font-size: 14px;
-}
-
-.arc_header > div > div + div {
-  margin-left: 8px;
+  box-shadow: 0 0px 4px 2px #f1f1f1;
+  border-radius: 6px;
+  cursor: pointer;
+  width: 28px;
+  height: 28px;
 }
 
 .arc_header_label {
@@ -90,12 +66,20 @@ button {
   display: flex;
   justify-content: center;
   align-items: center;
+  margin: 0 12px;
   box-shadow: 0 0px 4px 2px #f1f1f1;
-  width: 28px;
-  height: 28px;
   border-radius: 6px;
   cursor: pointer;
-  margin: 0 12px;
+  padding: 5px;
+}
+
+.arc_header_label span {
+  font-weight: 500;
+  font-size: 14px;
+}
+
+.arc_header_label > div + div {
+  margin-left: 8px;
 }
 
 .arc_header_label-days-of-month {
@@ -113,9 +97,6 @@ button {
 }
 
 /** Months View **/
-
-.arc_view-months {
-}
 
 .arc_view-months .arc_view_row {
   display: flex;
@@ -166,9 +147,6 @@ button {
 
 /** Years View **/
 
-.arc_view-years {
-}
-
 .arc_view-years .arc_view_row {
   display: flex;
   width: 100%;
@@ -218,9 +196,6 @@ button {
 
 /** Days of Month View **/
 
-.arc_view-days-of-month {
-}
-
 .arc_view-days-of-month .arc_view_row {
   display: flex;
   width: 100%;
@@ -237,7 +212,7 @@ button {
   cursor: pointer;
 }
 
-.arc_view-days-of-month .arc_view_cell + .arc_view-days-of-month .arc_view_cell {
+.arc_view-days-of-month .arc_view_cell + .arc_view_cell {
   margin-left: 6px;
 }
 
@@ -246,28 +221,10 @@ button {
   font-weight: 500;
 }
 
-.arc_view-days-of-month .arc_view_cell.arc_lc {
-}
-
-.arc_view-days-of-month .arc_view_cell.arc_fc {
-}
-
-.arc_view-days-of-month .arc_view_cell.arc_lr {
-}
-
-.arc_view-days-of-month .arc_view_cell.arc_fr {
-}
-
 .arc_view-days-of-month .arc_view_cell.arc_today {
   border-radius: 6px;
   font-weight: 500;
   color: #448fff;
-}
-
-.arc_view-days-of-month .arc_view_cell.arc_sun {
-}
-
-.arc_view-days-of-month .arc_view_cell.arc_sat {
 }
 
 .arc_view-days-of-month .arc_view_cell.arc_wknd {

@@ -147,28 +147,28 @@ function Calendar({ value, startOfWeek = 1, isDisabled }: Props) {
           ←
         </button>
         {view === 'month_dates' ? (
-          <div className='arc_header_label arc_header_label-days-of-month' onClick={() => setView('years')}>
+          <button className='arc_header_label arc_header_label-days-of-month' onClick={() => setView('years')}>
             <div>
               <span>{NATIVE_INDEX_TO_LABEL_MONTHS_MAP[monthInView]}</span>
             </div>
             <div>
               <span>{yearInView}</span>
             </div>
-          </div>
+          </button>
         ) : view === 'months' ? (
-          <div className='arc_header_label arc_header_label-months'>
+          <button className='arc_header_label arc_header_label-months'>
             <div onClick={() => setView('years')}>
               <span>{yearInView}</span>
             </div>
-          </div>
+          </button>
         ) : (
-          <div className='arc_header_label arc_header_label-years' onClick={() => setView('month_dates')}>
+          <button className='arc_header_label arc_header_label-years' onClick={() => setView('month_dates')}>
             <div>
               <span>
                 {yearMatrixRangeStart}-{yearMatrixRangeEnd}
               </span>
             </div>
-          </div>
+          </button>
         )}
         <button className='arc_header_nav arc_header_nav-next' onClick={onNextMonth}>
           →
