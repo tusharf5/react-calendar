@@ -23,14 +23,12 @@ export interface YearCell {
   year: number;
   isCurrentYear: boolean;
   isSelectedYear: boolean;
-  isDisabled: boolean;
 }
 
 export interface MonthCell {
   month: MonthIndices;
   isCurrentMonth: boolean;
   isSelectedMonth: boolean;
-  isDisabled: boolean;
 }
 
 export interface IsDisabledParams {

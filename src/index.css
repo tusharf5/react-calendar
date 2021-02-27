@@ -109,6 +109,14 @@ button::-moz-focus-inner {
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.arc_view-months .arc_view_cell button {
+  width: 78px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   font-size: 13px;
   cursor: pointer;
 }
@@ -127,24 +135,6 @@ button::-moz-focus-inner {
   color: #448fff;
 }
 
-.arc_view-months .arc_view_cell.arc_disabled {
-  position: relative;
-  color: #c9c9ca;
-  cursor: none;
-  pointer-events: none;
-}
-
-.arc_view-months .arc_view_cell.arc_disabled::before {
-  content: '';
-  position: absolute;
-  transform: rotate(45deg);
-  font-weight: 300;
-  display: block;
-  height: 70%;
-  background-color: #b6b6b7;
-  width: 1px;
-}
-
 /** Years View **/
 
 .arc_view-years .arc_view_row {
@@ -158,34 +148,16 @@ button::-moz-focus-inner {
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.arc_view-years .arc_view_cell button {
+  width: 48px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   font-size: 13px;
   cursor: pointer;
-}
-
-.arc_view-years .arc_view_cell.arc_disabled {
-  position: relative;
-  color: #c9c9ca;
-  cursor: none;
-  pointer-events: none;
-}
-
-.arc_view-years .arc_view_cell.arc_disabled::before {
-  content: '';
-  position: absolute;
-  transform: rotate(45deg);
-  font-weight: 300;
-  display: block;
-  height: 70%;
-  background-color: #b6b6b7;
-  width: 1px;
-}
-
-.arc_view-years .arc_view_cell.arc_selected {
-  box-shadow: 0px 0px 1px 1px #0c57c5;
-  background-color: #5599ff;
-  border-radius: 6px;
-  color: #fff;
-  font-weight: 500;
 }
 
 .arc_view-years .arc_view_cell.arc_this_year {
@@ -210,8 +182,8 @@ button::-moz-focus-inner {
 }
 
 .arc_view-days-of-month .arc_view_cell button {
-  width: 22px;
-  height: 22px;
+  width: 24px;
+  height: 24px;
   display: flex;
   align-items: center;
   justify-content: center;

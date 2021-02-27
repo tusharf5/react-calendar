@@ -180,14 +180,8 @@ function Calendar({ value, startOfWeek = 1, isDisabled }: Props) {
             {monthMatrix.map((row, index) => (
               <div className='arc_view_row' key={index}>
                 {row.map((cell) => (
-                  <div
-                    className={`arc_view_cell${cell.isCurrentMonth ? ' arc_this_month' : ''}${
-                      cell.isSelectedMonth ? ' arc_selected' : ''
-                    }${cell.isDisabled ? ' arc_disabled' : ''}`}
-                    key={cell.month}>
+                  <div className={`arc_view_cell${cell.isCurrentMonth ? ' arc_this_month' : ''}`} key={cell.month}>
                     <button
-                      disabled={cell.isDisabled}
-                      tabIndex={cell.isDisabled ? -1 : 0}
                       onClick={() => {
                         setMonthInView(cell.month);
                         setView('month_dates');
@@ -205,14 +199,8 @@ function Calendar({ value, startOfWeek = 1, isDisabled }: Props) {
             {yearMatrix.map((row, index) => (
               <div className='arc_view_row' key={index}>
                 {row.map((cell) => (
-                  <div
-                    className={`arc_view_cell${cell.isCurrentYear ? ' arc_this_year' : ''}${
-                      cell.isSelectedYear ? ' arc_selected' : ''
-                    }${cell.isDisabled ? ' arc_disabled' : ''}`}
-                    key={cell.year}>
+                  <div className={`arc_view_cell${cell.isCurrentYear ? ' arc_this_year' : ''}`} key={cell.year}>
                     <button
-                      disabled={cell.isDisabled}
-                      tabIndex={cell.isDisabled ? -1 : 0}
                       onClick={() => {
                         setYearInView(cell.year);
                         setView('months');

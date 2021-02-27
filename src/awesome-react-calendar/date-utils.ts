@@ -194,12 +194,6 @@ export function getMonthsRangeMatrix(
       month: k as MonthIndices,
       isCurrentMonth: new Date().getMonth() === k,
       isSelectedMonth: selectedMonth === k,
-      isDisabled: isDisabled({
-        year: -1,
-        month: k as MonthIndices,
-        weekday: -1,
-        date: -1,
-      }),
     };
   });
   return [months.slice(0, 3), months.slice(3, 6), months.slice(6, 9), months.slice(9, 12)];
@@ -230,12 +224,6 @@ export function getYearsViewMatrixForAStartOfRangeYear(
       year: rangeStartYear + index,
       isCurrentYear: new Date().getFullYear() === rangeStartYear + index,
       isSelectedYear: selectedYear === rangeStartYear + index,
-      isDisabled: isDisabled({
-        year: rangeStartYear + index,
-        month: -1,
-        weekday: -1,
-        date: -1,
-      }),
     };
   });
   return [years.slice(0, 5), years.slice(5, 10), years.slice(10, 15), years.slice(15, 20)];
