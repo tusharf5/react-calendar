@@ -207,62 +207,73 @@ button::-moz-focus-inner {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #b6b6b7;
-  font-size: 13px;
+}
+
+.arc_view-days-of-month .arc_view_cell button {
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
   cursor: pointer;
+  font-size: 13px;
+  color: #b6b6b7;
 }
 
 .arc_view-days-of-month .arc_view_cell + .arc_view_cell {
   margin-left: 6px;
 }
 
-.arc_view-days-of-month .arc_view_cell.arc_active {
+.arc_view-days-of-month .arc_view_cell.arc_active button {
   color: #000;
   font-weight: 500;
 }
 
-.arc_view-days-of-month .arc_view_cell.arc_today {
-  border-radius: 6px;
+.arc_view-days-of-month .arc_view_cell.arc_wknd button {
+  color: red;
+}
+
+.arc_view-days-of-month .arc_view_cell.arc_wknd:not(.arc_active) button {
+  color: #f3a0a0;
+}
+
+.arc_view-days-of-month .arc_view_cell.arc_today button {
   font-weight: 500;
   color: #448fff;
 }
 
-.arc_view-days-of-month .arc_view_cell.arc_wknd {
-  color: #f3a0a0;
-}
-
-.arc_view-days-of-month .arc_view_cell.arc_wknd.arc_active {
-  color: red;
-}
-
-.arc_view-days-of-month .arc_view_cell.arc_selected {
+.arc_view-days-of-month .arc_view_cell.arc_selected button {
   box-shadow: 0px 0px 1px 1px #0c57c5;
   background-color: #5599ff;
-  border-radius: 6px;
+
   color: #fff;
   font-weight: 500;
 }
 
-.arc_view-days-of-month .arc_view_cell.arc_selected:focus {
+.arc_view-days-of-month .arc_view_cell.arc_selected button:focus {
   outline: none;
 }
 
-.arc_view-days-of-month .arc_view_cell.arc_selected.arc_wknd {
+.arc_view-days-of-month .arc_view_cell.arc_selected.arc_wknd button {
   color: #fff;
 }
 
 .arc_view-days-of-month .arc_view_cell.arc_disabled {
   position: relative;
+}
+
+.arc_view-days-of-month .arc_view_cell.arc_disabled button {
   color: #c9c9ca;
   cursor: none;
   pointer-events: none;
 }
 
-.arc_view-days-of-month .arc_view_cell.arc_disabled.arc_wknd {
+.arc_view-days-of-month .arc_view_cell.arc_disabled.arc_wknd button {
   color: #f5b5b5;
 }
 
-.arc_view-days-of-month .arc_view_cell.arc_disabled::before {
+.arc_view-days-of-month .arc_view_cell.arc_disabled button::before {
   content: '';
   position: absolute;
   transform: rotate(45deg);
