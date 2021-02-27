@@ -141,11 +141,13 @@ function Calendar({ value, startOfWeek = 1, isDisabled }: Props) {
   }, [yearInView, monthInView, startOfTheWeek, selectedYear, selectedMonth, selectedDate, isDisabled]);
 
   return (
-    <section className='App'>
-      <header>
-        <button onClick={onPrevMonth}>←</button>
+    <section className='arc'>
+      <header className='arc_header'>
+        <button className='arc_header_nav arc_header_nav-prev' onClick={onPrevMonth}>
+          ←
+        </button>
         {view === 'month_dates' ? (
-          <div className='header-action' onClick={() => setView('years')}>
+          <div className='arc_header_label arc_header_label-days-of-month' onClick={() => setView('years')}>
             <div>
               <span>{NATIVE_INDEX_TO_LABEL_MONTHS_MAP[monthInView]}</span>
             </div>
@@ -154,13 +156,13 @@ function Calendar({ value, startOfWeek = 1, isDisabled }: Props) {
             </div>
           </div>
         ) : view === 'months' ? (
-          <div className='header-action'>
+          <div className='arc_header_label arc_header_label-months'>
             <div onClick={() => setView('years')}>
               <span>{yearInView}</span>
             </div>
           </div>
         ) : (
-          <div className='header-action' onClick={() => setView('month_dates')}>
+          <div className='arc_header_label arc_header_label-years' onClick={() => setView('month_dates')}>
             <div>
               <span>
                 {yearMatrixRangeStart}-{yearMatrixRangeEnd}
@@ -168,18 +170,20 @@ function Calendar({ value, startOfWeek = 1, isDisabled }: Props) {
             </div>
           </div>
         )}
-        <button onClick={onNextMonth}>→</button>
+        <button className='arc_header_nav arc_header_nav-next' onClick={onNextMonth}>
+          →
+        </button>
       </header>
-      {view === 'months' && (
-        <main>
-          <div className='months'>
+      <main className='arc_view'>
+        {view === 'months' && (
+          <div className='arc_view-months'>
             {monthMatrix.map((row, index) => (
-              <div className='months-row' key={index}>
+              <div className='arc_view_row' key={index}>
                 {row.map((cell) => (
                   <div
-                    className={`month-cell${cell.isCurrentMonth ? ' current-month' : ''}${
-                      cell.isSelectedMonth ? ' selected' : ''
-                    }${cell.isDisabled ? ' disabled' : ''}`}
+                    className={`arc_view_cell${cell.isCurrentMonth ? ' arc_this_month' : ''}${
+                      cell.isSelectedMonth ? ' arc_selected' : ''
+                    }${cell.isDisabled ? ' arc_disabled' : ''}`}
                     key={cell.month}>
                     <button
                       disabled={cell.isDisabled}
@@ -195,18 +199,16 @@ function Calendar({ value, startOfWeek = 1, isDisabled }: Props) {
               </div>
             ))}
           </div>
-        </main>
-      )}
-      {view === 'years' && (
-        <main>
-          <div className='years'>
+        )}
+        {view === 'years' && (
+          <div className='arc_view-years'>
             {yearMatrix.map((row, index) => (
-              <div className='years-row' key={index}>
+              <div className='arc_view_row' key={index}>
                 {row.map((cell) => (
                   <div
-                    className={`year-cell${cell.isCurrentYear ? ' current-year' : ''}${
-                      cell.isSelectedYear ? ' selected' : ''
-                    }${cell.isDisabled ? ' disabled' : ''}`}
+                    className={`arc_view_cell${cell.isCurrentYear ? ' arc_this_year' : ''}${
+                      cell.isSelectedYear ? ' arc_selected' : ''
+                    }${cell.isDisabled ? ' arc_disabled' : ''}`}
                     key={cell.year}>
                     <button
                       disabled={cell.isDisabled}
@@ -222,50 +224,52 @@ function Calendar({ value, startOfWeek = 1, isDisabled }: Props) {
               </div>
             ))}
           </div>
-        </main>
-      )}
-      {view === 'month_dates' && (
-        <main>
-          <ul className='weekdays-header'>
-            {Object.keys(WEEK_DAYS).map((weekDay) => (
-              <li
-                key={weekDay}
-                className={`weekdays-header-day${
-                  WEEK_DAYS[Number(weekDay) as WeekdayIndices] === 'Sa' ||
-                  WEEK_DAYS[Number(weekDay) as WeekdayIndices] === 'Su'
-                    ? ' weekend'
-                    : ''
-                }`}>
-                <span>{WEEK_DAYS[Number(weekDay) as WeekdayIndices]}</span>
-              </li>
-            ))}
-          </ul>
-          <div className='month-dates' role='grid'>
-            {matrix.map((row, index) => (
-              <div className='month-dates-row' key={index}>
-                {row.map((cell) => (
-                  <div
-                    key={cell.date}
-                    className={`month-dates-cell${cell.activeMonthInView ? ' active-month' : ''}${
-                      cell.isWeekend ? ' weekend' : ''
-                    }${cell.isSat ? ' saturday' : ''}${cell.isSun ? ' sunday' : ''}${cell.isToday ? ' today' : ''}${
-                      cell.isFirstRow ? ' fr' : ''
-                    }${cell.isLastRow ? ' lr' : ''}${cell.isFirsColumn ? ' fc' : ''}${cell.isLastColumn ? ' lc' : ''}${
-                      cell.isSelected ? ' selected' : ''
-                    }${cell.isDisabled ? ' disabled' : ''}`}>
-                    <button
-                      disabled={cell.isDisabled}
-                      tabIndex={cell.isDisabled ? -1 : 0}
-                      onClick={() => onSelectDate(cell)}>
-                      {cell.date}
-                    </button>
-                  </div>
-                ))}
-              </div>
-            ))}
-          </div>
-        </main>
-      )}
+        )}
+        {view === 'month_dates' && (
+          <>
+            <ul className='arc_view_weekdays'>
+              {Object.keys(WEEK_DAYS).map((weekDay) => (
+                <li
+                  key={weekDay}
+                  className={`arc_view_weekdays_cell${
+                    WEEK_DAYS[Number(weekDay) as WeekdayIndices] === 'Sa' ||
+                    WEEK_DAYS[Number(weekDay) as WeekdayIndices] === 'Su'
+                      ? ' arc_wknd'
+                      : ''
+                  }`}>
+                  <span>{WEEK_DAYS[Number(weekDay) as WeekdayIndices]}</span>
+                </li>
+              ))}
+            </ul>
+            <div className='arc_view-days-of-month' role='grid'>
+              {matrix.map((row, index) => (
+                <div className='arc_view_row' key={index}>
+                  {row.map((cell) => (
+                    <div
+                      key={cell.date}
+                      className={`arc_view_cell${cell.activeMonthInView ? ' arc_active' : ''}${
+                        cell.isWeekend ? ' arc_wknd' : ''
+                      }${cell.isSat ? ' arc_sat' : ''}${cell.isSun ? ' arc_sun' : ''}${
+                        cell.isToday ? ' arc_today' : ''
+                      }${cell.isFirstRow ? ' arc_fr' : ''}${cell.isLastRow ? ' arc_lr' : ''}${
+                        cell.isFirsColumn ? ' arc_fc' : ''
+                      }${cell.isLastColumn ? ' arc_lc' : ''}${cell.isSelected ? ' arc_selected' : ''}${
+                        cell.isDisabled ? ' arc_disabled' : ''
+                      }`}>
+                      <button
+                        disabled={cell.isDisabled}
+                        tabIndex={cell.isDisabled ? -1 : 0}
+                        onClick={() => onSelectDate(cell)}>
+                        {cell.date}
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              ))}
+            </div>
+          </>
+        )}
+      </main>
     </section>
   );
 }
