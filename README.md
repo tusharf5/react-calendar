@@ -62,3 +62,7 @@ https://material.angular.io/components/datepicker/overview
 - custom class names
 - shortcuts
 - onChange
+- onSelect
+- disablePast
+- disableFuture
+- decide output
