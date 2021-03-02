@@ -6,6 +6,7 @@ export interface DayOfMonthCell {
   date: number;
   month: MonthIndices;
   year: number;
+  dayOfWeek: number;
   activeMonthInView: boolean;
   isWeekend: boolean;
   isToday: boolean;

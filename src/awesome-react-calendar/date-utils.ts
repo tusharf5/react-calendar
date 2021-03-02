@@ -185,10 +185,7 @@ export function getStartOfRangeForAYear(year: number) {
   return 20 * Number((year / 20).toFixed(0)) + 1;
 }
 
-export function getMonthsRangeMatrix(
-  selectedMonth: number,
-  isDisabled: (params: IsDisabledParams) => boolean
-): Array<MonthCell>[] {
+export function getMonthsRangeMatrix(selectedMonth: number): Array<MonthCell>[] {
   const months = Array.from({ length: 12 }, (v, k) => {
     return {
       month: k as MonthIndices,
@@ -216,8 +213,7 @@ export function getYearRangeForAStartYear(rangeStartYear: number) {
 
 export function getYearsViewMatrixForAStartOfRangeYear(
   rangeStartYear: number,
-  selectedYear: number,
-  isDisabled: (params: IsDisabledParams) => boolean
+  selectedYear: number
 ): Array<YearCell>[] {
   const years = Array.from({ length: 20 }, (v, index) => {
     return {
@@ -229,6 +225,90 @@ export function getYearsViewMatrixForAStartOfRangeYear(
   return [years.slice(0, 5), years.slice(5, 10), years.slice(10, 15), years.slice(15, 20)];
 }
 
+export function validateAndReturnFormatter(format: string) {
+  const partsMap: Record<'YYYY' | 'MM' | 'DD', boolean> = { YYYY: true, MM: true, DD: true };
+  const parts = format.split('-') as ('YYYY' | 'MM' | 'DD')[];
+  if (parts.length !== 3) {
+    throw new Error('Date format is invalid.');
+  }
+  if (!parts.every((part) => partsMap[part])) {
+    throw new Error('Date format uses unknown parts.');
+  }
+  return (year: number, month: number, date: number, separator: string): string => {
+    let string = '';
+    parts.forEach((part, index) => {
+      if (part === 'YYYY') {
+        string += year;
+      }
+      if (part === 'MM') {
+        string += month;
+      }
+      if (part === 'DD') {
+        string += date;
+      }
+      if (index !== 2) {
+        string += separator;
+      }
+    });
+    return string;
+  };
+}
+
+function giveDisablePast() {
+  const date = new Date();
+  const dayOfMonth = date.getDate();
+  const currentYear = date.getFullYear();
+  const currentMonth = date.getMonth();
+
+  return function (year: number, month: number, date: number) {
+    if (year < currentYear) {
+      return true;
+    }
+
+    if (year === currentYear && month < currentMonth) {
+      return true;
+    }
+
+    if (year === currentYear && month === currentMonth && date < dayOfMonth) {
+      return true;
+    }
+  };
+}
+
+function giveDisableFuture() {
+  const date = new Date();
+  const dayOfMonth = date.getDate();
+  const currentYear = date.getFullYear();
+  const currentMonth = date.getMonth();
+
+  return function (year: number, month: number, date: number) {
+    if (year > currentYear) {
+      return true;
+    }
+
+    if (year === currentYear && month > currentMonth) {
+      return true;
+    }
+
+    if (year === currentYear && month === currentMonth && date > dayOfMonth) {
+      return true;
+    }
+  };
+}
+
+function giveDisableToday() {
+  const date = new Date();
+  const dayOfMonth = date.getDate();
+  const currentYear = date.getFullYear();
+  const currentMonth = date.getMonth();
+
+  return function (year: number, month: number, date: number) {
+    if (year === currentYear && month === currentMonth && date === dayOfMonth) {
+      return true;
+    }
+  };
+}
+
 export function getCalendarViewMatrix(
   yearInView: number,
   monthInView: MonthIndices,
@@ -236,13 +316,20 @@ export function getCalendarViewMatrix(
   selectedYear: number,
   selectedMonth: MonthIndices,
   selectedDayOfMonth: number,
-  isDisabled: (params: IsDisabledParams) => boolean
+  disableFuture = false,
+  disablePast = false,
+  disableToday = false,
+  isDisabled?: (params: IsDisabledParams) => boolean
 ): Array<DayOfMonthCell>[] {
   const matrix: Array<DayOfMonthCell>[] = [[], [], [], [], [], []];
 
   const currentMonthDatesStartIndex = getWeekDayOnFirstDateOfMonth(yearInView, monthInView, startOfTheWeek);
 
   const weekends = getWeekendColumns(startOfTheWeek);
+
+  const disableBecausePast = giveDisablePast();
+  const disableBecauseFuture = giveDisableFuture();
+  const isDisableToday = giveDisableToday();
 
   const todaysDate = new Date().getDate();
   const todaysMonth = new Date().getMonth();
@@ -265,21 +352,22 @@ export function getCalendarViewMatrix(
   const lastMonthDateStartFrom = totalDaysInPrevMonth - (currentMonthDatesStartIndex - 1);
 
   // first loop to fill cell values of last month
-  for (let i = lastMonthDateStartFrom; i <= totalDaysInPrevMonth; i++) {
+  for (let date = lastMonthDateStartFrom; date <= totalDaysInPrevMonth; date++) {
     if (weekColumn === 7) {
       weekColumn = 0;
       row++;
     }
     matrix[row].push({
-      date: i,
+      date: date,
       month: getPreviousMonth(monthInView),
       activeMonthInView: false,
       year: isPrevMonthFromLastYear ? getPreviousYear(yearInView) : yearInView,
       isWeekend: typeof weekends.weekend.find((c) => c === weekColumn) === 'number' ? true : false,
       isSat: weekends.saturday === weekColumn,
       isSun: weekends.sunday === weekColumn,
+      dayOfWeek: getNativeWeekDayIndexFromAStartDayInfluencedIndex(weekColumn, startOfTheWeek),
       isToday:
-        i === todaysDate &&
+        date === todaysDate &&
         getPreviousMonth(monthInView) === todaysMonth &&
         (isPrevMonthFromLastYear ? getPreviousYear(yearInView) : yearInView) === todaysYear,
       isFirstRow: row === 0,
@@ -289,50 +377,70 @@ export function getCalendarViewMatrix(
       isSelected:
         getPreviousMonth(monthInView) === selectedMonth &&
         (isPrevMonthFromLastYear ? getPreviousYear(yearInView) : yearInView) === selectedYear &&
-        i === selectedDayOfMonth,
-      // TODO change weekday logic to include native index
+        date === selectedDayOfMonth,
       // not modified
-      isDisabled: isDisabled({
-        year: isPrevMonthFromLastYear ? getPreviousYear(yearInView) : yearInView,
-        month: getPreviousMonth(monthInView),
-        weekday: getNativeWeekDayIndexFromAStartDayInfluencedIndex(weekColumn, startOfTheWeek),
-        date: i,
-      }),
+      isDisabled:
+        disablePast &&
+        disableBecausePast(
+          isPrevMonthFromLastYear ? getPreviousYear(yearInView) : yearInView,
+          getPreviousMonth(monthInView),
+          date
+        )
+          ? true
+          : typeof isDisabled === 'function'
+          ? isDisabled({
+              year: isPrevMonthFromLastYear ? getPreviousYear(yearInView) : yearInView,
+              month: getPreviousMonth(monthInView),
+              weekday: getNativeWeekDayIndexFromAStartDayInfluencedIndex(weekColumn, startOfTheWeek),
+              date: date,
+            })
+          : false,
     });
     weekColumn++;
   }
 
   // second loop to fill cell values of current month
-  for (let k = 1; k <= totalDaysInCurrentMonth; k++) {
+  for (let date = 1; date <= totalDaysInCurrentMonth; date++) {
     if (weekColumn === 7) {
       weekColumn = 0;
       row++;
     }
+    const isToday = date === todaysDate && monthInView === todaysMonth && yearInView === todaysYear;
     matrix[row].push({
-      date: k,
+      date: date,
       month: monthInView,
       activeMonthInView: true,
       year: yearInView,
+      dayOfWeek: getNativeWeekDayIndexFromAStartDayInfluencedIndex(weekColumn, startOfTheWeek),
       isWeekend: typeof weekends.weekend.find((c) => c === weekColumn) === 'number' ? true : false,
       isSat: weekends.saturday === weekColumn,
       isSun: weekends.sunday === weekColumn,
-      isToday: k === todaysDate && monthInView === todaysMonth && yearInView === todaysYear,
+      isToday: isToday,
       isFirstRow: row === 0,
       isLastRow: row === 5,
       isFirsColumn: weekColumn === 0,
       isLastColumn: weekColumn === 6,
-      isSelected: monthInView === selectedMonth && yearInView === selectedYear && k === selectedDayOfMonth,
-      isDisabled: isDisabled({
-        year: yearInView,
-        month: monthInView,
-        weekday: getNativeWeekDayIndexFromAStartDayInfluencedIndex(weekColumn, startOfTheWeek),
-        date: k,
-      }),
+      isSelected: monthInView === selectedMonth && yearInView === selectedYear && date === selectedDayOfMonth,
+      isDisabled:
+        disableToday && isToday
+          ? true
+          : disablePast && disableBecausePast(yearInView, monthInView, date)
+          ? true
+          : disableFuture && disableBecauseFuture(yearInView, monthInView, date)
+          ? true
+          : typeof isDisabled === 'function'
+          ? isDisabled({
+              year: yearInView,
+              month: monthInView,
+              weekday: getNativeWeekDayIndexFromAStartDayInfluencedIndex(weekColumn, startOfTheWeek),
+              date: date,
+            })
+          : false,
     });
     weekColumn++;
   }
 
-  let k = 1;
+  let date = 1;
   // last loop to fill cell values of next month
 
   while (matrix[5].length < 7) {
@@ -341,15 +449,16 @@ export function getCalendarViewMatrix(
       row++;
     }
     matrix[row].push({
-      date: k,
+      date: date,
       month: getNextMonth(monthInView),
       activeMonthInView: false,
       year: isCurrentMonthLast ? yearInView + 1 : yearInView,
+      dayOfWeek: getNativeWeekDayIndexFromAStartDayInfluencedIndex(weekColumn, startOfTheWeek),
       isWeekend: typeof weekends.weekend.find((c) => c === weekColumn) === 'number' ? true : false,
       isSat: weekends.saturday === weekColumn,
       isSun: weekends.sunday === weekColumn,
       isToday:
-        k === todaysDate &&
+        date === todaysDate &&
         getNextMonth(monthInView) === todaysMonth &&
         (isCurrentMonthLast ? yearInView + 1 : yearInView) === todaysYear,
       isFirstRow: row === 0,
@@ -359,16 +468,22 @@ export function getCalendarViewMatrix(
       isSelected:
         getNextMonth(monthInView) === selectedMonth &&
         (isCurrentMonthLast ? yearInView + 1 : yearInView) === selectedYear &&
-        k === selectedDayOfMonth,
-      isDisabled: isDisabled({
-        year: isCurrentMonthLast ? yearInView + 1 : yearInView,
-        month: getNextMonth(monthInView),
-        weekday: getNativeWeekDayIndexFromAStartDayInfluencedIndex(weekColumn, startOfTheWeek),
-        date: k,
-      }),
+        date === selectedDayOfMonth,
+      isDisabled:
+        disableFuture &&
+        disableBecauseFuture(isCurrentMonthLast ? yearInView + 1 : yearInView, getNextMonth(monthInView), date)
+          ? true
+          : typeof isDisabled === 'function'
+          ? isDisabled({
+              year: isCurrentMonthLast ? yearInView + 1 : yearInView,
+              month: getNextMonth(monthInView),
+              weekday: getNativeWeekDayIndexFromAStartDayInfluencedIndex(weekColumn, startOfTheWeek),
+              date: date,
+            })
+          : false,
     });
     weekColumn++;
-    k++;
+    date++;
   }
 
   return matrix;

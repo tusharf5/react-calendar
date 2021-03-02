@@ -15,17 +15,57 @@ import {
   getMonthsRangeMatrix,
   getCalendarViewMatrix,
   getYearRangeForAStartYear,
+  validateAndReturnFormatter,
 } from './date-utils';
 
 import { NATIVE_INDEX_TO_LABEL_MONTHS_MAP } from './constants';
 
+interface Value {
+  value: Date;
+  year: number;
+  month: number;
+  date: number;
+  dayOfWeek: number;
+  iso: string;
+  formatted: string;
+}
+
 interface Props {
   value?: string;
   startOfWeek?: WeekdayIndices;
-  isDisabled: (params: IsDisabledParams) => boolean;
+  /**
+   * Separator to be used when formatting the date string.
+   * Default is '-' i.e 'DD-MM-YYYY'
+   */
+  separator?: string;
+  /**
+   * A combination of YYYY-MM-DD.
+   * Eg. MM-DD-YYYY, DD-MM-YYYY etc.
+   * Default is '-' i.e 'DD-MM-YYYY'
+   */
+  format?: string;
+  onChange?: (value: Value) => any | Promise<any>;
+  disablePast?: boolean;
+  disableToday?: boolean;
+  disableFuture?: boolean;
+  isDisabled?: (params: IsDisabledParams) => boolean;
 }
 
-function Calendar({ value, startOfWeek = 1, isDisabled }: Props) {
+function Calendar({
+  value,
+  startOfWeek = 1,
+  isDisabled,
+  onChange,
+  separator = '-',
+  format = 'DD-MM-YYYY',
+  disableFuture = false,
+  disablePast = false,
+  disableToday = false,
+}: Props) {
+  const formatter = useMemo(() => {
+    return validateAndReturnFormatter(format);
+  }, [format]);
+
   // in view state
   const [startOfTheWeek] = useState(startOfWeek);
   const WEEK_DAYS = useMemo(() => {
@@ -45,7 +85,12 @@ function Calendar({ value, startOfWeek = 1, isDisabled }: Props) {
   );
   const [selectedDate, setSelectedDate] = useState(value ? new Date(value).getDate() : new Date().getDate());
   const [selectedYear, setSelectedYear] = useState(value ? new Date(value).getFullYear() : new Date().getFullYear());
-  const onPrevMonth = useCallback(
+
+  const [inFocusDate, setInFocusDate] = useState(selectedDate);
+  const [inFocusYear, setInFocusYear] = useState(selectedYear);
+  const [inFocusMonth, setInFocusMonth] = useState(selectedMonth);
+
+  const onPrevClick = useCallback(
     (e) => {
       if (view === 'month_dates') {
         const isPrevMonthFromLastYear = monthInView === 0;
@@ -72,7 +117,8 @@ function Calendar({ value, startOfWeek = 1, isDisabled }: Props) {
       startingYearForCurrRange,
     ]
   );
-  const onNextMonth = useCallback(
+
+  const onNextClick = useCallback(
     (e) => {
       if (view === 'month_dates') {
         const isCurrentMonthLast = monthInView === 11;
@@ -108,8 +154,23 @@ function Calendar({ value, startOfWeek = 1, isDisabled }: Props) {
       setSelectedYear(cell.year);
       setYearInView(cell.year);
       setSelectedDate(cell.date);
+      const date = new Date();
+      date.setFullYear(cell.year);
+      date.setMonth(cell.month);
+      date.setDate(cell.date);
+      date.setMinutes(0, 0, 0);
+      onChange &&
+        onChange({
+          value: date,
+          dayOfWeek: cell.dayOfWeek,
+          year: cell.year,
+          month: cell.month,
+          date: cell.date,
+          formatted: formatter(cell.year, cell.month + 1, cell.date, separator),
+          iso: date.toISOString(),
+        });
     },
-    [setSelectedMonth, setMonthInView, setSelectedYear, setYearInView, setSelectedDate]
+    [setSelectedMonth, setMonthInView, setSelectedYear, setYearInView, setSelectedDate, onChange, separator, formatter]
   );
 
   useEffect(() => {
@@ -117,12 +178,12 @@ function Calendar({ value, startOfWeek = 1, isDisabled }: Props) {
   }, [yearInView, setStartingYearForCurrRange]);
 
   const yearMatrix = useMemo<YearCell[][]>(() => {
-    return getYearsViewMatrixForAStartOfRangeYear(startingYearForCurrRange, selectedYear, isDisabled);
-  }, [startingYearForCurrRange, selectedYear, isDisabled]);
+    return getYearsViewMatrixForAStartOfRangeYear(startingYearForCurrRange, selectedYear);
+  }, [startingYearForCurrRange, selectedYear]);
 
   const monthMatrix = useMemo<MonthCell[][]>(() => {
-    return getMonthsRangeMatrix(selectedMonth, isDisabled);
-  }, [selectedMonth, isDisabled]);
+    return getMonthsRangeMatrix(selectedMonth);
+  }, [selectedMonth]);
 
   const [yearMatrixRangeStart, yearMatrixRangeEnd] = useMemo(() => {
     return getYearRangeForAStartYear(startingYearForCurrRange);
@@ -136,14 +197,59 @@ function Calendar({ value, startOfWeek = 1, isDisabled }: Props) {
       selectedYear,
       selectedMonth,
       selectedDate,
+      disableFuture,
+      disablePast,
+      disableToday,
       isDisabled
     );
-  }, [yearInView, monthInView, startOfTheWeek, selectedYear, selectedMonth, selectedDate, isDisabled]);
+  }, [
+    yearInView,
+    monthInView,
+    startOfTheWeek,
+    selectedYear,
+    selectedMonth,
+    selectedDate,
+    disableFuture,
+    disablePast,
+    disableToday,
+    isDisabled,
+  ]);
+
+  useEffect(() => {
+    function keyListener(ev: KeyboardEvent) {
+      switch (ev.key) {
+        case 'Down':
+        case 'ArrowDown': {
+          console.log('down');
+          break;
+        }
+        case 'Up':
+        case 'ArrowUp': {
+          console.log('up');
+          break;
+        }
+        case 'Left':
+        case 'ArrowLeft': {
+          console.log('left');
+          break;
+        }
+        case 'Right':
+        case 'ArrowRight': {
+          console.log('right');
+          break;
+        }
+      }
+    }
+    document.addEventListener('keydown', keyListener);
+    return () => {
+      document.removeEventListener('keydown', keyListener);
+    };
+  }, []);
 
   return (
     <section className='arc'>
       <header className='arc_header'>
-        <button className='arc_header_nav arc_header_nav-prev' onClick={onPrevMonth}>
+        <button className='arc_header_nav arc_header_nav-prev' onClick={onPrevClick}>
           ←
         </button>
         {view === 'month_dates' ? (
@@ -170,7 +276,7 @@ function Calendar({ value, startOfWeek = 1, isDisabled }: Props) {
             </div>
           </button>
         )}
-        <button className='arc_header_nav arc_header_nav-next' onClick={onNextMonth}>
+        <button className='arc_header_nav arc_header_nav-next' onClick={onNextClick}>
           →
         </button>
       </header>
