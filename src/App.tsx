@@ -1,6 +1,7 @@
 import React, { useCallback, useState } from 'react';
 
 import Calendar from './awesome-react-calendar/calendar';
+import { IsDisabledParams } from './awesome-react-calendar/types';
 
 function App() {
   const [val, setVal] = useState('{}');
@@ -16,15 +17,15 @@ function App() {
       <section>
         <Calendar
           disableToday
-          separator='/'
-          format='YYYY-DD-MM'
+          separator='*'
+          format='MM-DD-YYYY'
           onChange={onChange}
-          startOfWeek={0}
+          startOfWeek={2}
           value={new Date(2021, 1, 23)}
         />
         <Calendar
           disablePast
-          separator='/'
+          separator='-'
           format='YYYY-DD-MM'
           onChange={onChange}
           startOfWeek={1}
@@ -33,7 +34,7 @@ function App() {
         <Calendar
           disableFuture
           separator='/'
-          format='YYYY-DD-MM'
+          format='DD-MM-YYYY'
           onChange={onChange}
           startOfWeek={1}
           value={new Date(2021, 3, 23)}
