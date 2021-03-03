@@ -254,58 +254,60 @@ export function validateAndReturnFormatter(format: string) {
   };
 }
 
-function giveDisablePast() {
+function giveCheckIfDisabled(
+  disablePast: boolean,
+  disableToday: boolean,
+  disableFuture: boolean,
+  customDisabledCheck?: (params: IsDisabledParams) => boolean
+) {
   const date = new Date();
   const dayOfMonth = date.getDate();
   const currentYear = date.getFullYear();
   const currentMonth = date.getMonth();
 
-  return function (year: number, month: number, date: number) {
-    if (year < currentYear) {
-      return true;
+  return function checkIfDisabled(year: number, month: MonthIndices, date: number, weekday: WeekdayIndices) {
+    if (disablePast) {
+      if (year < currentYear) {
+        return true;
+      }
+
+      if (year === currentYear && month < currentMonth) {
+        return true;
+      }
+
+      if (year === currentYear && month === currentMonth && date < dayOfMonth) {
+        return true;
+      }
+    }
+    if (disableToday) {
+      if (year === currentYear && month === currentMonth && date === dayOfMonth) {
+        return true;
+      }
+    }
+    if (disableFuture) {
+      if (year > currentYear) {
+        return true;
+      }
+
+      if (year === currentYear && month > currentMonth) {
+        return true;
+      }
+
+      if (year === currentYear && month === currentMonth && date > dayOfMonth) {
+        return true;
+      }
     }
 
-    if (year === currentYear && month < currentMonth) {
-      return true;
+    if (typeof customDisabledCheck === 'function') {
+      return customDisabledCheck({
+        year: year,
+        month: month,
+        weekday: weekday,
+        date: date,
+      });
     }
 
-    if (year === currentYear && month === currentMonth && date < dayOfMonth) {
-      return true;
-    }
-  };
-}
-
-function giveDisableFuture() {
-  const date = new Date();
-  const dayOfMonth = date.getDate();
-  const currentYear = date.getFullYear();
-  const currentMonth = date.getMonth();
-
-  return function (year: number, month: number, date: number) {
-    if (year > currentYear) {
-      return true;
-    }
-
-    if (year === currentYear && month > currentMonth) {
-      return true;
-    }
-
-    if (year === currentYear && month === currentMonth && date > dayOfMonth) {
-      return true;
-    }
-  };
-}
-
-function giveDisableToday() {
-  const date = new Date();
-  const dayOfMonth = date.getDate();
-  const currentYear = date.getFullYear();
-  const currentMonth = date.getMonth();
-
-  return function (year: number, month: number, date: number) {
-    if (year === currentYear && month === currentMonth && date === dayOfMonth) {
-      return true;
-    }
+    return false;
   };
 }
 
@@ -327,9 +329,7 @@ export function getCalendarViewMatrix(
 
   const weekends = getWeekendColumns(startOfTheWeek);
 
-  const disableBecausePast = giveDisablePast();
-  const disableBecauseFuture = giveDisableFuture();
-  const isDisableToday = giveDisableToday();
+  const checkDisabledForADate = giveCheckIfDisabled(disablePast, disableToday, disableFuture, isDisabled);
 
   const todaysDate = new Date().getDate();
   const todaysMonth = new Date().getMonth();
@@ -379,22 +379,12 @@ export function getCalendarViewMatrix(
         (isPrevMonthFromLastYear ? getPreviousYear(yearInView) : yearInView) === selectedYear &&
         date === selectedDayOfMonth,
       // not modified
-      isDisabled:
-        disablePast &&
-        disableBecausePast(
-          isPrevMonthFromLastYear ? getPreviousYear(yearInView) : yearInView,
-          getPreviousMonth(monthInView),
-          date
-        )
-          ? true
-          : typeof isDisabled === 'function'
-          ? isDisabled({
-              year: isPrevMonthFromLastYear ? getPreviousYear(yearInView) : yearInView,
-              month: getPreviousMonth(monthInView),
-              weekday: getNativeWeekDayIndexFromAStartDayInfluencedIndex(weekColumn, startOfTheWeek),
-              date: date,
-            })
-          : false,
+      isDisabled: checkDisabledForADate(
+        isPrevMonthFromLastYear ? getPreviousYear(yearInView) : yearInView,
+        getPreviousMonth(monthInView),
+        date,
+        getNativeWeekDayIndexFromAStartDayInfluencedIndex(weekColumn, startOfTheWeek)
+      ),
     });
     weekColumn++;
   }
@@ -421,21 +411,12 @@ export function getCalendarViewMatrix(
       isFirsColumn: weekColumn === 0,
       isLastColumn: weekColumn === 6,
       isSelected: monthInView === selectedMonth && yearInView === selectedYear && date === selectedDayOfMonth,
-      isDisabled:
-        disableToday && isToday
-          ? true
-          : disablePast && disableBecausePast(yearInView, monthInView, date)
-          ? true
-          : disableFuture && disableBecauseFuture(yearInView, monthInView, date)
-          ? true
-          : typeof isDisabled === 'function'
-          ? isDisabled({
-              year: yearInView,
-              month: monthInView,
-              weekday: getNativeWeekDayIndexFromAStartDayInfluencedIndex(weekColumn, startOfTheWeek),
-              date: date,
-            })
-          : false,
+      isDisabled: checkDisabledForADate(
+        yearInView,
+        monthInView,
+        date,
+        getNativeWeekDayIndexFromAStartDayInfluencedIndex(weekColumn, startOfTheWeek)
+      ),
     });
     weekColumn++;
   }
@@ -469,18 +450,12 @@ export function getCalendarViewMatrix(
         getNextMonth(monthInView) === selectedMonth &&
         (isCurrentMonthLast ? yearInView + 1 : yearInView) === selectedYear &&
         date === selectedDayOfMonth,
-      isDisabled:
-        disableFuture &&
-        disableBecauseFuture(isCurrentMonthLast ? yearInView + 1 : yearInView, getNextMonth(monthInView), date)
-          ? true
-          : typeof isDisabled === 'function'
-          ? isDisabled({
-              year: isCurrentMonthLast ? yearInView + 1 : yearInView,
-              month: getNextMonth(monthInView),
-              weekday: getNativeWeekDayIndexFromAStartDayInfluencedIndex(weekColumn, startOfTheWeek),
-              date: date,
-            })
-          : false,
+      isDisabled: checkDisabledForADate(
+        isCurrentMonthLast ? yearInView + 1 : yearInView,
+        getNextMonth(monthInView),
+        date,
+        getNativeWeekDayIndexFromAStartDayInfluencedIndex(weekColumn, startOfTheWeek)
+      ),
     });
     weekColumn++;
     date++;

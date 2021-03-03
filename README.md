@@ -62,4 +62,3 @@ https://material.angular.io/components/datepicker/overview
 - custom class names
 - shortcuts
 - add simple validations
-- TODO finnd a better way to disable. future dates annd past dates dont disable well in current view

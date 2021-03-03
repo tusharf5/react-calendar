@@ -19,8 +19,8 @@ function App() {
           separator='/'
           format='YYYY-DD-MM'
           onChange={onChange}
-          startOfWeek={1}
-          value={new Date(2021, 1, 23).toISOString()}
+          startOfWeek={0}
+          value={new Date(2021, 1, 23)}
         />
         <Calendar
           disablePast
@@ -28,7 +28,7 @@ function App() {
           format='YYYY-DD-MM'
           onChange={onChange}
           startOfWeek={1}
-          value={new Date(2021, 1, 23).toISOString()}
+          value={new Date(2021, 2, 23)}
         />
         <Calendar
           disableFuture
@@ -36,7 +36,7 @@ function App() {
           format='YYYY-DD-MM'
           onChange={onChange}
           startOfWeek={1}
-          value={new Date(2021, 1, 23).toISOString()}
+          value={new Date(2021, 3, 23)}
         />
       </section>
       <div>{val}</div>

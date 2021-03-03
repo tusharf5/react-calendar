@@ -31,7 +31,14 @@ interface Value {
 }
 
 interface Props {
-  value?: string;
+  /**
+   * Value of the date in ISO format.
+   */
+  value?: Date;
+  /**
+   * By default the calendar starts from Sun which is represented in JS as 0 index.
+   * You can provide the index for any other day that you want as start of the week.
+   */
   startOfWeek?: WeekdayIndices;
   /**
    * Separator to be used when formatting the date string.
@@ -44,10 +51,25 @@ interface Props {
    * Default is '-' i.e 'DD-MM-YYYY'
    */
   format?: string;
+  /**
+   * OnChange callback functionn.
+   */
   onChange?: (value: Value) => any | Promise<any>;
+  /**
+   * A boolean flag to disable all past dates.
+   */
   disablePast?: boolean;
+  /**
+   * A boolean flag to disable today's date.
+   */
   disableToday?: boolean;
+  /**
+   * A boolean flag to disable all future dates.
+   */
   disableFuture?: boolean;
+  /**
+   * A callback function that can be used to disable specific dates on the calendar.
+   */
   isDisabled?: (params: IsDisabledParams) => boolean;
 }
 
