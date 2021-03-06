@@ -174,7 +174,7 @@ button::-moz-focus-inner {
 
 .arc_view-years .arc_view_cell button {
   width: 48px;
-  height: 24px;
+  height: 26px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -242,8 +242,8 @@ button::-moz-focus-inner {
 }
 
 .arc_view-days-of-month .arc_view_cell button {
-  width: 24px;
-  height: 24px;
+  width: 26px;
+  height: 26px;
   display: flex;
   align-items: center;
   justify-content: center;
