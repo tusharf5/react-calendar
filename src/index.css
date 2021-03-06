@@ -10,17 +10,21 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
 }
 
-* {
+.arc * {
   box-sizing: border-box;
+}
+
+.arc {
+  margin: 2rem;
 }
 
 .arc {
   display: flex;
   align-items: flex-start;
   flex-direction: column;
-  width: 260px;
+  width: 276px;
+  height: 276px;
   overflow: hidden;
-  margin: 2rem;
   border: 1px solid #efeff1;
   border-radius: 8px;
 }
@@ -51,7 +55,8 @@ button::-moz-focus-inner {
   display: flex;
   align-items: center;
   width: 100%;
-  padding: 8px 8px 4px;
+  padding: 8px;
+  height: 14.6%;
 }
 
 .arc_header_nav {
@@ -96,7 +101,7 @@ button::-moz-focus-inner {
 /** Body Content **/
 
 .arc_view {
-  height: 234px;
+  height: calc(100% - 14.6%);
   width: 100%;
 }
 

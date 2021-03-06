@@ -7,15 +7,15 @@ import {
   getStartOfRangeForAYear,
   getPreviousYear,
   getPreviousMonth,
-  getPreviousYearsViewMatrixForARange,
+  getPreviousRangeStartingYear,
   getNextYear,
   getNextMonth,
-  getNextYearsViewMatrixForARange,
-  getYearsViewMatrixForAStartOfRangeYear,
-  getMonthsRangeMatrix,
-  getCalendarViewMatrix,
-  getYearRangeForAStartYear,
-  validateAndReturnFormatter,
+  getNextRangeStartingYear,
+  getYearsViewMetrix,
+  getMonthViewMetrix,
+  getDaysOfMonthViewMetrix,
+  getYearRangeLimits,
+  validateAndReturnDateFormatter,
 } from './date-utils';
 
 import { NATIVE_INDEX_TO_LABEL_MONTHS_MAP } from './constants';
@@ -84,34 +84,79 @@ function Calendar({
   disablePast = false,
   disableToday = false,
 }: Props) {
-  const formatter = useMemo(() => {
-    return validateAndReturnFormatter(format);
-  }, [format]);
-
-  // in view state
+  // start day of the week
   const [startOfTheWeek] = useState(startOfWeek);
-  const WEEK_DAYS = useMemo(() => {
-    return getWeekDaysIndexToLabelMapForAStartOfTheWeek(startOfTheWeek);
-  }, [startOfTheWeek]);
-  // in view
-
+  // current view
   const [view, setView] = useState<'years' | 'months' | 'month_dates'>('month_dates');
   const [monthInView, setMonthInView] = useState<MonthIndices>(
     (value ? new Date(value).getMonth() : new Date().getMonth()) as MonthIndices
   );
   const [yearInView, setYearInView] = useState(value ? new Date(value).getFullYear() : new Date().getFullYear());
-  const [startingYearForCurrRange, setStartingYearForCurrRange] = useState(getStartOfRangeForAYear(yearInView));
-  // set date value
+
+  // selected date
   const [selectedMonth, setSelectedMonth] = useState(
     (value ? new Date(value).getMonth() : new Date().getMonth()) as MonthIndices
   );
   const [selectedDate, setSelectedDate] = useState(value ? new Date(value).getDate() : new Date().getDate());
   const [selectedYear, setSelectedYear] = useState(value ? new Date(value).getFullYear() : new Date().getFullYear());
 
-  const [inFocusDate, setInFocusDate] = useState(selectedDate);
-  const [inFocusYear, setInFocusYear] = useState(selectedYear);
-  const [inFocusMonth, setInFocusMonth] = useState(selectedMonth);
+  const [startingYearForCurrRange, setStartingYearForCurrRange] = useState(getStartOfRangeForAYear(yearInView));
 
+  // 1 - 20, 21 - 40
+  const [yearMatrixRangeStart, yearMatrixRangeEnd] = useMemo(() => {
+    return getYearRangeLimits(startingYearForCurrRange);
+  }, [startingYearForCurrRange]);
+
+  // week days as per the start day of the week
+  const WEEK_DAYS = useMemo(() => {
+    return getWeekDaysIndexToLabelMapForAStartOfTheWeek(startOfTheWeek);
+  }, [startOfTheWeek]);
+
+  // date formatter
+  const formatter = useMemo(() => {
+    return validateAndReturnDateFormatter(format);
+  }, [format]);
+
+  useEffect(() => {
+    setStartingYearForCurrRange(getStartOfRangeForAYear(yearInView));
+  }, [yearInView, setStartingYearForCurrRange]);
+
+  // matrices for different views
+  const yearsViewMatrix = useMemo<YearCell[][]>(() => {
+    return getYearsViewMetrix(startingYearForCurrRange, selectedYear);
+  }, [startingYearForCurrRange, selectedYear]);
+
+  const monthsViewMatrix = useMemo<MonthCell[][]>(() => {
+    return getMonthViewMetrix(selectedMonth);
+  }, [selectedMonth]);
+
+  const daysOfMMonthViewMatrix = useMemo(() => {
+    return getDaysOfMonthViewMetrix({
+      yearInView,
+      monthInView,
+      startOfTheWeek,
+      selectedYear,
+      selectedMonth,
+      selectedDayOfMonth: selectedDate,
+      disableFuture,
+      disablePast,
+      disableToday,
+      isDisabled,
+    });
+  }, [
+    yearInView,
+    monthInView,
+    startOfTheWeek,
+    selectedYear,
+    selectedMonth,
+    selectedDate,
+    disableFuture,
+    disablePast,
+    disableToday,
+    isDisabled,
+  ]);
+
+  // callback handlers
   const onPrevClick = useCallback(
     (e) => {
       if (view === 'month_dates') {
@@ -122,9 +167,8 @@ function Calendar({
         setMonthInView(getPreviousMonth(monthInView));
       }
       if (view === 'years') {
-        setStartingYearForCurrRange(getPreviousYearsViewMatrixForARange(startingYearForCurrRange));
+        setStartingYearForCurrRange(getPreviousRangeStartingYear(startingYearForCurrRange));
       }
-
       if (view === 'months') {
         setYearInView(yearInView !== 1 ? yearInView - 1 : 1);
       }
@@ -149,9 +193,8 @@ function Calendar({
         }
         setMonthInView(getNextMonth(monthInView));
       }
-
       if (view === 'years') {
-        setStartingYearForCurrRange(getNextYearsViewMatrixForARange(startingYearForCurrRange));
+        setStartingYearForCurrRange(getNextRangeStartingYear(startingYearForCurrRange));
       }
 
       if (view === 'months') {
@@ -169,7 +212,7 @@ function Calendar({
     ]
   );
 
-  const onSelectDate = useCallback(
+  const onDateClicked = useCallback(
     (cell: DayOfMonthCell) => {
       setSelectedMonth(cell.month);
       setMonthInView(cell.month);
@@ -194,79 +237,6 @@ function Calendar({
     },
     [setSelectedMonth, setMonthInView, setSelectedYear, setYearInView, setSelectedDate, onChange, separator, formatter]
   );
-
-  useEffect(() => {
-    setStartingYearForCurrRange(getStartOfRangeForAYear(yearInView));
-  }, [yearInView, setStartingYearForCurrRange]);
-
-  const yearMatrix = useMemo<YearCell[][]>(() => {
-    return getYearsViewMatrixForAStartOfRangeYear(startingYearForCurrRange, selectedYear);
-  }, [startingYearForCurrRange, selectedYear]);
-
-  const monthMatrix = useMemo<MonthCell[][]>(() => {
-    return getMonthsRangeMatrix(selectedMonth);
-  }, [selectedMonth]);
-
-  const [yearMatrixRangeStart, yearMatrixRangeEnd] = useMemo(() => {
-    return getYearRangeForAStartYear(startingYearForCurrRange);
-  }, [startingYearForCurrRange]);
-
-  const matrix = useMemo(() => {
-    return getCalendarViewMatrix(
-      yearInView,
-      monthInView,
-      startOfTheWeek,
-      selectedYear,
-      selectedMonth,
-      selectedDate,
-      disableFuture,
-      disablePast,
-      disableToday,
-      isDisabled
-    );
-  }, [
-    yearInView,
-    monthInView,
-    startOfTheWeek,
-    selectedYear,
-    selectedMonth,
-    selectedDate,
-    disableFuture,
-    disablePast,
-    disableToday,
-    isDisabled,
-  ]);
-
-  useEffect(() => {
-    function keyListener(ev: KeyboardEvent) {
-      switch (ev.key) {
-        case 'Down':
-        case 'ArrowDown': {
-          console.log('down');
-          break;
-        }
-        case 'Up':
-        case 'ArrowUp': {
-          console.log('up');
-          break;
-        }
-        case 'Left':
-        case 'ArrowLeft': {
-          console.log('left');
-          break;
-        }
-        case 'Right':
-        case 'ArrowRight': {
-          console.log('right');
-          break;
-        }
-      }
-    }
-    document.addEventListener('keydown', keyListener);
-    return () => {
-      document.removeEventListener('keydown', keyListener);
-    };
-  }, []);
 
   return (
     <section className='arc'>
@@ -305,7 +275,7 @@ function Calendar({
       <main className='arc_view'>
         {view === 'months' && (
           <div className='arc_view-months'>
-            {monthMatrix.map((row, index) => (
+            {monthsViewMatrix.map((row, index) => (
               <div className='arc_view_row' key={index}>
                 {row.map((cell) => (
                   <div className={`arc_view_cell${cell.isCurrentMonth ? ' arc_this_month' : ''}`} key={cell.month}>
@@ -324,7 +294,7 @@ function Calendar({
         )}
         {view === 'years' && (
           <div className='arc_view-years'>
-            {yearMatrix.map((row, index) => (
+            {yearsViewMatrix.map((row, index) => (
               <div className='arc_view_row' key={index}>
                 {row.map((cell) => (
                   <div className={`arc_view_cell${cell.isCurrentYear ? ' arc_this_year' : ''}`} key={cell.year}>
@@ -358,7 +328,7 @@ function Calendar({
               ))}
             </ul>
             <div className='arc_view-days-of-month' role='grid'>
-              {matrix.map((row, index) => (
+              {daysOfMMonthViewMatrix.map((row, index) => (
                 <div className='arc_view_row' key={index}>
                   {row.map((cell) => (
                     <div
@@ -375,7 +345,7 @@ function Calendar({
                       <button
                         disabled={cell.isDisabled}
                         tabIndex={cell.isDisabled ? -1 : 0}
-                        onClick={() => onSelectDate(cell)}>
+                        onClick={() => onDateClicked(cell)}>
                         {cell.date}
                       </button>
                     </div>

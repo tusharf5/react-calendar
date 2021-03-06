@@ -38,3 +38,23 @@ export interface IsDisabledParams {
   month: MonthIndices | -1;
   weekday: WeekdayIndices | -1;
 }
+
+export interface GetDaysOfMonthViewMetrixParams {
+  yearInView: number;
+  monthInView: MonthIndices;
+  startOfTheWeek: WeekdayIndices;
+  selectedYear: number;
+  selectedMonth: MonthIndices;
+  selectedDayOfMonth: number;
+  disableFuture: boolean;
+  disablePast: boolean;
+  disableToday: boolean;
+  isDisabled?: (params: IsDisabledParams) => boolean;
+}
+
+export interface CheckIfDateIsDisabledHOFParams {
+  disablePast: boolean;
+  disableToday: boolean;
+  disableFuture: boolean;
+  customDisabledCheck?: (params: IsDisabledParams) => boolean;
+}

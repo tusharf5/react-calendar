@@ -1,5 +1,13 @@
 /* eslint-disable no-loop-func */
-import type { MonthIndices, WeekdayIndices, IsDisabledParams, MonthCell, YearCell, DayOfMonthCell } from './types';
+import type {
+  MonthIndices,
+  WeekdayIndices,
+  MonthCell,
+  YearCell,
+  DayOfMonthCell,
+  GetDaysOfMonthViewMetrixParams,
+  CheckIfDateIsDisabledHOFParams,
+} from './types';
 
 import { NATIVE_INDEX_TO_LABEL_WEEKDAY_MAP } from './constants';
 
@@ -16,7 +24,7 @@ export function isALeapYear(year: number) {
  * @param {number} year
  * @param {number} month
  */
-export function getDaysInMonth(year: number, month: MonthIndices) {
+export function getNumberOfDaysInAMonth(year: number, month: MonthIndices) {
   const map: Record<MonthIndices, number> = {
     0: 31,
     1: isALeapYear(year) ? 29 : 28,
@@ -47,9 +55,10 @@ export function getDaysInMonth(year: number, month: MonthIndices) {
  * @param startOfTheWeek index of the day to be considered as start of the week
  */
 export function getWeekDaysIndexToLabelMapForAStartOfTheWeek(startOfTheWeek = 0): Record<WeekdayIndices, string> {
-  // we break the [0,1,2,3,4,5,6] in two parts
-  // [start,4,5,6] and [0,1,2] and join them with their labels
+  // we break [0,1,2,3,4,5,6] in two parts, startOfTheWeek = 3
+  // [startOfTheWeek,4,5,6] and [0,1,2] and join them with their labels
   // this is just to re-order the label in the **correct order**
+  // i.e 0 becomes Wed although in native order 0 is Sunday
   return Object.keys(NATIVE_INDEX_TO_LABEL_WEEKDAY_MAP)
     .slice(startOfTheWeek, 7)
     .concat(Object.keys(NATIVE_INDEX_TO_LABEL_WEEKDAY_MAP).slice(0, startOfTheWeek))
@@ -128,7 +137,11 @@ function getNativeWeekDayIndexFromAStartDayInfluencedIndex(
  * @param month Specify a month
  * @param startOfTheWeek index of the day to be considered as start of the week
  */
-function getWeekDayOnFirstDateOfMonth(year: number, month: number, startOfTheWeek: number): WeekdayIndices {
+function getInfluencedWeekDayIndexOnFirstDateOfMonth(
+  year: number,
+  month: number,
+  startOfTheWeek: number
+): WeekdayIndices {
   const date = new Date();
   date.setDate(1);
   date.setMonth(month);
@@ -136,7 +149,11 @@ function getWeekDayOnFirstDateOfMonth(year: number, month: number, startOfTheWee
   return getInfluencedWeekDayIndexAsPerAStartDay(date.getDay(), startOfTheWeek) as WeekdayIndices;
 }
 
-function getWeekendColumns(
+/**
+ * Returns info about what indexes are weekend
+ * @param startOfTheWeek index of the day to be considered as start of the week
+ */
+function getWeekendInfo(
   startOfTheWeek: number
 ): { weekend: WeekdayIndices[]; saturday: WeekdayIndices; sunday: WeekdayIndices } {
   if (startOfTheWeek === 0) {
@@ -173,8 +190,9 @@ export function getNextYear(year: number): number {
 }
 
 // 1 - 20 (20 years in one range block)
-// 37 - 72
-// 73 - 108
+// 21 - 40
+// so if you provide 3 then the start of raange for 3 would be
+// 1 since it belongs to the 1-20 year range.
 export function getStartOfRangeForAYear(year: number) {
   // last cell will always be a perfect multiple of 20
   // take 2016 as an example
@@ -185,7 +203,11 @@ export function getStartOfRangeForAYear(year: number) {
   return 20 * Number((year / 20).toFixed(0)) + 1;
 }
 
-export function getMonthsRangeMatrix(selectedMonth: number): Array<MonthCell>[] {
+/**
+ * Returns matrix for the month select view.
+ * @param selectedMonth
+ */
+export function getMonthViewMetrix(selectedMonth: number): Array<MonthCell>[] {
   const months = Array.from({ length: 12 }, (v, k) => {
     return {
       month: k as MonthIndices,
@@ -196,25 +218,22 @@ export function getMonthsRangeMatrix(selectedMonth: number): Array<MonthCell>[] 
   return [months.slice(0, 3), months.slice(3, 6), months.slice(6, 9), months.slice(9, 12)];
 }
 
-export function getPreviousYearsViewMatrixForARange(rangeStartYear: number) {
+export function getPreviousRangeStartingYear(rangeStartYear: number) {
   if (rangeStartYear === 1) {
     return 1;
   }
   return getStartOfRangeForAYear(rangeStartYear - 1);
 }
 
-export function getNextYearsViewMatrixForARange(rangeStartYear: number) {
+export function getNextRangeStartingYear(rangeStartYear: number) {
   return getStartOfRangeForAYear(rangeStartYear + 20);
 }
 
-export function getYearRangeForAStartYear(rangeStartYear: number) {
+export function getYearRangeLimits(rangeStartYear: number) {
   return [rangeStartYear, rangeStartYear + 19];
 }
 
-export function getYearsViewMatrixForAStartOfRangeYear(
-  rangeStartYear: number,
-  selectedYear: number
-): Array<YearCell>[] {
+export function getYearsViewMetrix(rangeStartYear: number, selectedYear: number): Array<YearCell>[] {
   const years = Array.from({ length: 20 }, (v, index) => {
     return {
       year: rangeStartYear + index,
@@ -225,7 +244,7 @@ export function getYearsViewMatrixForAStartOfRangeYear(
   return [years.slice(0, 5), years.slice(5, 10), years.slice(10, 15), years.slice(15, 20)];
 }
 
-export function validateAndReturnFormatter(format: string) {
+export function validateAndReturnDateFormatter(format: string) {
   const partsMap: Record<'YYYY' | 'MM' | 'DD', boolean> = { YYYY: true, MM: true, DD: true };
   const parts = format.split('-') as ('YYYY' | 'MM' | 'DD')[];
   if (parts.length !== 3) {
@@ -254,18 +273,15 @@ export function validateAndReturnFormatter(format: string) {
   };
 }
 
-function giveCheckIfDisabled(
-  disablePast: boolean,
-  disableToday: boolean,
-  disableFuture: boolean,
-  customDisabledCheck?: (params: IsDisabledParams) => boolean
-) {
+function checkIfDateIsDisabledHOF(params: CheckIfDateIsDisabledHOFParams) {
+  const { disablePast, disableToday, disableFuture, customDisabledCheck } = params;
+
   const date = new Date();
   const dayOfMonth = date.getDate();
   const currentYear = date.getFullYear();
   const currentMonth = date.getMonth();
 
-  return function checkIfDisabled(year: number, month: MonthIndices, date: number, weekday: WeekdayIndices) {
+  return function checkIfDateIsDisabled(year: number, month: MonthIndices, date: number, weekday: WeekdayIndices) {
     if (disablePast) {
       if (year < currentYear) {
         return true;
@@ -311,35 +327,46 @@ function giveCheckIfDisabled(
   };
 }
 
-export function getCalendarViewMatrix(
-  yearInView: number,
-  monthInView: MonthIndices,
-  startOfTheWeek: WeekdayIndices,
-  selectedYear: number,
-  selectedMonth: MonthIndices,
-  selectedDayOfMonth: number,
-  disableFuture = false,
-  disablePast = false,
-  disableToday = false,
-  isDisabled?: (params: IsDisabledParams) => boolean
-): Array<DayOfMonthCell>[] {
+export function getDaysOfMonthViewMetrix(params: GetDaysOfMonthViewMetrixParams): Array<DayOfMonthCell>[] {
+  const {
+    yearInView,
+    monthInView,
+    startOfTheWeek,
+    selectedYear,
+    selectedMonth,
+    selectedDayOfMonth,
+    disableFuture = false,
+    disablePast = false,
+    disableToday = false,
+    isDisabled,
+  } = params;
+
   const matrix: Array<DayOfMonthCell>[] = [[], [], [], [], [], []];
 
-  const currentMonthDatesStartIndex = getWeekDayOnFirstDateOfMonth(yearInView, monthInView, startOfTheWeek);
+  const currentMonthDatesStartIndex = getInfluencedWeekDayIndexOnFirstDateOfMonth(
+    yearInView,
+    monthInView,
+    startOfTheWeek
+  );
 
-  const weekends = getWeekendColumns(startOfTheWeek);
+  const weekends = getWeekendInfo(startOfTheWeek);
 
-  const checkDisabledForADate = giveCheckIfDisabled(disablePast, disableToday, disableFuture, isDisabled);
+  const checkDisabledForADate = checkIfDateIsDisabledHOF({
+    disablePast,
+    disableToday,
+    disableFuture,
+    customDisabledCheck: isDisabled,
+  });
 
   const todaysDate = new Date().getDate();
   const todaysMonth = new Date().getMonth();
   const todaysYear = new Date().getFullYear();
-  const totalDaysInCurrentMonth = getDaysInMonth(yearInView, monthInView);
+  const totalDaysInCurrentMonth = getNumberOfDaysInAMonth(yearInView, monthInView);
 
   const isPrevMonthFromLastYear = monthInView === 0;
   const isCurrentMonthLast = monthInView === 11;
 
-  const totalDaysInPrevMonth = getDaysInMonth(
+  const totalDaysInPrevMonth = getNumberOfDaysInAMonth(
     isPrevMonthFromLastYear ? getPreviousYear(yearInView) : yearInView,
     getPreviousMonth(monthInView)
   );
