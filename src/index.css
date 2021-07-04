@@ -270,6 +270,14 @@ button::-moz-focus-inner {
   color: #f3a0a0;
 }
 
+.arc_view-days-of-month .arc_view_cell.arc_in_range {
+  background-color: #f1f6ff;
+}
+
+.arc_view-days-of-month .arc_view_cell.arc_in_range.arc_wknd {
+  background-color: #fff1f3;
+}
+
 .arc_view-days-of-month .arc_view_cell.arc_today button {
   font-weight: 500;
   color: #448fff;

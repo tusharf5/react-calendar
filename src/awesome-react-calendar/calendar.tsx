@@ -16,6 +16,7 @@ import {
   getDaysOfMonthViewMetrix,
   getYearRangeLimits,
   validateAndReturnDateFormatter,
+  isValid,
 } from './date-utils';
 
 import { NATIVE_INDEX_TO_LABEL_MONTHS_MAP } from './constants';
@@ -30,11 +31,28 @@ interface Value {
   formatted: string;
 }
 
+// Add an option to freeze ui if date is invalid
+
 interface Props {
   /**
-   * Value of the date in ISO format.
+   * Renders a range selector UI for the calendar
    */
-  value?: Date;
+  selectRange?: boolean;
+  /**
+   * Value of the date in ISO format.
+   * Only applicable if selectRange is false
+   */
+  date?: Date;
+  /**
+   * Start date of the date range.
+   * Only applicable if selectRange is true.
+   */
+  startdate?: Date;
+  /**
+   * End date of the date range.
+   * Only applicable if selectRange is true.
+   */
+  endDate?: Date;
   /**
    * By default the calendar starts from Sun which is represented in JS as 0 index.
    * You can provide the index for any other day that you want as start of the week.
@@ -74,7 +92,10 @@ interface Props {
 }
 
 function Calendar({
-  value,
+  date,
+  selectRange,
+  startdate,
+  endDate,
   startOfWeek = 1,
   isDisabled,
   onChange,
@@ -86,19 +107,44 @@ function Calendar({
 }: Props) {
   // start day of the week
   const [startOfTheWeek] = useState(startOfWeek);
+
   // current view
   const [view, setView] = useState<'years' | 'months' | 'month_dates'>('month_dates');
   const [monthInView, setMonthInView] = useState<MonthIndices>(
-    (value ? new Date(value).getMonth() : new Date().getMonth()) as MonthIndices
+    (isValid(date) ? new Date(date).getMonth() : new Date().getMonth()) as MonthIndices
   );
-  const [yearInView, setYearInView] = useState(value ? new Date(value).getFullYear() : new Date().getFullYear());
+  const [yearInView, setYearInView] = useState(isValid(date) ? new Date(date).getFullYear() : new Date().getFullYear());
 
-  // selected date
+  // selected single date
   const [selectedMonth, setSelectedMonth] = useState(
-    (value ? new Date(value).getMonth() : new Date().getMonth()) as MonthIndices
+    (isValid(date) ? new Date(date).getMonth() : new Date().getMonth()) as MonthIndices
   );
-  const [selectedDate, setSelectedDate] = useState(value ? new Date(value).getDate() : new Date().getDate());
-  const [selectedYear, setSelectedYear] = useState(value ? new Date(value).getFullYear() : new Date().getFullYear());
+  const [selectedDate, setSelectedDate] = useState(isValid(date) ? new Date(date).getDate() : new Date().getDate());
+  const [selectedYear, setSelectedYear] = useState(
+    isValid(date) ? new Date(date).getFullYear() : new Date().getFullYear()
+  );
+
+  // start date
+  const [selectedStartMonth, setSelectedStartMonth] = useState(
+    (isValid(startdate) ? new Date(startdate).getMonth() : new Date().getMonth()) as MonthIndices
+  );
+  const [selectedStartDate, setSelectedStartDate] = useState(
+    isValid(startdate) ? new Date(startdate).getDate() : new Date().getDate()
+  );
+  const [selectedStartYear, setSelectedStartYear] = useState(
+    isValid(startdate) ? new Date(startdate).getFullYear() : new Date().getFullYear()
+  );
+
+  // end date
+  const [selectedEndMonth, setSelectedEndMonth] = useState(
+    (isValid(endDate) ? new Date(endDate).getMonth() : new Date().getMonth()) as MonthIndices
+  );
+  const [selectedEndDate, setSelectedEndDate] = useState(
+    isValid(endDate) ? new Date(endDate).getDate() : new Date().getDate()
+  );
+  const [selectedEndYear, setSelectedEndYear] = useState(
+    isValid(endDate) ? new Date(endDate).getFullYear() : new Date().getFullYear()
+  );
 
   const [startingYearForCurrRange, setStartingYearForCurrRange] = useState(getStartOfRangeForAYear(yearInView));
 
@@ -132,6 +178,13 @@ function Calendar({
 
   const daysOfMMonthViewMatrix = useMemo(() => {
     return getDaysOfMonthViewMetrix({
+      isRangeView: !!selectRange,
+      selectedEndYear,
+      selectedEndMonth,
+      selectedEndDayOfMonth: selectedEndDate,
+      selectedStartDayOfMonth: selectedStartDate,
+      selectedStartYear,
+      selectedStartMonth,
       yearInView,
       monthInView,
       startOfTheWeek,
@@ -144,6 +197,13 @@ function Calendar({
       isDisabled,
     });
   }, [
+    selectRange,
+    selectedEndYear,
+    selectedEndMonth,
+    selectedEndDate,
+    selectedStartDate,
+    selectedStartYear,
+    selectedStartMonth,
     yearInView,
     monthInView,
     startOfTheWeek,
@@ -339,9 +399,9 @@ function Calendar({
                         cell.isToday ? ' arc_today' : ''
                       }${cell.isFirstRow ? ' arc_fr' : ''}${cell.isLastRow ? ' arc_lr' : ''}${
                         cell.isFirsColumn ? ' arc_fc' : ''
-                      }${cell.isLastColumn ? ' arc_lc' : ''}${cell.isSelected ? ' arc_selected' : ''}${
+                      }${cell.isLastColumn ? ' arc_lc' : ''}${cell.isSelected && !selectRange ? ' arc_selected' : ''}${
                         cell.isDisabled ? ' arc_disabled' : ''
-                      }`}>
+                      }${cell.isInRange ? ' arc_in_range' : ''}`}>
                       <button
                         disabled={cell.isDisabled}
                         tabIndex={cell.isDisabled ? -1 : 0}

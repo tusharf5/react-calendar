@@ -8,6 +8,9 @@ export interface DayOfMonthCell {
   year: number;
   dayOfWeek: number;
   activeMonthInView: boolean;
+  isInRange: boolean;
+  isRangeStart: boolean;
+  isRangeEnd: boolean;
   isWeekend: boolean;
   isToday: boolean;
   isSat: boolean;
@@ -40,12 +43,19 @@ export interface IsDisabledParams {
 }
 
 export interface GetDaysOfMonthViewMetrixParams {
+  isRangeView: boolean;
   yearInView: number;
   monthInView: MonthIndices;
   startOfTheWeek: WeekdayIndices;
   selectedYear: number;
   selectedMonth: MonthIndices;
   selectedDayOfMonth: number;
+  selectedStartYear: number;
+  selectedStartMonth: MonthIndices;
+  selectedStartDayOfMonth: number;
+  selectedEndYear: number;
+  selectedEndMonth: MonthIndices;
+  selectedEndDayOfMonth: number;
   disableFuture: boolean;
   disablePast: boolean;
   disableToday: boolean;

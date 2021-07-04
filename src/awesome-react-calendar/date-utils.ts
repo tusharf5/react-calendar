@@ -12,6 +12,109 @@ import type {
 import { NATIVE_INDEX_TO_LABEL_WEEKDAY_MAP } from './constants';
 
 /**
+ * Returns true if the given date is valid
+ */
+export function isValid(date: unknown): date is Date {
+  return typeof date !== 'undefined' && date !== null && !isNaN(new Date(date as Date).getTime());
+}
+
+/**
+ * Returns true if the given date falls inside the range
+ */
+export function isPartOfRange(
+  rangeStart: { month: number; year: number; monthDate: number },
+  rangeEnd: { month: number; year: number; monthDate: number },
+  date: { month: number; year: number; monthDate: number }
+): boolean {
+  // if date lies in between the year
+  if (rangeStart.year <= date.year && date.year <= rangeEnd.year) {
+    // if year is in-between range year start and year end
+    if (rangeStart.year < date.year && date.year < rangeEnd.year) {
+      return true;
+    }
+
+    // if start year and end year are same
+    if (rangeStart.year === rangeEnd.year) {
+      if (rangeStart.month <= date.month && date.month <= rangeEnd.month) {
+        // if month is in-between month start and and moth end
+        if (rangeStart.month < date.month && date.month < rangeEnd.month) {
+          return true;
+        }
+
+        // if month start and month end are same
+        if (rangeStart.month === rangeEnd.month) {
+          if (
+            rangeStart.monthDate <= date.monthDate &&
+            date.monthDate <= rangeEnd.monthDate &&
+            date.month === rangeEnd.month
+          ) {
+            return true;
+          }
+          return false;
+        }
+
+        // if date is in start month
+        if (rangeStart.month === date.month) {
+          if (rangeStart.monthDate <= date.monthDate) {
+            return true;
+          }
+          return false;
+        }
+
+        // if date is in end month
+        if (rangeEnd.month === date.month) {
+          if (date.monthDate <= rangeEnd.monthDate) {
+            return true;
+          }
+          return false;
+        }
+
+        return false;
+      }
+      return false;
+    }
+
+    // if year is same as start year
+    if (rangeStart.year === date.year) {
+      // if month is greater than start month
+      if (date.month > rangeStart.month) {
+        return true;
+      }
+
+      // if month is same as start month
+      if (date.month === rangeStart.month) {
+        // if date is greater than range start date
+        if (date.monthDate >= rangeStart.monthDate) {
+          return true;
+        }
+      }
+
+      return false;
+    }
+
+    // if year is same as end year
+    if (rangeEnd.year === date.year) {
+      // if month is smaller than end month
+      if (date.month < rangeEnd.month) {
+        return true;
+      }
+
+      // if month is same as end month
+      if (date.month === rangeEnd.month) {
+        // if date is smaller than range end date
+        if (date.monthDate <= rangeEnd.monthDate) {
+          return true;
+        }
+      }
+      return false;
+    }
+
+    return false;
+  }
+  return false;
+}
+
+/**
  * Returns true if the given year is a leap year.
  * @param {number} year
  */
@@ -77,9 +180,11 @@ export function getWeekDaysIndexToLabelMapForAStartOfTheWeek(startOfTheWeek = 0)
  * @param startOfTheWeek index of the day to be considered as start of the week
  */
 function getInfluencedWeekDayIndexAsPerAStartDay(weekdayAsPerNativeIndex: number, startOfTheWeek = 0): WeekdayIndices {
-  return (weekdayAsPerNativeIndex >= startOfTheWeek
-    ? weekdayAsPerNativeIndex - startOfTheWeek
-    : 6 - startOfTheWeek + 1 + weekdayAsPerNativeIndex) as WeekdayIndices;
+  return (
+    weekdayAsPerNativeIndex >= startOfTheWeek
+      ? weekdayAsPerNativeIndex - startOfTheWeek
+      : 6 - startOfTheWeek + 1 + weekdayAsPerNativeIndex
+  ) as WeekdayIndices;
 }
 
 // {
@@ -126,9 +231,11 @@ function getNativeWeekDayIndexFromAStartDayInfluencedIndex(
   startOfTheWeek: number
 ): WeekdayIndices {
   const diversion = 6 - startOfTheWeek;
-  return (weekdayAsPerChangedIndex <= diversion
-    ? weekdayAsPerChangedIndex + startOfTheWeek
-    : weekdayAsPerChangedIndex - diversion - 1) as WeekdayIndices;
+  return (
+    weekdayAsPerChangedIndex <= diversion
+      ? weekdayAsPerChangedIndex + startOfTheWeek
+      : weekdayAsPerChangedIndex - diversion - 1
+  ) as WeekdayIndices;
 }
 
 /**
@@ -153,9 +260,11 @@ function getInfluencedWeekDayIndexOnFirstDateOfMonth(
  * Returns info about what indexes are weekend
  * @param startOfTheWeek index of the day to be considered as start of the week
  */
-function getWeekendInfo(
-  startOfTheWeek: number
-): { weekend: WeekdayIndices[]; saturday: WeekdayIndices; sunday: WeekdayIndices } {
+function getWeekendInfo(startOfTheWeek: number): {
+  weekend: WeekdayIndices[];
+  saturday: WeekdayIndices;
+  sunday: WeekdayIndices;
+} {
   if (startOfTheWeek === 0) {
     return { weekend: [6, 0], saturday: 6, sunday: 0 };
   } else if (startOfTheWeek === 1) {
@@ -329,6 +438,13 @@ function checkIfDateIsDisabledHOF(params: CheckIfDateIsDisabledHOFParams) {
 
 export function getDaysOfMonthViewMetrix(params: GetDaysOfMonthViewMetrixParams): Array<DayOfMonthCell>[] {
   const {
+    isRangeView,
+    selectedEndDayOfMonth,
+    selectedEndMonth,
+    selectedEndYear,
+    selectedStartDayOfMonth,
+    selectedStartMonth,
+    selectedStartYear,
     yearInView,
     monthInView,
     startOfTheWeek,
@@ -384,31 +500,36 @@ export function getDaysOfMonthViewMetrix(params: GetDaysOfMonthViewMetrixParams)
       weekColumn = 0;
       row++;
     }
+    const currMonth = getPreviousMonth(monthInView);
+    const currYear = isPrevMonthFromLastYear ? getPreviousYear(yearInView) : yearInView;
     matrix[row].push({
       date: date,
-      month: getPreviousMonth(monthInView),
+      month: currMonth,
       activeMonthInView: false,
-      year: isPrevMonthFromLastYear ? getPreviousYear(yearInView) : yearInView,
+      isInRange: isRangeView
+        ? isPartOfRange(
+            { month: selectedStartMonth, year: selectedStartYear, monthDate: selectedStartDayOfMonth },
+            { month: selectedEndMonth, year: selectedEndYear, monthDate: selectedEndDayOfMonth },
+            { month: currMonth, year: currYear, monthDate: date }
+          )
+        : false,
+      isRangeStart: isRangeView ? true : false,
+      isRangeEnd: isRangeView ? true : false,
+      year: currYear,
       isWeekend: typeof weekends.weekend.find((c) => c === weekColumn) === 'number' ? true : false,
       isSat: weekends.saturday === weekColumn,
       isSun: weekends.sunday === weekColumn,
       dayOfWeek: getNativeWeekDayIndexFromAStartDayInfluencedIndex(weekColumn, startOfTheWeek),
-      isToday:
-        date === todaysDate &&
-        getPreviousMonth(monthInView) === todaysMonth &&
-        (isPrevMonthFromLastYear ? getPreviousYear(yearInView) : yearInView) === todaysYear,
+      isToday: date === todaysDate && currMonth === todaysMonth && currYear === todaysYear,
       isFirstRow: row === 0,
       isLastRow: row === 5,
       isFirsColumn: weekColumn === 0,
       isLastColumn: weekColumn === 6,
-      isSelected:
-        getPreviousMonth(monthInView) === selectedMonth &&
-        (isPrevMonthFromLastYear ? getPreviousYear(yearInView) : yearInView) === selectedYear &&
-        date === selectedDayOfMonth,
+      isSelected: currMonth === selectedMonth && currYear === selectedYear && date === selectedDayOfMonth,
       // not modified
       isDisabled: checkDisabledForADate(
-        isPrevMonthFromLastYear ? getPreviousYear(yearInView) : yearInView,
-        getPreviousMonth(monthInView),
+        currYear,
+        currMonth,
         date,
         getNativeWeekDayIndexFromAStartDayInfluencedIndex(weekColumn, startOfTheWeek)
       ),
@@ -422,12 +543,23 @@ export function getDaysOfMonthViewMetrix(params: GetDaysOfMonthViewMetrixParams)
       weekColumn = 0;
       row++;
     }
+    const currMonth = monthInView;
+    const currYear = yearInView;
     const isToday = date === todaysDate && monthInView === todaysMonth && yearInView === todaysYear;
     matrix[row].push({
       date: date,
-      month: monthInView,
+      month: currMonth,
       activeMonthInView: true,
-      year: yearInView,
+      isInRange: isRangeView
+        ? isPartOfRange(
+            { month: selectedStartMonth, year: selectedStartYear, monthDate: selectedStartDayOfMonth },
+            { month: selectedEndMonth, year: selectedEndYear, monthDate: selectedEndDayOfMonth },
+            { month: currMonth, year: currYear, monthDate: date }
+          )
+        : false,
+      isRangeStart: isRangeView ? true : false,
+      isRangeEnd: isRangeView ? true : false,
+      year: currYear,
       dayOfWeek: getNativeWeekDayIndexFromAStartDayInfluencedIndex(weekColumn, startOfTheWeek),
       isWeekend: typeof weekends.weekend.find((c) => c === weekColumn) === 'number' ? true : false,
       isSat: weekends.saturday === weekColumn,
@@ -437,10 +569,10 @@ export function getDaysOfMonthViewMetrix(params: GetDaysOfMonthViewMetrixParams)
       isLastRow: row === 5,
       isFirsColumn: weekColumn === 0,
       isLastColumn: weekColumn === 6,
-      isSelected: monthInView === selectedMonth && yearInView === selectedYear && date === selectedDayOfMonth,
+      isSelected: currMonth === selectedMonth && currYear === selectedYear && date === selectedDayOfMonth,
       isDisabled: checkDisabledForADate(
-        yearInView,
-        monthInView,
+        currYear,
+        currMonth,
         date,
         getNativeWeekDayIndexFromAStartDayInfluencedIndex(weekColumn, startOfTheWeek)
       ),
@@ -456,30 +588,35 @@ export function getDaysOfMonthViewMetrix(params: GetDaysOfMonthViewMetrixParams)
       weekColumn = 0;
       row++;
     }
+    const currMonth = getNextMonth(monthInView);
+    const currYear = isCurrentMonthLast ? yearInView + 1 : yearInView;
     matrix[row].push({
       date: date,
-      month: getNextMonth(monthInView),
+      month: currMonth,
       activeMonthInView: false,
-      year: isCurrentMonthLast ? yearInView + 1 : yearInView,
+      isInRange: isRangeView
+        ? isPartOfRange(
+            { month: selectedStartMonth, year: selectedStartYear, monthDate: selectedStartDayOfMonth },
+            { month: selectedEndMonth, year: selectedEndYear, monthDate: selectedEndDayOfMonth },
+            { month: currMonth, year: currYear, monthDate: date }
+          )
+        : false,
+      isRangeStart: isRangeView ? true : false,
+      isRangeEnd: isRangeView ? true : false,
+      year: currYear,
       dayOfWeek: getNativeWeekDayIndexFromAStartDayInfluencedIndex(weekColumn, startOfTheWeek),
       isWeekend: typeof weekends.weekend.find((c) => c === weekColumn) === 'number' ? true : false,
       isSat: weekends.saturday === weekColumn,
       isSun: weekends.sunday === weekColumn,
-      isToday:
-        date === todaysDate &&
-        getNextMonth(monthInView) === todaysMonth &&
-        (isCurrentMonthLast ? yearInView + 1 : yearInView) === todaysYear,
+      isToday: date === todaysDate && currMonth === todaysMonth && currYear === todaysYear,
       isFirstRow: row === 0,
       isLastRow: row === 5,
       isFirsColumn: weekColumn === 0,
       isLastColumn: weekColumn === 6,
-      isSelected:
-        getNextMonth(monthInView) === selectedMonth &&
-        (isCurrentMonthLast ? yearInView + 1 : yearInView) === selectedYear &&
-        date === selectedDayOfMonth,
+      isSelected: currMonth === selectedMonth && currYear === selectedYear && date === selectedDayOfMonth,
       isDisabled: checkDisabledForADate(
-        isCurrentMonthLast ? yearInView + 1 : yearInView,
-        getNextMonth(monthInView),
+        currYear,
+        currMonth,
         date,
         getNativeWeekDayIndexFromAStartDayInfluencedIndex(weekColumn, startOfTheWeek)
       ),
