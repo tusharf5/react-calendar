@@ -324,6 +324,14 @@ button::-moz-focus-inner {
   width: 1px;
 }
 
+.arc_view-days-of-month .arc_view_cell.arc_disabled.arc_wknd button::before {
+  background-color: #f5b5b5;
+}
+
+.arc_view-days-of-month .arc_view_cell.arc_wknd button::before {
+  background-color: #f5b5b5;
+}
+
 .arc_view-days-of-month .arc_view_cell.arc_wknd.arc_disabled::before {
   background-color: #f3a0a0;
 }
