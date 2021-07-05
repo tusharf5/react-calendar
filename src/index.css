@@ -286,6 +286,36 @@ button::-moz-focus-inner {
   background-color: #fff;
 }
 
+.arc_view-days-of-month .arc_view_cell.arc_range_start.arc_active,
+.arc_view-days-of-month .arc_view_cell.arc_range_end.arc_active {
+  background-color: #448fff;
+}
+
+.arc_view-days-of-month .arc_view_cell.arc_range_start.arc_active button,
+.arc_view-days-of-month .arc_view_cell.arc_range_end.arc_active button {
+  color: #fff;
+}
+
+.arc_view-days-of-month .arc_view_cell.arc_range_start.arc_wknd.arc_active,
+.arc_view-days-of-month .arc_view_cell.arc_range_end.arc_wknd.arc_active {
+  background-color: red;
+}
+
+.arc_view-days-of-month .arc_view_cell.arc_range_start.arc_wknd.arc_active button,
+.arc_view-days-of-month .arc_view_cell.arc_range_end.arc_wknd.arc_active button {
+  color: #fff;
+}
+
+.arc_view-days-of-month .arc_view_cell.arc_range_start:not(.arc_active),
+.arc_view-days-of-month .arc_view_cell.arc_range_end:not(.arc_active) {
+  /* background-color: #fff; */
+}
+
+.arc_view-days-of-month .arc_view_cell.arc_range_start.arc_wknd:not(.arc_active),
+.arc_view-days-of-month .arc_view_cell.arc_range_end.arc_wknd:not(.arc_active) {
+  /* background-color: #fff; */
+}
+
 .arc_view-days-of-month .arc_view_cell.arc_today button {
   font-weight: 500;
   color: #448fff;

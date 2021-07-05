@@ -68,3 +68,9 @@ export interface CheckIfDateIsDisabledHOFParams {
   disableFuture: boolean;
   customDisabledCheck?: (params: IsDisabledParams) => boolean;
 }
+
+export interface DateParts {
+  month: number;
+  year: number;
+  monthDate: number;
+}

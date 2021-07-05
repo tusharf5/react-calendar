@@ -4,6 +4,7 @@ import type {
   WeekdayIndices,
   MonthCell,
   YearCell,
+  DateParts,
   DayOfMonthCell,
   GetDaysOfMonthViewMetrixParams,
   CheckIfDateIsDisabledHOFParams,
@@ -19,13 +20,16 @@ export function isValid(date: unknown): date is Date {
 }
 
 /**
+ * Returns true if the given dates are equal
+ */
+export function isEqual(first: DateParts, second: DateParts): boolean {
+  return first.year === second.year && first.month === second.month && first.monthDate === second.monthDate;
+}
+
+/**
  * Returns true if the given date falls inside the range
  */
-export function isPartOfRange(
-  rangeStart: { month: number; year: number; monthDate: number },
-  rangeEnd: { month: number; year: number; monthDate: number },
-  date: { month: number; year: number; monthDate: number }
-): boolean {
+export function isPartOfRange(rangeStart: DateParts, rangeEnd: DateParts, date: DateParts): boolean {
   // if date lies in between the year
   if (rangeStart.year <= date.year && date.year <= rangeEnd.year) {
     // if year is in-between range year start and year end
@@ -513,8 +517,18 @@ export function getDaysOfMonthViewMetrix(params: GetDaysOfMonthViewMetrixParams)
             { month: currMonth, year: currYear, monthDate: date }
           )
         : false,
-      isRangeStart: isRangeView ? true : false,
-      isRangeEnd: isRangeView ? true : false,
+      isRangeStart: isRangeView
+        ? isEqual(
+            { month: selectedStartMonth, year: selectedStartYear, monthDate: selectedStartDayOfMonth },
+            { month: currMonth, year: currYear, monthDate: date }
+          )
+        : false,
+      isRangeEnd: isRangeView
+        ? isEqual(
+            { month: selectedEndMonth, year: selectedEndYear, monthDate: selectedEndDayOfMonth },
+            { month: currMonth, year: currYear, monthDate: date }
+          )
+        : false,
       year: currYear,
       isWeekend: typeof weekends.weekend.find((c) => c === weekColumn) === 'number' ? true : false,
       isSat: weekends.saturday === weekColumn,
@@ -557,8 +571,18 @@ export function getDaysOfMonthViewMetrix(params: GetDaysOfMonthViewMetrixParams)
             { month: currMonth, year: currYear, monthDate: date }
           )
         : false,
-      isRangeStart: isRangeView ? true : false,
-      isRangeEnd: isRangeView ? true : false,
+      isRangeStart: isRangeView
+        ? isEqual(
+            { month: selectedStartMonth, year: selectedStartYear, monthDate: selectedStartDayOfMonth },
+            { month: currMonth, year: currYear, monthDate: date }
+          )
+        : false,
+      isRangeEnd: isRangeView
+        ? isEqual(
+            { month: selectedEndMonth, year: selectedEndYear, monthDate: selectedEndDayOfMonth },
+            { month: currMonth, year: currYear, monthDate: date }
+          )
+        : false,
       year: currYear,
       dayOfWeek: getNativeWeekDayIndexFromAStartDayInfluencedIndex(weekColumn, startOfTheWeek),
       isWeekend: typeof weekends.weekend.find((c) => c === weekColumn) === 'number' ? true : false,
@@ -601,8 +625,18 @@ export function getDaysOfMonthViewMetrix(params: GetDaysOfMonthViewMetrixParams)
             { month: currMonth, year: currYear, monthDate: date }
           )
         : false,
-      isRangeStart: isRangeView ? true : false,
-      isRangeEnd: isRangeView ? true : false,
+      isRangeStart: isRangeView
+        ? isEqual(
+            { month: selectedStartMonth, year: selectedStartYear, monthDate: selectedStartDayOfMonth },
+            { month: currMonth, year: currYear, monthDate: date }
+          )
+        : false,
+      isRangeEnd: isRangeView
+        ? isEqual(
+            { month: selectedEndMonth, year: selectedEndYear, monthDate: selectedEndDayOfMonth },
+            { month: currMonth, year: currYear, monthDate: date }
+          )
+        : false,
       year: currYear,
       dayOfWeek: getNativeWeekDayIndexFromAStartDayInfluencedIndex(weekColumn, startOfTheWeek),
       isWeekend: typeof weekends.weekend.find((c) => c === weekColumn) === 'number' ? true : false,

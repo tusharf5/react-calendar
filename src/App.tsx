@@ -17,8 +17,8 @@ function App() {
       <section>
         <Calendar
           selectRange
-          startdate={new Date(2021, 0, 20)}
-          endDate={new Date(2021, 3, 9)}
+          startdate={new Date(2021, 0, 8)}
+          endDate={new Date(2021, 0, 22)}
           disableToday
           separator='*'
           format='MM-DD-YYYY'

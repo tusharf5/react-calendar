@@ -32,6 +32,7 @@ interface Value {
 }
 
 // Add an option to freeze ui if date is invalid
+// Add a isEditable option
 
 interface Props {
   /**
@@ -401,7 +402,9 @@ function Calendar({
                         cell.isFirsColumn ? ' arc_fc' : ''
                       }${cell.isLastColumn ? ' arc_lc' : ''}${cell.isSelected && !selectRange ? ' arc_selected' : ''}${
                         cell.isDisabled ? ' arc_disabled' : ''
-                      }${cell.isInRange ? ' arc_in_range' : ''}`}>
+                      }${cell.isInRange ? ' arc_in_range' : ''}${cell.isRangeStart ? ' arc_range_start' : ''}${
+                        cell.isRangeEnd ? ' arc_range_end' : ''
+                      }`}>
                       <button
                         disabled={cell.isDisabled}
                         tabIndex={cell.isDisabled ? -1 : 0}
