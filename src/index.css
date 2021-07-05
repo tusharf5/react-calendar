@@ -278,6 +278,14 @@ button::-moz-focus-inner {
   background-color: #fff1f3;
 }
 
+.arc_view-days-of-month .arc_view_cell.arc_in_range:not(.arc_active) {
+  background-color: #fff;
+}
+
+.arc_view-days-of-month .arc_view_cell.arc_in_range.arc_wknd:not(.arc_active) {
+  background-color: #fff;
+}
+
 .arc_view-days-of-month .arc_view_cell.arc_today button {
   font-weight: 500;
   color: #448fff;
@@ -286,7 +294,6 @@ button::-moz-focus-inner {
 .arc_view-days-of-month .arc_view_cell.arc_selected button {
   box-shadow: 0px 0px 1px 1px #0c57c5;
   background-color: #5599ff;
-
   color: #fff;
   font-weight: 500;
 }

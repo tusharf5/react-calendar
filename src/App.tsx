@@ -17,8 +17,8 @@ function App() {
       <section>
         <Calendar
           selectRange
-          startdate={new Date(2021, 0, 23)}
-          endDate={new Date(2021, 6, 29)}
+          startdate={new Date(2021, 0, 20)}
+          endDate={new Date(2021, 3, 9)}
           disableToday
           separator='*'
           format='MM-DD-YYYY'
@@ -26,7 +26,7 @@ function App() {
           startOfWeek={2}
           date={new Date(2021, 1, 23)}
         />
-        {/* <Calendar disablePast separator='-' format='YYYY-DD-MM' onChange={onChange} startOfWeek={1} date={new Date()} />
+        <Calendar disablePast separator='-' format='YYYY-DD-MM' onChange={onChange} startOfWeek={1} date={new Date()} />
         <Calendar
           disableFuture
           separator='/'
@@ -34,7 +34,7 @@ function App() {
           onChange={onChange}
           startOfWeek={1}
           date={new Date(2021, 3, 23)}
-        /> */}
+        />
       </section>
       <div>{val}</div>
     </div>
