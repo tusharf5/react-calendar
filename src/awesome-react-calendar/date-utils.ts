@@ -13,10 +13,40 @@ import type {
 import { NATIVE_INDEX_TO_LABEL_WEEKDAY_MAP } from './constants';
 
 /**
+ * Returns true if toCheck date is before the date
+ */
+export function isBefore(date: DateParts, toCheckDate: DateParts): boolean {
+  if (toCheckDate.year < date.year) {
+    return true;
+  }
+
+  if (toCheckDate.year === date.year) {
+    if (toCheckDate.month < date.month) {
+      return true;
+    }
+
+    if (toCheckDate.month === date.month) {
+      if (toCheckDate.monthDate < date.monthDate) {
+        return true;
+      }
+    }
+  }
+
+  return false;
+}
+
+/**
  * Returns true if the given date is valid
  */
 export function isValid(date: unknown): date is Date {
   return typeof date !== 'undefined' && date !== null && !isNaN(new Date(date as Date).getTime());
+}
+
+/**
+ * Returns true if the given date part is valid
+ */
+export function isPartValid(date: Partial<DateParts>): date is Required<DateParts> {
+  return typeof date.month === 'number' && typeof date.year === 'number' && typeof date.monthDate === 'number';
 }
 
 /**
@@ -442,6 +472,13 @@ function checkIfDateIsDisabledHOF(params: CheckIfDateIsDisabledHOFParams) {
 
 export function getDaysOfMonthViewMetrix(params: GetDaysOfMonthViewMetrixParams): Array<DayOfMonthCell>[] {
   const {
+    isRangeSelectModeOn,
+    newRangeStartYear,
+    newRangeStartDate,
+    newRangeStartMonth,
+    newRangeEndYear,
+    newRangeEndDate,
+    newRangeEndMonth,
     isRangeView,
     selectedEndDayOfMonth,
     selectedEndMonth,
@@ -506,28 +543,40 @@ export function getDaysOfMonthViewMetrix(params: GetDaysOfMonthViewMetrixParams)
     }
     const currMonth = getPreviousMonth(monthInView);
     const currYear = isPrevMonthFromLastYear ? getPreviousYear(yearInView) : yearInView;
+
+    const rangeStart = { month: selectedStartMonth, year: selectedStartYear, monthDate: selectedStartDayOfMonth };
+    const rangeEnd = { month: selectedEndMonth, year: selectedEndYear, monthDate: selectedEndDayOfMonth };
+    const currDate = { month: currMonth, year: currYear, monthDate: date };
+    const newRangeStart = {
+      month: newRangeStartMonth as number,
+      year: newRangeStartYear as number,
+      monthDate: newRangeStartDate as number,
+    };
+    const newRangeEnd = {
+      month: newRangeEndMonth as number,
+      year: newRangeEndYear as number,
+      monthDate: newRangeEndMonth as number,
+    };
+    // if new range dates are VALID
+    // then use them to compute in range values
     matrix[row].push({
       date: date,
       month: currMonth,
       activeMonthInView: false,
-      isInRange: isRangeView
-        ? isPartOfRange(
-            { month: selectedStartMonth, year: selectedStartYear, monthDate: selectedStartDayOfMonth },
-            { month: selectedEndMonth, year: selectedEndYear, monthDate: selectedEndDayOfMonth },
-            { month: currMonth, year: currYear, monthDate: date }
-          )
-        : false,
+      isInRange: isRangeView ? (isRangeSelectModeOn ? false : isPartOfRange(rangeStart, rangeEnd, currDate)) : false,
       isRangeStart: isRangeView
-        ? isEqual(
-            { month: selectedStartMonth, year: selectedStartYear, monthDate: selectedStartDayOfMonth },
-            { month: currMonth, year: currYear, monthDate: date }
-          )
+        ? isRangeSelectModeOn
+          ? isPartValid(newRangeStart)
+            ? isEqual(newRangeStart, currDate)
+            : false
+          : isEqual(rangeStart, currDate)
         : false,
       isRangeEnd: isRangeView
-        ? isEqual(
-            { month: selectedEndMonth, year: selectedEndYear, monthDate: selectedEndDayOfMonth },
-            { month: currMonth, year: currYear, monthDate: date }
-          )
+        ? isRangeSelectModeOn
+          ? isPartValid(newRangeEnd)
+            ? isEqual(newRangeEnd, currDate)
+            : false
+          : isEqual(rangeEnd, currDate)
         : false,
       year: currYear,
       isWeekend: typeof weekends.weekend.find((c) => c === weekColumn) === 'number' ? true : false,
@@ -560,28 +609,39 @@ export function getDaysOfMonthViewMetrix(params: GetDaysOfMonthViewMetrixParams)
     const currMonth = monthInView;
     const currYear = yearInView;
     const isToday = date === todaysDate && monthInView === todaysMonth && yearInView === todaysYear;
+
+    const rangeStart = { month: selectedStartMonth, year: selectedStartYear, monthDate: selectedStartDayOfMonth };
+    const rangeEnd = { month: selectedEndMonth, year: selectedEndYear, monthDate: selectedEndDayOfMonth };
+    const currDate = { month: currMonth, year: currYear, monthDate: date };
+    const newRangeStart = {
+      month: newRangeStartMonth as number,
+      year: newRangeStartYear as number,
+      monthDate: newRangeStartDate as number,
+    };
+    const newRangeEnd = {
+      month: newRangeEndMonth as number,
+      year: newRangeEndYear as number,
+      monthDate: newRangeEndMonth as number,
+    };
+
     matrix[row].push({
       date: date,
       month: currMonth,
       activeMonthInView: true,
-      isInRange: isRangeView
-        ? isPartOfRange(
-            { month: selectedStartMonth, year: selectedStartYear, monthDate: selectedStartDayOfMonth },
-            { month: selectedEndMonth, year: selectedEndYear, monthDate: selectedEndDayOfMonth },
-            { month: currMonth, year: currYear, monthDate: date }
-          )
-        : false,
+      isInRange: isRangeView ? (isRangeSelectModeOn ? false : isPartOfRange(rangeStart, rangeEnd, currDate)) : false,
       isRangeStart: isRangeView
-        ? isEqual(
-            { month: selectedStartMonth, year: selectedStartYear, monthDate: selectedStartDayOfMonth },
-            { month: currMonth, year: currYear, monthDate: date }
-          )
+        ? isRangeSelectModeOn
+          ? isPartValid(newRangeStart)
+            ? isEqual(newRangeStart, currDate)
+            : false
+          : isEqual(rangeStart, currDate)
         : false,
       isRangeEnd: isRangeView
-        ? isEqual(
-            { month: selectedEndMonth, year: selectedEndYear, monthDate: selectedEndDayOfMonth },
-            { month: currMonth, year: currYear, monthDate: date }
-          )
+        ? isRangeSelectModeOn
+          ? isPartValid(newRangeEnd)
+            ? isEqual(newRangeEnd, currDate)
+            : false
+          : isEqual(rangeEnd, currDate)
         : false,
       year: currYear,
       dayOfWeek: getNativeWeekDayIndexFromAStartDayInfluencedIndex(weekColumn, startOfTheWeek),
@@ -614,28 +674,39 @@ export function getDaysOfMonthViewMetrix(params: GetDaysOfMonthViewMetrixParams)
     }
     const currMonth = getNextMonth(monthInView);
     const currYear = isCurrentMonthLast ? yearInView + 1 : yearInView;
+
+    const rangeStart = { month: selectedStartMonth, year: selectedStartYear, monthDate: selectedStartDayOfMonth };
+    const rangeEnd = { month: selectedEndMonth, year: selectedEndYear, monthDate: selectedEndDayOfMonth };
+    const currDate = { month: currMonth, year: currYear, monthDate: date };
+    const newRangeStart = {
+      month: newRangeStartMonth as number,
+      year: newRangeStartYear as number,
+      monthDate: newRangeStartDate as number,
+    };
+    const newRangeEnd = {
+      month: newRangeEndMonth as number,
+      year: newRangeEndYear as number,
+      monthDate: newRangeEndMonth as number,
+    };
+
     matrix[row].push({
       date: date,
       month: currMonth,
       activeMonthInView: false,
-      isInRange: isRangeView
-        ? isPartOfRange(
-            { month: selectedStartMonth, year: selectedStartYear, monthDate: selectedStartDayOfMonth },
-            { month: selectedEndMonth, year: selectedEndYear, monthDate: selectedEndDayOfMonth },
-            { month: currMonth, year: currYear, monthDate: date }
-          )
-        : false,
+      isInRange: isRangeView ? (isRangeSelectModeOn ? false : isPartOfRange(rangeStart, rangeEnd, currDate)) : false,
       isRangeStart: isRangeView
-        ? isEqual(
-            { month: selectedStartMonth, year: selectedStartYear, monthDate: selectedStartDayOfMonth },
-            { month: currMonth, year: currYear, monthDate: date }
-          )
+        ? isRangeSelectModeOn
+          ? isPartValid(newRangeStart)
+            ? isEqual(newRangeStart, currDate)
+            : false
+          : isEqual(rangeStart, currDate)
         : false,
       isRangeEnd: isRangeView
-        ? isEqual(
-            { month: selectedEndMonth, year: selectedEndYear, monthDate: selectedEndDayOfMonth },
-            { month: currMonth, year: currYear, monthDate: date }
-          )
+        ? isRangeSelectModeOn
+          ? isPartValid(newRangeEnd)
+            ? isEqual(newRangeEnd, currDate)
+            : false
+          : isEqual(rangeEnd, currDate)
         : false,
       year: currYear,
       dayOfWeek: getNativeWeekDayIndexFromAStartDayInfluencedIndex(weekColumn, startOfTheWeek),

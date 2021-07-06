@@ -44,6 +44,7 @@ export interface IsDisabledParams {
 
 export interface GetDaysOfMonthViewMetrixParams {
   isRangeView: boolean;
+  isRangeSelectModeOn: boolean;
   yearInView: number;
   monthInView: MonthIndices;
   startOfTheWeek: WeekdayIndices;
@@ -56,6 +57,12 @@ export interface GetDaysOfMonthViewMetrixParams {
   selectedEndYear: number;
   selectedEndMonth: MonthIndices;
   selectedEndDayOfMonth: number;
+  newRangeStartYear: undefined | number;
+  newRangeStartDate: undefined | number;
+  newRangeStartMonth: undefined | MonthIndices;
+  newRangeEndYear: undefined | number;
+  newRangeEndDate: undefined | number;
+  newRangeEndMonth: undefined | MonthIndices;
   disableFuture: boolean;
   disablePast: boolean;
   disableToday: boolean;

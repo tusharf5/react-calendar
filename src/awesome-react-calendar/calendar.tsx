@@ -17,6 +17,7 @@ import {
   getYearRangeLimits,
   validateAndReturnDateFormatter,
   isValid,
+  isBefore,
 } from './date-utils';
 
 import { NATIVE_INDEX_TO_LABEL_MONTHS_MAP } from './constants';
@@ -125,7 +126,10 @@ function Calendar({
     isValid(date) ? new Date(date).getFullYear() : new Date().getFullYear()
   );
 
-  // start date
+  // is range select mode on
+  const [isRangeSelectModeOn, setIsRangeSelectModeOn] = useState(false);
+
+  // selected range start date
   const [selectedStartMonth, setSelectedStartMonth] = useState(
     (isValid(startdate) ? new Date(startdate).getMonth() : new Date().getMonth()) as MonthIndices
   );
@@ -136,7 +140,7 @@ function Calendar({
     isValid(startdate) ? new Date(startdate).getFullYear() : new Date().getFullYear()
   );
 
-  // end date
+  // selected range end date
   const [selectedEndMonth, setSelectedEndMonth] = useState(
     (isValid(endDate) ? new Date(endDate).getMonth() : new Date().getMonth()) as MonthIndices
   );
@@ -146,6 +150,16 @@ function Calendar({
   const [selectedEndYear, setSelectedEndYear] = useState(
     isValid(endDate) ? new Date(endDate).getFullYear() : new Date().getFullYear()
   );
+
+  // new range start date
+  const [newRangeStartMonth, setNewRangeStartMonth] = useState<undefined | MonthIndices>(selectedStartMonth);
+  const [newRangeStartDate, setNewRangeStartDate] = useState<undefined | number>(selectedStartDate);
+  const [newRangeStartYear, setNewRangeStartYear] = useState<undefined | number>(selectedStartYear);
+
+  // new range range end date
+  const [newRangeEndMonth, setNewRangeEndMonth] = useState<undefined | MonthIndices>(selectedEndMonth);
+  const [newRangeEndDate, setNewRangeEndDate] = useState<undefined | number>(selectedEndDate);
+  const [newRangeEndYear, setNewRangeEndYear] = useState<undefined | number>(selectedEndYear);
 
   const [startingYearForCurrRange, setStartingYearForCurrRange] = useState(getStartOfRangeForAYear(yearInView));
 
@@ -179,7 +193,14 @@ function Calendar({
 
   const daysOfMMonthViewMatrix = useMemo(() => {
     return getDaysOfMonthViewMetrix({
+      newRangeEndYear,
+      newRangeEndDate,
+      newRangeEndMonth,
+      newRangeStartYear,
+      newRangeStartDate,
+      newRangeStartMonth,
       isRangeView: !!selectRange,
+      isRangeSelectModeOn,
       selectedEndYear,
       selectedEndMonth,
       selectedEndDayOfMonth: selectedEndDate,
@@ -198,7 +219,14 @@ function Calendar({
       isDisabled,
     });
   }, [
+    newRangeEndYear,
+    newRangeEndDate,
+    newRangeEndMonth,
+    newRangeStartYear,
+    newRangeStartDate,
+    newRangeStartMonth,
     selectRange,
+    isRangeSelectModeOn,
     selectedEndYear,
     selectedEndMonth,
     selectedEndDate,
@@ -275,28 +303,79 @@ function Calendar({
 
   const onDateClicked = useCallback(
     (cell: DayOfMonthCell) => {
-      setSelectedMonth(cell.month);
+      if (selectRange) {
+        if (isRangeSelectModeOn) {
+          // check if it is the first click or seconds
+
+          if (
+            isBefore(
+              {
+                month: newRangeStartMonth as MonthIndices,
+                monthDate: newRangeStartDate as number,
+                year: newRangeStartYear as number,
+              },
+              { month: cell.month, monthDate: cell.date, year: cell.year }
+            )
+          ) {
+            setSelectedStartYear(cell.year);
+            setSelectedStartMonth(cell.month);
+            setSelectedStartDate(cell.date);
+
+            setSelectedEndYear(newRangeStartYear as number);
+            setSelectedEndMonth(newRangeStartMonth as MonthIndices);
+            setSelectedEndDate(newRangeStartDate as number);
+          } else {
+            setSelectedStartYear(newRangeStartYear as number);
+            setSelectedStartMonth(newRangeStartMonth as MonthIndices);
+            setSelectedStartDate(newRangeStartDate as number);
+
+            setSelectedEndYear(cell.year);
+            setSelectedEndMonth(cell.month);
+            setSelectedEndDate(cell.date);
+          }
+
+          setNewRangeEndYear(undefined);
+          setNewRangeEndMonth(undefined);
+          setNewRangeEndDate(undefined);
+
+          setIsRangeSelectModeOn(false);
+        } else {
+          // select first date
+          setNewRangeStartYear(cell.year);
+          setNewRangeStartMonth(cell.month);
+          setNewRangeStartDate(cell.date);
+
+          setNewRangeEndYear(undefined);
+          setNewRangeEndMonth(undefined);
+          setNewRangeEndDate(undefined);
+
+          setIsRangeSelectModeOn(true);
+        }
+      } else {
+        setSelectedMonth(cell.month);
+        setSelectedYear(cell.year);
+        setSelectedDate(cell.date);
+        const date = new Date();
+        date.setFullYear(cell.year);
+        date.setMonth(cell.month);
+        date.setDate(cell.date);
+        date.setMinutes(0, 0, 0);
+        onChange &&
+          onChange({
+            value: date,
+            dayOfWeek: cell.dayOfWeek,
+            year: cell.year,
+            month: cell.month,
+            date: cell.date,
+            formatted: formatter(cell.year, cell.month + 1, cell.date, separator),
+            iso: date.toISOString(),
+          });
+      }
+
       setMonthInView(cell.month);
-      setSelectedYear(cell.year);
       setYearInView(cell.year);
-      setSelectedDate(cell.date);
-      const date = new Date();
-      date.setFullYear(cell.year);
-      date.setMonth(cell.month);
-      date.setDate(cell.date);
-      date.setMinutes(0, 0, 0);
-      onChange &&
-        onChange({
-          value: date,
-          dayOfWeek: cell.dayOfWeek,
-          year: cell.year,
-          month: cell.month,
-          date: cell.date,
-          formatted: formatter(cell.year, cell.month + 1, cell.date, separator),
-          iso: date.toISOString(),
-        });
     },
-    [setSelectedMonth, setMonthInView, setSelectedYear, setYearInView, setSelectedDate, onChange, separator, formatter]
+    [selectRange, isRangeSelectModeOn, onChange, formatter, separator]
   );
 
   return (
