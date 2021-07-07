@@ -483,13 +483,15 @@ function Calendar({
                         cell.isDisabled ? ' arc_disabled' : ''
                       }${cell.isInRange ? ' arc_in_range' : ''}${cell.isRangeStart ? ' arc_range_start' : ''}${
                         cell.isRangeEnd ? ' arc_range_end' : ''
-                      }`}>
-                      <button
-                        disabled={cell.isDisabled}
-                        tabIndex={cell.isDisabled ? -1 : 0}
-                        onClick={() => onDateClicked(cell)}>
-                        {cell.date}
-                      </button>
+                      }${isRangeSelectModeOn ? ' arc_range_mode' : ''}`}>
+                      <div className='arc_view_cell_value'>
+                        <button
+                          disabled={cell.isDisabled}
+                          tabIndex={cell.isDisabled ? -1 : 0}
+                          onClick={() => onDateClicked(cell)}>
+                          {cell.date}
+                        </button>
+                      </div>
                     </div>
                   ))}
                 </div>

@@ -555,7 +555,7 @@ export function getDaysOfMonthViewMetrix(params: GetDaysOfMonthViewMetrixParams)
     const newRangeEnd = {
       month: newRangeEndMonth as number,
       year: newRangeEndYear as number,
-      monthDate: newRangeEndMonth as number,
+      monthDate: newRangeEndDate as number,
     };
     // if new range dates are VALID
     // then use them to compute in range values
@@ -621,7 +621,7 @@ export function getDaysOfMonthViewMetrix(params: GetDaysOfMonthViewMetrixParams)
     const newRangeEnd = {
       month: newRangeEndMonth as number,
       year: newRangeEndYear as number,
-      monthDate: newRangeEndMonth as number,
+      monthDate: newRangeEndDate as number,
     };
 
     matrix[row].push({
@@ -686,7 +686,7 @@ export function getDaysOfMonthViewMetrix(params: GetDaysOfMonthViewMetrixParams)
     const newRangeEnd = {
       month: newRangeEndMonth as number,
       year: newRangeEndYear as number,
-      monthDate: newRangeEndMonth as number,
+      monthDate: newRangeEndDate as number,
     };
 
     matrix[row].push({
