@@ -559,11 +559,20 @@ export function getDaysOfMonthViewMetrix(params: GetDaysOfMonthViewMetrixParams)
     };
     // if new range dates are VALID
     // then use them to compute in range values
+
     matrix[row].push({
       date: date,
       month: currMonth,
       activeMonthInView: false,
-      isInRange: isRangeView ? (isRangeSelectModeOn ? false : isPartOfRange(rangeStart, rangeEnd, currDate)) : false,
+      isInRange: isRangeView
+        ? isRangeSelectModeOn
+          ? isPartValid(newRangeStart) && isPartValid(newRangeEnd)
+            ? isBefore(newRangeEnd, newRangeStart)
+              ? isPartOfRange(newRangeStart, newRangeEnd, currDate)
+              : isPartOfRange(newRangeEnd, newRangeStart, currDate)
+            : false
+          : isPartOfRange(rangeStart, rangeEnd, currDate)
+        : false,
       isRangeStart: isRangeView
         ? isRangeSelectModeOn
           ? isPartValid(newRangeStart)
@@ -571,13 +580,7 @@ export function getDaysOfMonthViewMetrix(params: GetDaysOfMonthViewMetrixParams)
             : false
           : isEqual(rangeStart, currDate)
         : false,
-      isRangeEnd: isRangeView
-        ? isRangeSelectModeOn
-          ? isPartValid(newRangeEnd)
-            ? isEqual(newRangeEnd, currDate)
-            : false
-          : isEqual(rangeEnd, currDate)
-        : false,
+      isRangeEnd: isRangeView ? (isRangeSelectModeOn ? false : isEqual(rangeEnd, currDate)) : false,
       year: currYear,
       isWeekend: typeof weekends.weekend.find((c) => c === weekColumn) === 'number' ? true : false,
       isSat: weekends.saturday === weekColumn,
@@ -628,7 +631,15 @@ export function getDaysOfMonthViewMetrix(params: GetDaysOfMonthViewMetrixParams)
       date: date,
       month: currMonth,
       activeMonthInView: true,
-      isInRange: isRangeView ? (isRangeSelectModeOn ? false : isPartOfRange(rangeStart, rangeEnd, currDate)) : false,
+      isInRange: isRangeView
+        ? isRangeSelectModeOn
+          ? isPartValid(newRangeStart) && isPartValid(newRangeEnd)
+            ? isBefore(newRangeEnd, newRangeStart)
+              ? isPartOfRange(newRangeStart, newRangeEnd, currDate)
+              : isPartOfRange(newRangeEnd, newRangeStart, currDate)
+            : false
+          : isPartOfRange(rangeStart, rangeEnd, currDate)
+        : false,
       isRangeStart: isRangeView
         ? isRangeSelectModeOn
           ? isPartValid(newRangeStart)
@@ -636,13 +647,7 @@ export function getDaysOfMonthViewMetrix(params: GetDaysOfMonthViewMetrixParams)
             : false
           : isEqual(rangeStart, currDate)
         : false,
-      isRangeEnd: isRangeView
-        ? isRangeSelectModeOn
-          ? isPartValid(newRangeEnd)
-            ? isEqual(newRangeEnd, currDate)
-            : false
-          : isEqual(rangeEnd, currDate)
-        : false,
+      isRangeEnd: isRangeView ? (isRangeSelectModeOn ? false : isEqual(rangeEnd, currDate)) : false,
       year: currYear,
       dayOfWeek: getNativeWeekDayIndexFromAStartDayInfluencedIndex(weekColumn, startOfTheWeek),
       isWeekend: typeof weekends.weekend.find((c) => c === weekColumn) === 'number' ? true : false,
@@ -693,7 +698,15 @@ export function getDaysOfMonthViewMetrix(params: GetDaysOfMonthViewMetrixParams)
       date: date,
       month: currMonth,
       activeMonthInView: false,
-      isInRange: isRangeView ? (isRangeSelectModeOn ? false : isPartOfRange(rangeStart, rangeEnd, currDate)) : false,
+      isInRange: isRangeView
+        ? isRangeSelectModeOn
+          ? isPartValid(newRangeStart) && isPartValid(newRangeEnd)
+            ? isBefore(newRangeEnd, newRangeStart)
+              ? isPartOfRange(newRangeStart, newRangeEnd, currDate)
+              : isPartOfRange(newRangeEnd, newRangeStart, currDate)
+            : false
+          : isPartOfRange(rangeStart, rangeEnd, currDate)
+        : false,
       isRangeStart: isRangeView
         ? isRangeSelectModeOn
           ? isPartValid(newRangeStart)
@@ -701,13 +714,7 @@ export function getDaysOfMonthViewMetrix(params: GetDaysOfMonthViewMetrixParams)
             : false
           : isEqual(rangeStart, currDate)
         : false,
-      isRangeEnd: isRangeView
-        ? isRangeSelectModeOn
-          ? isPartValid(newRangeEnd)
-            ? isEqual(newRangeEnd, currDate)
-            : false
-          : isEqual(rangeEnd, currDate)
-        : false,
+      isRangeEnd: isRangeView ? (isRangeSelectModeOn ? false : isEqual(rangeEnd, currDate)) : false,
       year: currYear,
       dayOfWeek: getNativeWeekDayIndexFromAStartDayInfluencedIndex(weekColumn, startOfTheWeek),
       isWeekend: typeof weekends.weekend.find((c) => c === weekColumn) === 'number' ? true : false,

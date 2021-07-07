@@ -34,7 +34,7 @@ interface Value {
 
 // Add an option to freeze ui if date is invalid
 // Add a isEditable option
-
+// Change is in range to could be in range as a class rather than hover
 interface Props {
   /**
    * Renders a range selector UI for the calendar
@@ -375,7 +375,16 @@ function Calendar({
       setMonthInView(cell.month);
       setYearInView(cell.year);
     },
-    [selectRange, isRangeSelectModeOn, onChange, formatter, separator]
+    [
+      selectRange,
+      isRangeSelectModeOn,
+      newRangeStartMonth,
+      newRangeStartDate,
+      newRangeStartYear,
+      onChange,
+      formatter,
+      separator,
+    ]
   );
 
   return (
@@ -472,6 +481,15 @@ function Calendar({
                 <div className='arc_view_row' key={index}>
                   {row.map((cell) => (
                     <div
+                      onMouseEnter={() => {
+                        if (selectRange) {
+                          if (isRangeSelectModeOn) {
+                            setNewRangeEndYear(cell.year);
+                            setNewRangeEndMonth(cell.month);
+                            setNewRangeEndDate(cell.date);
+                          }
+                        }
+                      }}
                       key={cell.date}
                       className={`arc_view_cell${cell.activeMonthInView ? ' arc_active' : ''}${
                         cell.isWeekend ? ' arc_wknd' : ''
