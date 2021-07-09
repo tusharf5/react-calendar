@@ -32,14 +32,9 @@ interface Value {
   formatted: string;
 }
 
-// Add an option to freeze ui if date is invalid
-// Add a isEditable option
-// Change is in range to could be in range as a class rather than hover
-interface Props {
-  /**
-   * Renders a range selector UI for the calendar
-   */
-  selectRange?: boolean;
+type MultiValue = [Value, Value];
+
+interface CommonProps {
   /**
    * Value of the date in ISO format.
    * Only applicable if selectRange is false
@@ -72,10 +67,6 @@ interface Props {
    */
   format?: string;
   /**
-   * OnChange callback functionn.
-   */
-  onChange?: (value: Value) => any | Promise<any>;
-  /**
    * A boolean flag to disable all past dates.
    */
   disablePast?: boolean;
@@ -92,6 +83,34 @@ interface Props {
    */
   isDisabled?: (params: IsDisabledParams) => boolean;
 }
+
+// Add an option to freeze ui if date is invalid
+// Add a isEditable option
+// Change is in range to could be in range as a class rather than hover
+
+type ConditionalProps =
+  | {
+      /**
+       * Renders a range selector UI for the calendar
+       */
+      selectRange: true;
+      /**
+       * OnChange callback functionn.
+       */
+      onChange?: (value: Value) => any | Promise<any>;
+    }
+  | {
+      /**
+       * Renders a range selector UI for the calendar
+       */
+      selectRange?: false | null | undefined;
+      /**
+       * OnChange callback functionn.
+       */
+      onChange?: (value: MultiValue) => any | Promise<any>;
+    };
+
+type Props = ConditionalProps & CommonProps;
 
 function Calendar({
   date,
@@ -360,16 +379,19 @@ function Calendar({
         date.setMonth(cell.month);
         date.setDate(cell.date);
         date.setMinutes(0, 0, 0);
-        onChange &&
-          onChange({
-            value: date,
-            dayOfWeek: cell.dayOfWeek,
-            year: cell.year,
-            month: cell.month,
-            date: cell.date,
-            formatted: formatter(cell.year, cell.month + 1, cell.date, separator),
-            iso: date.toISOString(),
-          });
+
+        if (!selectRange) {
+          // onChange &&
+          //   onChange({
+          //     value: date,
+          //     dayOfWeek: cell.dayOfWeek,
+          //     year: cell.year,
+          //     month: cell.month,
+          //     date: cell.date,
+          //     formatted: formatter(cell.year, cell.month + 1, cell.date, separator),
+          //     iso: date.toISOString(),
+          //   });
+        }
       }
 
       setMonthInView(cell.month);
