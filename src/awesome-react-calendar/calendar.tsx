@@ -541,31 +541,29 @@ function Calendar({
         const date = new Date(cell.year, cell.month, cell.date);
         const stringkey = toString(date);
 
+        const newselectedMultiDates = { ...selectedMultiDates };
+
         if (!!selectedMultiDates[stringkey]) {
-          setSelectedMultiDates({
-            ...selectedMultiDates,
-            [stringkey]: undefined,
-          });
+          newselectedMultiDates[stringkey] = undefined;
         } else {
-          setSelectedMultiDates({
-            ...selectedMultiDates,
-            [stringkey]: date,
-          });
+          newselectedMultiDates[stringkey] = date;
         }
+
+        setSelectedMultiDates(newselectedMultiDates);
 
         onChange &&
           onChange(
-            Object.keys(selectedMultiDates)
-              .filter((dk) => !!selectedMultiDates[dk])
+            Object.keys(newselectedMultiDates)
+              .filter((dk) => !!newselectedMultiDates[dk])
               .map((dk) => ({
-                value: selectedMultiDates[dk] as Date,
-                year: (selectedMultiDates[dk] as Date).getFullYear(),
-                month: (selectedMultiDates[dk] as Date).getMonth(),
-                date: (selectedMultiDates[dk] as Date).getDate(),
+                value: newselectedMultiDates[dk] as Date,
+                year: (newselectedMultiDates[dk] as Date).getFullYear(),
+                month: (newselectedMultiDates[dk] as Date).getMonth(),
+                date: (newselectedMultiDates[dk] as Date).getDate(),
                 formatted: formatter(
-                  (selectedMultiDates[dk] as Date).getFullYear(),
-                  (selectedMultiDates[dk] as Date).getMonth() + 1,
-                  (selectedMultiDates[dk] as Date).getDate(),
+                  (newselectedMultiDates[dk] as Date).getFullYear(),
+                  (newselectedMultiDates[dk] as Date).getMonth() + 1,
+                  (newselectedMultiDates[dk] as Date).getDate(),
                   separator
                 ),
               }))
