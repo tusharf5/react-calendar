@@ -10,8 +10,8 @@ function App() {
     },
     [setVal]
   );
-  const maxDate = new Date(2021, 7, 25);
-  const minDate = new Date(2021, 7, 10);
+  const maxDate = new Date(2021, 7, 28);
+  const minDate = new Date(2021, 7, 4);
   return (
     <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px' }}>
       <section>
@@ -27,7 +27,7 @@ function App() {
           onChange={onChange}
         />
         <div>
-          <p>Select Range Select View With Min Max Constraint</p>
+          <p>Select Range Select View With Min-Max Constraint</p>
         </div>
         <Calendar
           initialViewDate={new Date(2021, 7, 10)}
@@ -54,19 +54,19 @@ function App() {
           date={new Date(2021, 1, 23)}
         />
         <div>
-          <p>Set Start Of The Week</p>
+          <p>Can Modify Start Day Of The Week</p>
         </div>
         <Calendar startOfWeek={3} onChange={onChange} />
         <div>
-          <p>Set Weekend</p>
+          <p>Can Modify Weekends</p>
         </div>
         <Calendar weekends={[4, 5, 6]} onChange={onChange} />
         <div>
-          <p>Set If Past Is Disabled</p>
+          <p>Can Set If Past Is Disabled</p>
         </div>
         <Calendar disablePast onChange={onChange} />
         <div>
-          <p>Set If Today Is Disabled</p>
+          <p>Can Set If Today Is Disabled</p>
         </div>
         <Calendar
           disableToday
@@ -74,7 +74,7 @@ function App() {
           onChange={onChange}
         />
         <div>
-          <p>Set If Future Is Disabled</p>
+          <p>Can Set If Future Is Disabled</p>
         </div>
         <Calendar disableFuture onChange={onChange} />
         <div>

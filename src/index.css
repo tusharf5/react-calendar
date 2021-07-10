@@ -321,6 +321,11 @@ button::-moz-focus-inner {
   /* background-color: #fff; */
 }
 
+.arc_view-days-of-month .arc_view_cell.arc_range_start.arc_wknd.arc_active .arc_view_cell_value button,
+.arc_view-days-of-month .arc_view_cell.arc_range_end.arc_wknd.arc_active .arc_view_cell_value button {
+  border-bottom-color: red;
+}
+
 .arc_view-days-of-month .arc_view_cell.arc_today:not(.arc_selected):not(.arc_disabled) button {
   font-weight: 500;
   border-bottom: 1px solid currentColor;
