@@ -87,10 +87,51 @@ function App() {
     [setNine]
   );
 
+  const [ten, setTen] = useState<object>({});
+
+  const onChangeTen = useCallback(
+    (value) => {
+      setTen(value);
+    },
+    [setTen]
+  );
+
+  const [eleven, setEleven] = useState<object>({});
+
+  const onChangeEleven = useCallback(
+    (value) => {
+      setEleven(value);
+    },
+    [setEleven]
+  );
+
+  const [tweleve, setTweleve] = useState<object>({});
+
+  const onChangeTweleve = useCallback(
+    (value) => {
+      setTweleve(value);
+    },
+    [setTweleve]
+  );
+
   const maxDate = new Date(2021, 7, 28);
   const minDate = new Date(2021, 7, 4);
   return (
     <div className='demo'>
+      <div>
+        <div>
+          <p>Default</p>
+        </div>
+        <div>
+          <div className='calendar'>
+            <Calendar onChange={onChangenine} />
+          </div>
+          <div className='json'>
+            <ReactJson name='value' enableClipboard={false} src={nine} />
+          </div>
+        </div>
+      </div>
+
       <div>
         <div className='desc'>
           <p>Select Multiple Dates View</p>
@@ -108,30 +149,6 @@ function App() {
           </div>
           <div className='json'>
             <ReactJson name='value' enableClipboard={false} src={one} />
-          </div>
-        </div>
-      </div>
-
-      <div>
-        <div>
-          <p>Select Range Select View With Min-Max Constraint</p>
-        </div>
-        <div>
-          <div className='calendar'>
-            <Calendar
-              initialViewDate={new Date(2021, 7, 10)}
-              selectRange
-              maxAllowedDate={maxDate}
-              minAllowedDate={minDate}
-              disableToday
-              separator='/'
-              format='MM-DD-YYYY'
-              onChange={onChangetwo}
-              // startOfWeek={2}
-            />
-          </div>
-          <div className='json'>
-            <ReactJson name='value' enableClipboard={false} src={two} />
           </div>
         </div>
       </div>
@@ -161,7 +178,31 @@ function App() {
 
       <div>
         <div>
-          <p>Can Modify Start Day Of The Week</p>
+          <p>Select Range Select View With Min-Max Allowed Dates</p>
+        </div>
+        <div>
+          <div className='calendar'>
+            <Calendar
+              initialViewDate={new Date(2021, 7, 10)}
+              selectRange
+              maxAllowedDate={maxDate}
+              minAllowedDate={minDate}
+              disableToday
+              separator='/'
+              format='MM-DD-YYYY'
+              onChange={onChangetwo}
+              // startOfWeek={2}
+            />
+          </div>
+          <div className='json'>
+            <ReactJson name='value' enableClipboard={false} src={two} />
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div>
+          <p>Can Modify Start Day Of The Week (Wed here)</p>
         </div>
         <div>
           <div className='calendar'>
@@ -175,7 +216,7 @@ function App() {
 
       <div>
         <div>
-          <p>Can Modify Weekends</p>
+          <p>Can Specify Weekends (Fri, Sat, Sun here)</p>
         </div>
         <div>
           <div className='calendar'>
@@ -235,14 +276,42 @@ function App() {
 
       <div>
         <div>
-          <p>Default</p>
+          <p>Can Set Output Date Format (YYYY-DD-MM here)</p>
         </div>
         <div>
           <div className='calendar'>
-            <Calendar onChange={onChangenine} />
+            <Calendar format='YYYY-DD-MM' onChange={onChangeTen} />
           </div>
           <div className='json'>
-            <ReactJson name='value' enableClipboard={false} src={nine} />
+            <ReactJson name='value' enableClipboard={false} src={ten} />
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div>
+          <p>Can Set Output Date Separator (# here)</p>
+        </div>
+        <div>
+          <div className='calendar'>
+            <Calendar separator='#' onChange={onChangeEleven} />
+          </div>
+          <div className='json'>
+            <ReactJson name='value' enableClipboard={false} src={eleven} />
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div>
+          <p>Can Set Initial Month&Date View To Show (Sept, 2020 here)</p>
+        </div>
+        <div>
+          <div className='calendar'>
+            <Calendar initialViewDate={new Date(2020, 8, 9)} onChange={onChangeTweleve} />
+          </div>
+          <div className='json'>
+            <ReactJson name='value' enableClipboard={false} src={tweleve} />
           </div>
         </div>
       </div>

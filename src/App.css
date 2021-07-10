@@ -1,12 +1,9 @@
 .demo {
-  width: 80%;
   margin: 0 auto;
-  border: 1px solid #eaeaea;
   padding: 24px;
 }
 
 .demo > div {
-  border-bottom: 1px solid #eaeaea;
   padding: 24px;
 }
 
@@ -23,11 +20,13 @@
   display: flex;
   align-items: flex-start;
   justify-content: space-evenly;
+  flex-wrap: wrap;
 }
 
 .calendar {
   flex: 0 0 400px;
   max-width: 400px;
+  margin-bottom: 2rem;
 }
 
 .json {
