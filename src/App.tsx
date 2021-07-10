@@ -14,13 +14,20 @@ function App() {
   const minDate = new Date(2021, 7, 10);
   return (
     <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px' }}>
-      <section style={{ textAlign: 'center' }}>
+      <section>
         <div>
-          <h2>Multi Date Select</h2>
+          <p>Select Multiple Dates View</p>
         </div>
-        <Calendar selectMultiDates disableToday separator='/' format='MM-DD-YYYY' onChange={onChange} />
+        <Calendar
+          dates={[new Date(2021, 6, 21), new Date(2021, 6, 25), new Date(2021, 6, 9)]}
+          selectMultiDates
+          disableToday
+          separator='/'
+          format='MM-DD-YYYY'
+          onChange={onChange}
+        />
         <div>
-          <h2>Range Select With Min Max</h2>
+          <p>Select Range Select View With Min Max Constraint</p>
         </div>
         <Calendar
           initialViewDate={new Date(2021, 7, 10)}
@@ -32,10 +39,9 @@ function App() {
           format='MM-DD-YYYY'
           onChange={onChange}
           // startOfWeek={2}
-          date={new Date(2021, 1, 23)}
         />
         <div>
-          <h2>Range Select</h2>
+          <p>Select Range Select View</p>
         </div>
         <Calendar
           selectRange
@@ -48,19 +54,19 @@ function App() {
           date={new Date(2021, 1, 23)}
         />
         <div>
-          <h2>Start Of The Week Change</h2>
+          <p>Set Start Of The Week</p>
         </div>
         <Calendar startOfWeek={3} onChange={onChange} />
         <div>
-          <h2>Weekend Change</h2>
+          <p>Set Weekend</p>
         </div>
         <Calendar weekends={[4, 5, 6]} onChange={onChange} />
         <div>
-          <h2>Past Disabled</h2>
+          <p>Set If Past Is Disabled</p>
         </div>
         <Calendar disablePast onChange={onChange} />
         <div>
-          <h2>Today Disabled</h2>
+          <p>Set If Today Is Disabled</p>
         </div>
         <Calendar
           disableToday
@@ -68,11 +74,11 @@ function App() {
           onChange={onChange}
         />
         <div>
-          <h2>Future Disabled</h2>
+          <p>Set If Future Is Disabled</p>
         </div>
         <Calendar disableFuture onChange={onChange} />
         <div>
-          <h2>Default</h2>
+          <p>Default</p>
         </div>
         <Calendar onChange={onChange} />
       </section>

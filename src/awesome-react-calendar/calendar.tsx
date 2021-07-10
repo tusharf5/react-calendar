@@ -48,6 +48,10 @@ interface Props {
    */
   date?: Date;
   /**
+   * Multiple dates
+   */
+  dates?: Date[];
+  /**
    * Start date of the date range.
    * Only applicable if selectRange is true.
    */
@@ -124,6 +128,7 @@ interface Props {
 
 function Calendar({
   date,
+  dates = [],
   selectRange,
   weekends,
   startdate,
@@ -219,7 +224,14 @@ function Calendar({
   );
 
   // selected multi dates
-  const [selectedMultiDates, setSelectedMultiDates] = useState<Record<string, Date | undefined>>({});
+  const [selectedMultiDates, setSelectedMultiDates] = useState<Record<string, Date | undefined>>(
+    dates.reduce((acc, currDate) => {
+      if (isValid(currDate)) {
+        acc[toString(currDate)] = currDate;
+      }
+      return acc;
+    }, {} as Record<string, Date | undefined>)
+  );
 
   // selected single date
   const [selectedMonth, setSelectedMonth] = useState(
