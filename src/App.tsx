@@ -48,7 +48,7 @@ function App() {
           date={new Date(2021, 1, 23)}
         />
         <div>
-          <h2>Start Of The Weel Change</h2>
+          <h2>Start Of The Week Change</h2>
         </div>
         <Calendar startOfWeek={3} onChange={onChange} />
         <div>
@@ -62,7 +62,11 @@ function App() {
         <div>
           <h2>Today Disabled</h2>
         </div>
-        <Calendar disableToday disablePast onChange={onChange} />
+        <Calendar
+          disableToday
+          date={new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate() + 1)}
+          onChange={onChange}
+        />
         <div>
           <h2>Future Disabled</h2>
         </div>
