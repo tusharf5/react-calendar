@@ -16,6 +16,7 @@ import {
   getDaysOfMonthViewMetrix,
   getYearRangeLimits,
   validateAndReturnDateFormatter,
+  getWeekendInfo,
   isValid,
   isBefore,
 } from './date-utils';
@@ -27,14 +28,12 @@ interface Value {
   year: number;
   month: number;
   date: number;
-  dayOfWeek: number;
-  iso: string;
   formatted: string;
 }
 
-type MultiValue = [Value, Value];
+type MultiValue = { start: Value; end: Value };
 
-interface CommonProps {
+interface Props {
   /**
    * Value of the date in ISO format.
    * Only applicable if selectRange is false
@@ -50,6 +49,12 @@ interface CommonProps {
    * Only applicable if selectRange is true.
    */
   endDate?: Date;
+  /**
+   * Array of weekday number that are part of weekend.
+   * The weekday number depends on the start of the week if provided one.
+   * By default this is [6, 0] which Saturday, Sunday respectively as per the 0 based start of the week.
+   */
+  weekends?: WeekdayIndices[];
   /**
    * By default the calendar starts from Sun which is represented in JS as 0 index.
    * You can provide the index for any other day that you want as start of the week.
@@ -82,39 +87,24 @@ interface CommonProps {
    * A callback function that can be used to disable specific dates on the calendar.
    */
   isDisabled?: (params: IsDisabledParams) => boolean;
+  /**
+   * Renders a range selector UI for the calendar
+   */
+  selectRange?: boolean;
+  /**
+   * OnChange callback functionn.
+   */
+  onChange?: (value: Value | MultiValue) => any | Promise<any>;
 }
 
 // Add an option to freeze ui if date is invalid
 // Add a isEditable option
 // Change is in range to could be in range as a class rather than hover
 
-type ConditionalProps =
-  | {
-      /**
-       * Renders a range selector UI for the calendar
-       */
-      selectRange: true;
-      /**
-       * OnChange callback functionn.
-       */
-      onChange?: (value: Value) => any | Promise<any>;
-    }
-  | {
-      /**
-       * Renders a range selector UI for the calendar
-       */
-      selectRange?: false | null | undefined;
-      /**
-       * OnChange callback functionn.
-       */
-      onChange?: (value: MultiValue) => any | Promise<any>;
-    };
-
-type Props = ConditionalProps & CommonProps;
-
 function Calendar({
   date,
   selectRange,
+  weekends,
   startdate,
   endDate,
   startOfWeek = 1,
@@ -128,6 +118,12 @@ function Calendar({
 }: Props) {
   // start day of the week
   const [startOfTheWeek] = useState(startOfWeek);
+
+  const [weekendIndexes] = useState(() => {
+    return Array.isArray(weekends) && weekends.every((num) => typeof num === 'number')
+      ? weekends
+      : getWeekendInfo(startOfTheWeek);
+  });
 
   // current view
   const [view, setView] = useState<'years' | 'months' | 'month_dates'>('month_dates');
@@ -214,6 +210,7 @@ function Calendar({
     return getDaysOfMonthViewMetrix({
       newRangeEndYear,
       newRangeEndDate,
+      weekendIndexes,
       newRangeEndMonth,
       newRangeStartYear,
       newRangeStartDate,
@@ -240,6 +237,7 @@ function Calendar({
   }, [
     newRangeEndYear,
     newRangeEndDate,
+    weekendIndexes,
     newRangeEndMonth,
     newRangeStartYear,
     newRangeStartDate,
@@ -326,31 +324,99 @@ function Calendar({
         if (isRangeSelectModeOn) {
           // check if it is the first click or seconds
 
-          if (
-            isBefore(
-              {
-                month: newRangeStartMonth as MonthIndices,
-                monthDate: newRangeStartDate as number,
-                year: newRangeStartYear as number,
-              },
-              { month: cell.month, monthDate: cell.date, year: cell.year }
-            )
-          ) {
-            setSelectedStartYear(cell.year);
-            setSelectedStartMonth(cell.month);
-            setSelectedStartDate(cell.date);
+          const clickedDate = { month: cell.month, monthDate: cell.date, year: cell.year };
+          const previouslySelected = {
+            month: newRangeStartMonth as MonthIndices,
+            monthDate: newRangeStartDate as number,
+            year: newRangeStartYear as number,
+          };
 
-            setSelectedEndYear(newRangeStartYear as number);
-            setSelectedEndMonth(newRangeStartMonth as MonthIndices);
-            setSelectedEndDate(newRangeStartDate as number);
+          if (isBefore(previouslySelected, clickedDate)) {
+            setSelectedStartYear(clickedDate.year);
+            setSelectedStartMonth(clickedDate.month);
+            setSelectedStartDate(clickedDate.monthDate);
+
+            setSelectedEndYear(previouslySelected.year);
+            setSelectedEndMonth(previouslySelected.month);
+            setSelectedEndDate(previouslySelected.monthDate);
+
+            const startDate = new Date();
+            startDate.setDate(clickedDate.monthDate);
+            startDate.setFullYear(clickedDate.year);
+            startDate.setMonth(clickedDate.month);
+            startDate.setMinutes(0, 0, 0);
+
+            const endDate = new Date();
+            endDate.setDate(previouslySelected.monthDate);
+            endDate.setFullYear(previouslySelected.year);
+            endDate.setMonth(previouslySelected.month);
+            endDate.setMinutes(0, 0, 0);
+
+            onChange &&
+              onChange({
+                start: {
+                  value: startDate,
+                  year: clickedDate.year,
+                  month: clickedDate.month,
+                  date: clickedDate.monthDate,
+                  formatted: formatter(clickedDate.year, clickedDate.month + 1, clickedDate.monthDate, separator),
+                },
+                end: {
+                  value: endDate,
+                  year: previouslySelected.year,
+                  month: previouslySelected.month,
+                  date: previouslySelected.monthDate,
+                  formatted: formatter(
+                    previouslySelected.year,
+                    previouslySelected.month + 1,
+                    previouslySelected.monthDate,
+                    separator
+                  ),
+                },
+              });
           } else {
-            setSelectedStartYear(newRangeStartYear as number);
-            setSelectedStartMonth(newRangeStartMonth as MonthIndices);
-            setSelectedStartDate(newRangeStartDate as number);
+            setSelectedStartYear(previouslySelected.year);
+            setSelectedStartMonth(previouslySelected.month);
+            setSelectedStartDate(previouslySelected.monthDate);
 
-            setSelectedEndYear(cell.year);
-            setSelectedEndMonth(cell.month);
-            setSelectedEndDate(cell.date);
+            setSelectedEndYear(clickedDate.year);
+            setSelectedEndMonth(clickedDate.month);
+            setSelectedEndDate(clickedDate.monthDate);
+
+            const startDate = new Date();
+            startDate.setDate(previouslySelected.monthDate);
+            startDate.setFullYear(previouslySelected.year);
+            startDate.setMonth(previouslySelected.monthDate);
+            startDate.setMinutes(0, 0, 0);
+
+            const endDate = new Date();
+            endDate.setDate(clickedDate.monthDate);
+            endDate.setFullYear(clickedDate.year);
+            endDate.setMonth(clickedDate.month);
+            endDate.setMinutes(0, 0, 0);
+
+            onChange &&
+              onChange({
+                start: {
+                  value: startDate,
+                  year: previouslySelected.year,
+                  month: previouslySelected.month,
+                  date: previouslySelected.monthDate,
+                  formatted: formatter(
+                    previouslySelected.year,
+                    previouslySelected.month + 1,
+                    previouslySelected.monthDate,
+                    separator
+                  ),
+                },
+                end: {
+                  value: endDate,
+                  year: clickedDate.year,
+                  month: clickedDate.month,
+                  date: clickedDate.monthDate,
+                  formatted: formatter(clickedDate.year, clickedDate.month + 1, clickedDate.monthDate, separator),
+                },
+              });
           }
 
           setNewRangeEndYear(undefined);
@@ -380,18 +446,14 @@ function Calendar({
         date.setDate(cell.date);
         date.setMinutes(0, 0, 0);
 
-        if (!selectRange) {
-          // onChange &&
-          //   onChange({
-          //     value: date,
-          //     dayOfWeek: cell.dayOfWeek,
-          //     year: cell.year,
-          //     month: cell.month,
-          //     date: cell.date,
-          //     formatted: formatter(cell.year, cell.month + 1, cell.date, separator),
-          //     iso: date.toISOString(),
-          //   });
-        }
+        onChange &&
+          onChange({
+            value: date,
+            year: cell.year,
+            month: cell.month,
+            date: cell.date,
+            formatted: formatter(cell.year, cell.month + 1, cell.date, separator),
+          });
       }
 
       setMonthInView(cell.month);
@@ -404,6 +466,7 @@ function Calendar({
       newRangeStartDate,
       newRangeStartYear,
       onChange,
+      date,
       formatter,
       separator,
     ]
@@ -485,14 +548,11 @@ function Calendar({
         {view === 'month_dates' && (
           <>
             <ul className='arc_view_weekdays'>
-              {Object.keys(WEEK_DAYS).map((weekDay) => (
+              {Object.keys(WEEK_DAYS).map((weekDay, index) => (
                 <li
                   key={weekDay}
                   className={`arc_view_weekdays_cell${
-                    WEEK_DAYS[Number(weekDay) as WeekdayIndices] === 'Sa' ||
-                    WEEK_DAYS[Number(weekDay) as WeekdayIndices] === 'Su'
-                      ? ' arc_wknd'
-                      : ''
+                    !!weekendIndexes.find((day) => day === index) ? ' arc_wknd' : ''
                   }`}>
                   <span>{WEEK_DAYS[Number(weekDay) as WeekdayIndices]}</span>
                 </li>
@@ -515,15 +575,13 @@ function Calendar({
                       key={cell.date}
                       className={`arc_view_cell${cell.activeMonthInView ? ' arc_active' : ''}${
                         cell.isWeekend ? ' arc_wknd' : ''
-                      }${cell.isSat ? ' arc_sat' : ''}${cell.isSun ? ' arc_sun' : ''}${
-                        cell.isToday ? ' arc_today' : ''
-                      }${cell.isFirstRow ? ' arc_fr' : ''}${cell.isLastRow ? ' arc_lr' : ''}${
-                        cell.isFirsColumn ? ' arc_fc' : ''
-                      }${cell.isLastColumn ? ' arc_lc' : ''}${cell.isSelected && !selectRange ? ' arc_selected' : ''}${
-                        cell.isDisabled ? ' arc_disabled' : ''
-                      }${cell.isInRange ? ' arc_in_range' : ''}${cell.isRangeStart ? ' arc_range_start' : ''}${
-                        cell.isRangeEnd ? ' arc_range_end' : ''
-                      }${isRangeSelectModeOn ? ' arc_range_mode' : ''}`}>
+                      }${cell.isToday ? ' arc_today' : ''}${cell.isFirstRow ? ' arc_fr' : ''}${
+                        cell.isLastRow ? ' arc_lr' : ''
+                      }${cell.isFirsColumn ? ' arc_fc' : ''}${cell.isLastColumn ? ' arc_lc' : ''}${
+                        cell.isSelected && !selectRange ? ' arc_selected' : ''
+                      }${cell.isDisabled ? ' arc_disabled' : ''}${cell.isInRange ? ' arc_in_range' : ''}${
+                        cell.isRangeStart ? ' arc_range_start' : ''
+                      }${cell.isRangeEnd ? ' arc_range_end' : ''}${isRangeSelectModeOn ? ' arc_range_mode' : ''}`}>
                       <div className='arc_view_cell_value'>
                         <button
                           disabled={cell.isDisabled}

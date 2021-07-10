@@ -20,10 +20,11 @@ function App() {
           startdate={new Date(2021, 0, 8)}
           endDate={new Date(2021, 0, 22)}
           disableToday
-          separator='*'
+          separator='/'
           format='MM-DD-YYYY'
           onChange={onChange}
-          startOfWeek={2}
+          weekends={[0, 1, 2, 3]}
+          // startOfWeek={2}
           date={new Date(2021, 1, 23)}
         />
         <Calendar disablePast separator='-' format='YYYY-DD-MM' onChange={onChange} startOfWeek={1} date={new Date()} />

@@ -13,13 +13,11 @@ export interface DayOfMonthCell {
   isRangeEnd: boolean;
   isWeekend: boolean;
   isToday: boolean;
-  isSat: boolean;
   isFirstRow: boolean;
   isLastRow: boolean;
   isFirsColumn: boolean;
   isSelected: boolean;
   isLastColumn: boolean;
-  isSun: boolean;
   isDisabled: boolean;
 }
 
@@ -47,6 +45,7 @@ export interface GetDaysOfMonthViewMetrixParams {
   isRangeSelectModeOn: boolean;
   yearInView: number;
   monthInView: MonthIndices;
+  weekendIndexes: WeekdayIndices[];
   startOfTheWeek: WeekdayIndices;
   selectedYear: number;
   selectedMonth: MonthIndices;

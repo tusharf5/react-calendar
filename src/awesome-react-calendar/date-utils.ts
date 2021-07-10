@@ -294,25 +294,21 @@ function getInfluencedWeekDayIndexOnFirstDateOfMonth(
  * Returns info about what indexes are weekend
  * @param startOfTheWeek index of the day to be considered as start of the week
  */
-function getWeekendInfo(startOfTheWeek: number): {
-  weekend: WeekdayIndices[];
-  saturday: WeekdayIndices;
-  sunday: WeekdayIndices;
-} {
+export function getWeekendInfo(startOfTheWeek: number): WeekdayIndices[] {
   if (startOfTheWeek === 0) {
-    return { weekend: [6, 0], saturday: 6, sunday: 0 };
+    return [6, 0];
   } else if (startOfTheWeek === 1) {
-    return { weekend: [5, 6], saturday: 5, sunday: 6 };
+    return [5, 6];
   } else if (startOfTheWeek === 2) {
-    return { weekend: [4, 5], saturday: 4, sunday: 5 };
+    return [4, 5];
   } else if (startOfTheWeek === 3) {
-    return { weekend: [3, 4], saturday: 3, sunday: 4 };
+    return [3, 4];
   } else if (startOfTheWeek === 4) {
-    return { weekend: [2, 3], saturday: 2, sunday: 3 };
+    return [2, 3];
   } else if (startOfTheWeek === 5) {
-    return { weekend: [1, 2], saturday: 1, sunday: 2 };
+    return [1, 2];
   } else {
-    return { weekend: [0, 1], saturday: 0, sunday: 1 };
+    return [0, 1];
   }
 }
 
@@ -482,6 +478,7 @@ export function getDaysOfMonthViewMetrix(params: GetDaysOfMonthViewMetrixParams)
     isRangeView,
     selectedEndDayOfMonth,
     selectedEndMonth,
+    weekendIndexes,
     selectedEndYear,
     selectedStartDayOfMonth,
     selectedStartMonth,
@@ -506,7 +503,7 @@ export function getDaysOfMonthViewMetrix(params: GetDaysOfMonthViewMetrixParams)
     startOfTheWeek
   );
 
-  const weekends = getWeekendInfo(startOfTheWeek);
+  const weekends = weekendIndexes;
 
   const checkDisabledForADate = checkIfDateIsDisabledHOF({
     disablePast,
@@ -582,9 +579,7 @@ export function getDaysOfMonthViewMetrix(params: GetDaysOfMonthViewMetrixParams)
         : false,
       isRangeEnd: isRangeView ? (isRangeSelectModeOn ? false : isEqual(rangeEnd, currDate)) : false,
       year: currYear,
-      isWeekend: typeof weekends.weekend.find((c) => c === weekColumn) === 'number' ? true : false,
-      isSat: weekends.saturday === weekColumn,
-      isSun: weekends.sunday === weekColumn,
+      isWeekend: typeof weekends.find((c) => c === weekColumn) === 'number' ? true : false,
       dayOfWeek: getNativeWeekDayIndexFromAStartDayInfluencedIndex(weekColumn, startOfTheWeek),
       isToday: date === todaysDate && currMonth === todaysMonth && currYear === todaysYear,
       isFirstRow: row === 0,
@@ -650,9 +645,7 @@ export function getDaysOfMonthViewMetrix(params: GetDaysOfMonthViewMetrixParams)
       isRangeEnd: isRangeView ? (isRangeSelectModeOn ? false : isEqual(rangeEnd, currDate)) : false,
       year: currYear,
       dayOfWeek: getNativeWeekDayIndexFromAStartDayInfluencedIndex(weekColumn, startOfTheWeek),
-      isWeekend: typeof weekends.weekend.find((c) => c === weekColumn) === 'number' ? true : false,
-      isSat: weekends.saturday === weekColumn,
-      isSun: weekends.sunday === weekColumn,
+      isWeekend: typeof weekends.find((c) => c === weekColumn) === 'number' ? true : false,
       isToday: isToday,
       isFirstRow: row === 0,
       isLastRow: row === 5,
@@ -717,9 +710,7 @@ export function getDaysOfMonthViewMetrix(params: GetDaysOfMonthViewMetrixParams)
       isRangeEnd: isRangeView ? (isRangeSelectModeOn ? false : isEqual(rangeEnd, currDate)) : false,
       year: currYear,
       dayOfWeek: getNativeWeekDayIndexFromAStartDayInfluencedIndex(weekColumn, startOfTheWeek),
-      isWeekend: typeof weekends.weekend.find((c) => c === weekColumn) === 'number' ? true : false,
-      isSat: weekends.saturday === weekColumn,
-      isSun: weekends.sunday === weekColumn,
+      isWeekend: typeof weekends.find((c) => c === weekColumn) === 'number' ? true : false,
       isToday: date === todaysDate && currMonth === todaysMonth && currYear === todaysYear,
       isFirstRow: row === 0,
       isLastRow: row === 5,
