@@ -413,12 +413,23 @@ export function validateAndReturnDateFormatter(format: string) {
 }
 
 function checkIfDateIsDisabledHOF(params: CheckIfDateIsDisabledHOFParams) {
-  const { disablePast, disableToday, disableFuture, customDisabledCheck } = params;
+  const { disablePast, disableToday, disableFuture, customDisabledCheck, maxDate, minDate, applyMax, applyMin } =
+    params;
 
   const date = new Date();
   const dayOfMonth = date.getDate();
   const currentYear = date.getFullYear();
   const currentMonth = date.getMonth();
+  const maxDateParts: DateParts = {
+    month: maxDate.getMonth(),
+    monthDate: maxDate.getDate(),
+    year: maxDate.getFullYear(),
+  };
+  const minDateParts: DateParts = {
+    month: minDate.getMonth(),
+    monthDate: minDate.getDate(),
+    year: minDate.getFullYear(),
+  };
 
   return function checkIfDateIsDisabled(year: number, month: MonthIndices, date: number, weekday: WeekdayIndices) {
     if (disablePast) {
@@ -449,6 +460,18 @@ function checkIfDateIsDisabledHOF(params: CheckIfDateIsDisabledHOFParams) {
       }
 
       if (year === currentYear && month === currentMonth && date > dayOfMonth) {
+        return true;
+      }
+    }
+
+    if (applyMax) {
+      if (isBefore({ year, monthDate: date, month }, maxDateParts)) {
+        return true;
+      }
+    }
+
+    if (applyMin) {
+      if (isBefore(minDateParts, { year, monthDate: date, month })) {
         return true;
       }
     }
@@ -492,6 +515,10 @@ export function getDaysOfMonthViewMetrix(params: GetDaysOfMonthViewMetrixParams)
     disableFuture = false,
     disablePast = false,
     disableToday = false,
+    maxDate,
+    minDate,
+    applyMax,
+    applyMin,
     isDisabled,
   } = params;
 
@@ -510,6 +537,10 @@ export function getDaysOfMonthViewMetrix(params: GetDaysOfMonthViewMetrixParams)
     disableToday,
     disableFuture,
     customDisabledCheck: isDisabled,
+    maxDate,
+    minDate,
+    applyMax,
+    applyMin,
   });
 
   const todaysDate = new Date().getDate();

@@ -62,6 +62,10 @@ export interface GetDaysOfMonthViewMetrixParams {
   newRangeEndYear: undefined | number;
   newRangeEndDate: undefined | number;
   newRangeEndMonth: undefined | MonthIndices;
+  maxDate: Date;
+  minDate: Date;
+  applyMax: boolean;
+  applyMin: boolean;
   disableFuture: boolean;
   disablePast: boolean;
   disableToday: boolean;
@@ -73,6 +77,10 @@ export interface CheckIfDateIsDisabledHOFParams {
   disableToday: boolean;
   disableFuture: boolean;
   customDisabledCheck?: (params: IsDisabledParams) => boolean;
+  maxDate: Date;
+  minDate: Date;
+  applyMax: boolean;
+  applyMin: boolean;
 }
 
 export interface DateParts {

@@ -276,11 +276,11 @@ button::-moz-focus-inner {
   color: #f3a0a0;
 }
 
-.arc_view-days-of-month .arc_view_cell.arc_in_range .arc_view_cell_value {
+.arc_view-days-of-month .arc_view_cell.arc_in_range:not(.arc_disabled) .arc_view_cell_value {
   background-color: #f1f6ff;
 }
 
-.arc_view-days-of-month .arc_view_cell.arc_in_range.arc_wknd .arc_view_cell_value {
+.arc_view-days-of-month .arc_view_cell.arc_in_range.arc_wknd:not(.arc_disabled) .arc_view_cell_value {
   background-color: #fff1f3;
 }
 

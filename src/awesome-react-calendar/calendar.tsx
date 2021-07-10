@@ -88,6 +88,14 @@ interface Props {
    */
   isDisabled?: (params: IsDisabledParams) => boolean;
   /**
+   * User will not be able to select past this date. This date will be selectable.
+   */
+  maxAllowedDate?: Date;
+  /**
+   * User will not be able to select before this date. This date will be selectable.
+   */
+  minAllowedDate?: Date;
+  /**
    * Renders a range selector UI for the calendar
    */
   selectRange?: boolean;
@@ -100,6 +108,7 @@ interface Props {
 // Add an option to freeze ui if date is invalid
 // Add a isEditable option
 // Change is in range to could be in range as a class rather than hover
+// dont show range hover on diabalbed
 
 function Calendar({
   date,
@@ -108,6 +117,8 @@ function Calendar({
   startdate,
   endDate,
   startOfWeek = 1,
+  maxAllowedDate,
+  minAllowedDate,
   isDisabled,
   onChange,
   separator = '-',
@@ -118,6 +129,52 @@ function Calendar({
 }: Props) {
   // start day of the week
   const [startOfTheWeek] = useState(startOfWeek);
+
+  // maxDate
+  const [maxDate] = useState(() => {
+    return isValid(maxAllowedDate) ? maxAllowedDate : new Date();
+  });
+  const [applyMaxConstraint] = useState(() => {
+    return isValid(maxAllowedDate)
+      ? isValid(minAllowedDate)
+        ? isBefore(
+            {
+              month: maxAllowedDate.getMonth(),
+              monthDate: maxAllowedDate.getDate(),
+              year: maxAllowedDate.getFullYear(),
+            },
+            {
+              month: minAllowedDate.getMonth(),
+              monthDate: minAllowedDate.getDate(),
+              year: minAllowedDate.getFullYear(),
+            }
+          )
+        : true
+      : false;
+  });
+
+  // minDate
+  const [minDate] = useState(() => {
+    return isValid(minAllowedDate) ? minAllowedDate : new Date();
+  });
+  const [applyminConstraint] = useState(() => {
+    return isValid(minAllowedDate)
+      ? isValid(maxAllowedDate)
+        ? isBefore(
+            {
+              month: maxAllowedDate.getMonth(),
+              monthDate: maxAllowedDate.getDate(),
+              year: maxAllowedDate.getFullYear(),
+            },
+            {
+              month: minAllowedDate.getMonth(),
+              monthDate: minAllowedDate.getDate(),
+              year: minAllowedDate.getFullYear(),
+            }
+          )
+        : true
+      : false;
+  });
 
   const [weekendIndexes] = useState(() => {
     return Array.isArray(weekends) && weekends.every((num) => typeof num === 'number')
@@ -233,6 +290,10 @@ function Calendar({
       disablePast,
       disableToday,
       isDisabled,
+      maxDate: maxDate,
+      minDate: minDate,
+      applyMax: applyMaxConstraint,
+      applyMin: applyminConstraint,
     });
   }, [
     newRangeEndYear,
@@ -260,6 +321,10 @@ function Calendar({
     disablePast,
     disableToday,
     isDisabled,
+    maxDate,
+    minDate,
+    applyMaxConstraint,
+    applyminConstraint,
   ]);
 
   // callback handlers

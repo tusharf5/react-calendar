@@ -10,11 +10,15 @@ function App() {
     },
     [setVal]
   );
+  const maxDate = new Date(2021, 10, 10);
+  const minDate = new Date(2019, 10, 10);
   return (
     <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px' }}>
       <section>
         <Calendar
           selectRange
+          maxAllowedDate={maxDate}
+          minAllowedDate={minDate}
           startdate={new Date(2021, 0, 8)}
           endDate={new Date(2021, 0, 22)}
           disableToday
