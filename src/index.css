@@ -15,10 +15,6 @@ code {
 }
 
 .arc {
-  margin-bottom: 45px;
-}
-
-.arc {
   display: flex;
   align-items: flex-start;
   flex-direction: column;
