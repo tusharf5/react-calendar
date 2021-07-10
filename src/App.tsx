@@ -1,13 +1,11 @@
 import React, { useCallback, useState } from 'react';
 
 import Calendar from './awesome-react-calendar/calendar';
-import { IsDisabledParams } from './awesome-react-calendar/types';
 
 function App() {
   const [val, setVal] = useState('{}');
   const onChange = useCallback(
     (value) => {
-      console.log(value);
       setVal(JSON.stringify(value, null, 4));
     },
     [setVal]
@@ -23,7 +21,7 @@ function App() {
           separator='/'
           format='MM-DD-YYYY'
           onChange={onChange}
-          weekends={[0, 1, 2, 3]}
+          weekends={[5, 6]}
           // startOfWeek={2}
           date={new Date(2021, 1, 23)}
         />

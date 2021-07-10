@@ -466,7 +466,6 @@ function Calendar({
       newRangeStartDate,
       newRangeStartYear,
       onChange,
-      date,
       formatter,
       separator,
     ]
@@ -548,11 +547,11 @@ function Calendar({
         {view === 'month_dates' && (
           <>
             <ul className='arc_view_weekdays'>
-              {Object.keys(WEEK_DAYS).map((weekDay, index) => (
+              {Object.keys(WEEK_DAYS).map((weekDay) => (
                 <li
                   key={weekDay}
                   className={`arc_view_weekdays_cell${
-                    !!weekendIndexes.find((day) => day === index) ? ' arc_wknd' : ''
+                    typeof weekendIndexes.find((weekend) => weekend === Number(weekDay)) === 'number' ? ' arc_wknd' : ''
                   }`}>
                   <span>{WEEK_DAYS[Number(weekDay) as WeekdayIndices]}</span>
                 </li>
