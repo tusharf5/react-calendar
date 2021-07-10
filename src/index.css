@@ -257,7 +257,6 @@ button::-moz-focus-inner {
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 6px;
   cursor: pointer;
   font-size: 13px;
   color: #b6b6b7;
@@ -322,9 +321,9 @@ button::-moz-focus-inner {
   /* background-color: #fff; */
 }
 
-.arc_view-days-of-month .arc_view_cell.arc_today button {
+.arc_view-days-of-month .arc_view_cell.arc_today:not(.arc_selected):not(.arc_disabled) button {
   font-weight: 500;
-  color: #448fff;
+  border-bottom: 1px solid currentColor;
 }
 
 .arc_view-days-of-month .arc_view_cell.arc_selected .arc_view_cell_value {
