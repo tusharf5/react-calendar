@@ -35,6 +35,12 @@ type MultiValue = { start: Value; end: Value };
 
 interface Props {
   /**
+   * The initial month and year that will be shown to the user.
+   * By default it shows today's date month and year. If a date is selected it shows the selected
+   * date's month and year.
+   */
+  initialViewDate?: Date;
+  /**
    * Value of the date in ISO format.
    * Only applicable if selectRange is false
    */
@@ -115,6 +121,7 @@ function Calendar({
   selectRange,
   weekends,
   startdate,
+  initialViewDate,
   endDate,
   startOfWeek = 1,
   maxAllowedDate,
@@ -185,9 +192,19 @@ function Calendar({
   // current view
   const [view, setView] = useState<'years' | 'months' | 'month_dates'>('month_dates');
   const [monthInView, setMonthInView] = useState<MonthIndices>(
-    (isValid(date) ? new Date(date).getMonth() : new Date().getMonth()) as MonthIndices
+    (isValid(initialViewDate)
+      ? new Date(initialViewDate).getMonth()
+      : !selectRange && isValid(date)
+      ? new Date(date).getMonth()
+      : new Date().getMonth()) as MonthIndices
   );
-  const [yearInView, setYearInView] = useState(isValid(date) ? new Date(date).getFullYear() : new Date().getFullYear());
+  const [yearInView, setYearInView] = useState(
+    isValid(initialViewDate)
+      ? new Date(initialViewDate).getFullYear()
+      : !selectRange && isValid(date)
+      ? new Date(date).getFullYear()
+      : new Date().getFullYear()
+  );
 
   // selected single date
   const [selectedMonth, setSelectedMonth] = useState(

@@ -10,15 +10,26 @@ function App() {
     },
     [setVal]
   );
-  const maxDate = new Date(2021, 10, 10);
-  const minDate = new Date(2019, 10, 10);
+  const maxDate = new Date(2021, 7, 25);
+  const minDate = new Date(2021, 7, 10);
   return (
     <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px' }}>
       <section>
         <Calendar
+          initialViewDate={new Date(2021, 7, 10)}
           selectRange
           maxAllowedDate={maxDate}
           minAllowedDate={minDate}
+          disableToday
+          separator='/'
+          format='MM-DD-YYYY'
+          onChange={onChange}
+          weekends={[5, 6]}
+          // startOfWeek={2}
+          date={new Date(2021, 1, 23)}
+        />
+        <Calendar
+          selectRange
           startdate={new Date(2021, 0, 8)}
           endDate={new Date(2021, 0, 22)}
           disableToday
