@@ -2,6 +2,8 @@
 
 This project is currentlly under active development. Use `yarn start` to test it.
 
+[Online Demo](https://tusharf5.github.io/react-calendar/)
+
 ## Links
 
 https://uxplanet.org/how-to-design-a-perfect-date-picker-control-7f47d1290c3a
