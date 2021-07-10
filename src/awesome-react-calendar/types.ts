@@ -49,21 +49,11 @@ export interface GetDaysOfMonthViewMetrixParams {
   monthInView: MonthIndices;
   weekendIndexes: WeekdayIndices[];
   startOfTheWeek: WeekdayIndices;
-  selectedYear: number;
-  selectedMonth: MonthIndices;
-  selectedDayOfMonth: number;
-  selectedStartYear: number;
-  selectedStartMonth: MonthIndices;
-  selectedStartDayOfMonth: number;
-  selectedEndYear: number;
-  selectedEndMonth: MonthIndices;
-  selectedEndDayOfMonth: number;
-  newRangeStartYear: undefined | number;
-  newRangeStartDate: undefined | number;
-  newRangeStartMonth: undefined | MonthIndices;
-  newRangeEndYear: undefined | number;
-  newRangeEndDate: undefined | number;
-  newRangeEndMonth: undefined | MonthIndices;
+  selectedDate: Date;
+  selectedRangeStart: Date;
+  selectedRangeEnd: Date;
+  newSelectedRangeStart: undefined | Date;
+  newSelectedRangeEnd: undefined | Date;
   maxDate: Date;
   minDate: Date;
   applyMax: boolean;
@@ -83,10 +73,4 @@ export interface CheckIfDateIsDisabledHOFParams {
   minDate: Date;
   applyMax: boolean;
   applyMin: boolean;
-}
-
-export interface DateParts {
-  month: number;
-  year: number;
-  monthDate: number;
 }

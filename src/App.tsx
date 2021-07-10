@@ -114,6 +114,15 @@ function App() {
     [setTweleve]
   );
 
+  const [thirteen, setThirteen] = useState<object>({});
+
+  const onChangeThirteen = useCallback(
+    (value) => {
+      setThirteen(value);
+    },
+    [setThirteen]
+  );
+
   const maxDate = new Date(2021, 7, 28);
   const minDate = new Date(2021, 7, 4);
   return (
@@ -196,6 +205,20 @@ function App() {
           </div>
           <div className='json'>
             <ReactJson name='value' enableClipboard={false} src={two} />
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div>
+          <p>Select Fixed Range View (6 Days)</p>
+        </div>
+        <div>
+          <div className='calendar'>
+            <Calendar fixedRange={6} onChange={onChangeThirteen} />
+          </div>
+          <div className='json'>
+            <ReactJson name='value' enableClipboard={false} src={thirteen} />
           </div>
         </div>
       </div>

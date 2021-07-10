@@ -20,15 +20,13 @@ import {
   isValid,
   isBefore,
   toString,
+  addDays,
 } from './date-utils';
 
 import { NATIVE_INDEX_TO_LABEL_MONTHS_MAP } from './constants';
 
 interface Value {
   value: Date;
-  year: number;
-  month: number;
-  date: number;
   formatted: string;
 }
 
@@ -88,6 +86,10 @@ interface Props {
    */
   disablePast?: boolean;
   /**
+   * Always select n number of days starting from the user's selected date
+   */
+  fixedRange?: number;
+  /**
    * A boolean flag to disable today's date.
    */
   disableToday?: boolean;
@@ -138,6 +140,7 @@ function Calendar({
   maxAllowedDate,
   minAllowedDate,
   selectMultiDates,
+  fixedRange,
   isDisabled,
   onChange,
   separator = '-',
@@ -151,6 +154,15 @@ function Calendar({
     typeof selectMultiDates === 'boolean' && !selectRange ? selectMultiDates : false
   );
 
+  const [isFixedRange] = useState(
+    !isSelectMultiDate && !selectRange && typeof fixedRange === 'number' && fixedRange > 1 ? true : false
+  );
+
+  // is range select mode on
+  const [isRangeSelectModeOn, setIsRangeSelectModeOn] = useState(false);
+
+  const [fixedRangeLength] = useState(isFixedRange ? (fixedRange as number) : 1);
+
   // start day of the week
   const [startOfTheWeek] = useState(startOfWeek);
 
@@ -161,18 +173,7 @@ function Calendar({
   const [applyMaxConstraint] = useState(() => {
     return isValid(maxAllowedDate)
       ? isValid(minAllowedDate)
-        ? isBefore(
-            {
-              month: maxAllowedDate.getMonth(),
-              monthDate: maxAllowedDate.getDate(),
-              year: maxAllowedDate.getFullYear(),
-            },
-            {
-              month: minAllowedDate.getMonth(),
-              monthDate: minAllowedDate.getDate(),
-              year: minAllowedDate.getFullYear(),
-            }
-          )
+        ? isBefore(maxAllowedDate, minAllowedDate)
         : true
       : false;
   });
@@ -181,21 +182,11 @@ function Calendar({
   const [minDate] = useState(() => {
     return isValid(minAllowedDate) ? minAllowedDate : new Date();
   });
+
   const [applyminConstraint] = useState(() => {
     return isValid(minAllowedDate)
       ? isValid(maxAllowedDate)
-        ? isBefore(
-            {
-              month: maxAllowedDate.getMonth(),
-              monthDate: maxAllowedDate.getDate(),
-              year: maxAllowedDate.getFullYear(),
-            },
-            {
-              month: minAllowedDate.getMonth(),
-              monthDate: minAllowedDate.getDate(),
-              year: minAllowedDate.getFullYear(),
-            }
-          )
+        ? isBefore(maxAllowedDate, minAllowedDate)
         : true
       : false;
   });
@@ -234,48 +225,54 @@ function Calendar({
   );
 
   // selected single date
-  const [selectedMonth, setSelectedMonth] = useState(
-    (isValid(date) ? new Date(date).getMonth() : new Date().getMonth()) as MonthIndices
-  );
-  const [selectedDate, setSelectedDate] = useState(isValid(date) ? new Date(date).getDate() : new Date().getDate());
-  const [selectedYear, setSelectedYear] = useState(
-    isValid(date) ? new Date(date).getFullYear() : new Date().getFullYear()
-  );
-
-  // is range select mode on
-  const [isRangeSelectModeOn, setIsRangeSelectModeOn] = useState(false);
+  const [selectedDate, setSelectedDate] = useState(() => {
+    const today = new Date();
+    if (isValid(date)) {
+      const year = date.getFullYear();
+      const month = date.getMonth();
+      const dateOfMonth = date.getDate();
+      return new Date(year, month, dateOfMonth);
+    } else {
+      return today;
+    }
+  });
 
   // selected range start date
-  const [selectedStartMonth, setSelectedStartMonth] = useState(
-    (isValid(startdate) ? new Date(startdate).getMonth() : new Date().getMonth()) as MonthIndices
-  );
-  const [selectedStartDate, setSelectedStartDate] = useState(
-    isValid(startdate) ? new Date(startdate).getDate() : new Date().getDate()
-  );
-  const [selectedStartYear, setSelectedStartYear] = useState(
-    isValid(startdate) ? new Date(startdate).getFullYear() : new Date().getFullYear()
-  );
+  const [selectedRangeStart, setSelectedRangeStart] = useState(() => {
+    const today = new Date();
+    if (!!selectRange && isValid(startdate)) {
+      const year = startdate.getFullYear();
+      const month = startdate.getMonth();
+      const date = startdate.getDate();
 
-  // selected range end date
-  const [selectedEndMonth, setSelectedEndMonth] = useState(
-    (isValid(endDate) ? new Date(endDate).getMonth() : new Date().getMonth()) as MonthIndices
-  );
-  const [selectedEndDate, setSelectedEndDate] = useState(
-    isValid(endDate) ? new Date(endDate).getDate() : new Date().getDate()
-  );
-  const [selectedEndYear, setSelectedEndYear] = useState(
-    isValid(endDate) ? new Date(endDate).getFullYear() : new Date().getFullYear()
-  );
+      return new Date(year, month, date);
+    } else {
+      return today;
+    }
+  });
 
-  // new range start date
-  const [newRangeStartMonth, setNewRangeStartMonth] = useState<undefined | MonthIndices>(selectedStartMonth);
-  const [newRangeStartDate, setNewRangeStartDate] = useState<undefined | number>(selectedStartDate);
-  const [newRangeStartYear, setNewRangeStartYear] = useState<undefined | number>(selectedStartYear);
+  const [selectedRangeEnd, setSelectedRangeEnd] = useState(() => {
+    const today = new Date();
+    // FIXME Check if endDAte is after startDAte
+    if (!!selectRange && isValid(endDate)) {
+      const year = endDate.getFullYear();
+      const month = endDate.getMonth();
+      const date = endDate.getDate();
+      return new Date(year, month, date);
+    } else if (isFixedRange) {
+      return addDays(selectedRangeStart, fixedRangeLength);
+    } else {
+      return today;
+    }
+  });
 
-  // new range range end date
-  const [newRangeEndMonth, setNewRangeEndMonth] = useState<undefined | MonthIndices>(selectedEndMonth);
-  const [newRangeEndDate, setNewRangeEndDate] = useState<undefined | number>(selectedEndDate);
-  const [newRangeEndYear, setNewRangeEndYear] = useState<undefined | number>(selectedEndYear);
+  const [newSelectedRangeStart, setNewSelectedRangeStart] = useState<Date | undefined>(() => {
+    return selectedRangeStart;
+  });
+
+  const [newSelectedRangeEnd, setNewSelectedRangeEnd] = useState<Date | undefined>(() => {
+    return selectedRangeEnd;
+  });
 
   const [startingYearForCurrRange, setStartingYearForCurrRange] = useState(getStartOfRangeForAYear(yearInView));
 
@@ -300,38 +297,28 @@ function Calendar({
 
   // matrices for different views
   const yearsViewMatrix = useMemo<YearCell[][]>(() => {
-    return getYearsViewMetrix(startingYearForCurrRange, selectedYear);
-  }, [startingYearForCurrRange, selectedYear]);
+    return getYearsViewMetrix(startingYearForCurrRange, selectedDate.getFullYear());
+  }, [startingYearForCurrRange, selectedDate]);
 
   const monthsViewMatrix = useMemo<MonthCell[][]>(() => {
-    return getMonthViewMetrix(selectedMonth);
-  }, [selectedMonth]);
+    return getMonthViewMetrix(selectedDate.getMonth());
+  }, [selectedDate]);
 
   const daysOfMMonthViewMatrix = useMemo(() => {
     return getDaysOfMonthViewMetrix({
-      newRangeEndYear,
-      selectedMultiDates,
-      newRangeEndDate,
-      weekendIndexes,
-      newRangeEndMonth,
-      newRangeStartYear,
-      newRangeStartDate,
-      newRangeStartMonth,
-      isRangeView: !!selectRange,
+      selectedDate: selectedDate,
+      selectedRangeStart: selectedRangeStart,
+      selectedRangeEnd: selectedRangeEnd,
+      newSelectedRangeStart: newSelectedRangeStart,
+      newSelectedRangeEnd: newSelectedRangeEnd,
+      isRangeView: !!selectRange || isFixedRange,
       isRangeSelectModeOn,
-      selectedEndYear,
+      weekendIndexes,
+      selectedMultiDates,
       isSelectMultiDate,
-      selectedEndMonth,
-      selectedEndDayOfMonth: selectedEndDate,
-      selectedStartDayOfMonth: selectedStartDate,
-      selectedStartYear,
-      selectedStartMonth,
       yearInView,
       monthInView,
       startOfTheWeek,
-      selectedYear,
-      selectedMonth,
-      selectedDayOfMonth: selectedDate,
       disableFuture,
       disablePast,
       disableToday,
@@ -342,29 +329,20 @@ function Calendar({
       applyMin: applyminConstraint,
     });
   }, [
-    newRangeEndYear,
-    selectedMultiDates,
-    newRangeEndDate,
-    weekendIndexes,
-    newRangeEndMonth,
-    newRangeStartYear,
-    newRangeStartDate,
-    newRangeStartMonth,
+    selectedDate,
+    selectedRangeStart,
+    selectedRangeEnd,
+    newSelectedRangeStart,
+    newSelectedRangeEnd,
     selectRange,
+    isFixedRange,
     isRangeSelectModeOn,
-    selectedEndYear,
+    weekendIndexes,
+    selectedMultiDates,
     isSelectMultiDate,
-    selectedEndMonth,
-    selectedEndDate,
-    selectedStartDate,
-    selectedStartYear,
-    selectedStartMonth,
     yearInView,
     monthInView,
     startOfTheWeek,
-    selectedYear,
-    selectedMonth,
-    selectedDate,
     disableFuture,
     disablePast,
     disableToday,
@@ -433,119 +411,77 @@ function Calendar({
 
   const onDateClicked = useCallback(
     (cell: DayOfMonthCell) => {
+      const clickedDate = new Date(cell.year, cell.month, cell.date);
+
       if (selectRange) {
-        if (isRangeSelectModeOn) {
+        if (isRangeSelectModeOn && newSelectedRangeStart) {
           // check if it is the first click or seconds
 
-          const clickedDate = { month: cell.month, monthDate: cell.date, year: cell.year };
-          const previouslySelected = {
-            month: newRangeStartMonth as MonthIndices,
-            monthDate: newRangeStartDate as number,
-            year: newRangeStartYear as number,
-          };
+          const previouslySelectedDate = new Date(
+            newSelectedRangeStart.getFullYear(),
+            newSelectedRangeStart.getMonth(),
+            newSelectedRangeStart.getDate()
+          );
 
-          if (isBefore(previouslySelected, clickedDate)) {
-            setSelectedStartYear(clickedDate.year);
-            setSelectedStartMonth(clickedDate.month);
-            setSelectedStartDate(clickedDate.monthDate);
+          if (isBefore(previouslySelectedDate, clickedDate)) {
+            setSelectedRangeStart(clickedDate);
+            setSelectedRangeEnd(previouslySelectedDate);
 
-            setSelectedEndYear(previouslySelected.year);
-            setSelectedEndMonth(previouslySelected.month);
-            setSelectedEndDate(previouslySelected.monthDate);
+            const startDate = clickedDate;
 
-            const startDate = new Date();
-            startDate.setDate(clickedDate.monthDate);
-            startDate.setFullYear(clickedDate.year);
-            startDate.setMonth(clickedDate.month);
-            startDate.setMinutes(0, 0, 0);
-
-            const endDate = new Date();
-            endDate.setDate(previouslySelected.monthDate);
-            endDate.setFullYear(previouslySelected.year);
-            endDate.setMonth(previouslySelected.month);
-            endDate.setMinutes(0, 0, 0);
+            const endDate = previouslySelectedDate;
 
             onChange &&
               onChange([
                 {
                   value: startDate,
-                  year: clickedDate.year,
-                  month: clickedDate.month,
-                  date: clickedDate.monthDate,
-                  formatted: formatter(clickedDate.year, clickedDate.month + 1, clickedDate.monthDate, separator),
+                  formatted: formatter(
+                    startDate.getFullYear(),
+                    startDate.getMonth() + 1,
+                    startDate.getDate(),
+                    separator
+                  ),
                 },
                 {
                   value: endDate,
-                  year: previouslySelected.year,
-                  month: previouslySelected.month,
-                  date: previouslySelected.monthDate,
-                  formatted: formatter(
-                    previouslySelected.year,
-                    previouslySelected.month + 1,
-                    previouslySelected.monthDate,
-                    separator
-                  ),
+                  formatted: formatter(endDate.getFullYear(), endDate.getMonth() + 1, endDate.getDate(), separator),
                 },
               ]);
           } else {
-            setSelectedStartYear(previouslySelected.year);
-            setSelectedStartMonth(previouslySelected.month);
-            setSelectedStartDate(previouslySelected.monthDate);
+            setSelectedRangeStart(previouslySelectedDate);
 
-            setSelectedEndYear(clickedDate.year);
-            setSelectedEndMonth(clickedDate.month);
-            setSelectedEndDate(clickedDate.monthDate);
+            setSelectedRangeEnd(clickedDate);
 
-            const startDate = new Date();
-            startDate.setDate(previouslySelected.monthDate);
-            startDate.setFullYear(previouslySelected.year);
-            startDate.setMonth(previouslySelected.monthDate);
-            startDate.setMinutes(0, 0, 0);
+            const startDate = previouslySelectedDate;
 
-            const endDate = new Date();
-            endDate.setDate(clickedDate.monthDate);
-            endDate.setFullYear(clickedDate.year);
-            endDate.setMonth(clickedDate.month);
-            endDate.setMinutes(0, 0, 0);
+            const endDate = clickedDate;
 
             onChange &&
               onChange([
                 {
                   value: startDate,
-                  year: previouslySelected.year,
-                  month: previouslySelected.month,
-                  date: previouslySelected.monthDate,
                   formatted: formatter(
-                    previouslySelected.year,
-                    previouslySelected.month + 1,
-                    previouslySelected.monthDate,
+                    startDate.getFullYear(),
+                    startDate.getMonth() + 1,
+                    startDate.getDate(),
                     separator
                   ),
                 },
                 {
                   value: endDate,
-                  year: clickedDate.year,
-                  month: clickedDate.month,
-                  date: clickedDate.monthDate,
-                  formatted: formatter(clickedDate.year, clickedDate.month + 1, clickedDate.monthDate, separator),
+                  formatted: formatter(endDate.getFullYear(), endDate.getMonth() + 1, endDate.getDate(), separator),
                 },
               ]);
           }
 
-          setNewRangeEndYear(undefined);
-          setNewRangeEndMonth(undefined);
-          setNewRangeEndDate(undefined);
+          setNewSelectedRangeEnd(undefined);
 
           setIsRangeSelectModeOn(false);
         } else {
           // select first date
-          setNewRangeStartYear(cell.year);
-          setNewRangeStartMonth(cell.month);
-          setNewRangeStartDate(cell.date);
+          setNewSelectedRangeStart(clickedDate);
 
-          setNewRangeEndYear(undefined);
-          setNewRangeEndMonth(undefined);
-          setNewRangeEndDate(undefined);
+          setNewSelectedRangeEnd(undefined);
 
           setIsRangeSelectModeOn(true);
         }
@@ -580,23 +516,23 @@ function Calendar({
                 ),
               }))
           );
+      } else if (isFixedRange) {
+        setSelectedRangeStart(clickedDate);
+
+        const endDate = addDays(clickedDate, fixedRangeLength);
+        setSelectedRangeEnd(endDate);
       } else {
-        setSelectedMonth(cell.month);
-        setSelectedYear(cell.year);
-        setSelectedDate(cell.date);
-        const date = new Date();
-        date.setFullYear(cell.year);
-        date.setMonth(cell.month);
-        date.setDate(cell.date);
-        date.setMinutes(0, 0, 0);
+        setSelectedDate(clickedDate);
 
         onChange &&
           onChange({
-            value: date,
-            year: cell.year,
-            month: cell.month,
-            date: cell.date,
-            formatted: formatter(cell.year, cell.month + 1, cell.date, separator),
+            value: clickedDate,
+            formatted: formatter(
+              clickedDate.getFullYear(),
+              clickedDate.getMonth() + 1,
+              clickedDate.getDate(),
+              separator
+            ),
           });
       }
 
@@ -606,14 +542,14 @@ function Calendar({
     [
       selectRange,
       isSelectMultiDate,
+      isFixedRange,
       isRangeSelectModeOn,
-      newRangeStartMonth,
-      newRangeStartDate,
-      newRangeStartYear,
+      newSelectedRangeStart,
       onChange,
       formatter,
       separator,
       selectedMultiDates,
+      fixedRangeLength,
     ]
   );
 
@@ -711,9 +647,7 @@ function Calendar({
                       onMouseEnter={() => {
                         if (selectRange) {
                           if (isRangeSelectModeOn) {
-                            setNewRangeEndYear(cell.year);
-                            setNewRangeEndMonth(cell.month);
-                            setNewRangeEndDate(cell.date);
+                            setNewSelectedRangeEnd(new Date(cell.year, cell.month, cell.date));
                           }
                         }
                       }}
