@@ -25,6 +25,10 @@ https://codepen.io/ashfaqace/pen/RpyYdG
 
 ## Images
 
+### Date Range view
+
+![Month Dates View](./images/range.png)
+
 ### Days of month view
 
 ![Month Dates View](./images/view-1.png)
