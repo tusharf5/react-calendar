@@ -16,6 +16,14 @@ function App() {
     <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px' }}>
       <section>
         <Calendar
+          selectMultiDates
+          disableToday
+          separator='/'
+          format='MM-DD-YYYY'
+          onChange={onChange}
+          weekends={[5, 6]}
+        />
+        <Calendar
           initialViewDate={new Date(2021, 7, 10)}
           selectRange
           maxAllowedDate={maxDate}

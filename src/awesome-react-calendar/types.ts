@@ -41,6 +41,8 @@ export interface IsDisabledParams {
 }
 
 export interface GetDaysOfMonthViewMetrixParams {
+  isSelectMultiDate: boolean;
+  selectedMultiDates: Record<string, Date | undefined>;
   isRangeView: boolean;
   isRangeSelectModeOn: boolean;
   yearInView: number;

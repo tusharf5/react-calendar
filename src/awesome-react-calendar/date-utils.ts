@@ -13,6 +13,13 @@ import type {
 import { NATIVE_INDEX_TO_LABEL_WEEKDAY_MAP } from './constants';
 
 /**
+ * Converts a date to string
+ */
+export function toString(date: Date) {
+  return `${date.getFullYear()}${date.getMonth()}${date.getDate()}`;
+}
+
+/**
  * Returns true if toCheck date is before the date
  */
 export function isBefore(date: DateParts, toCheckDate: DateParts): boolean {
@@ -497,6 +504,8 @@ export function getDaysOfMonthViewMetrix(params: GetDaysOfMonthViewMetrixParams)
     newRangeStartMonth,
     newRangeEndYear,
     newRangeEndDate,
+    isSelectMultiDate,
+    selectedMultiDates,
     newRangeEndMonth,
     isRangeView,
     selectedEndDayOfMonth,
@@ -617,7 +626,9 @@ export function getDaysOfMonthViewMetrix(params: GetDaysOfMonthViewMetrixParams)
       isLastRow: row === 5,
       isFirsColumn: weekColumn === 0,
       isLastColumn: weekColumn === 6,
-      isSelected: currMonth === selectedMonth && currYear === selectedYear && date === selectedDayOfMonth,
+      isSelected: isSelectMultiDate
+        ? !!selectedMultiDates[toString(new Date(currDate.year, currDate.month, currDate.monthDate))]
+        : currMonth === selectedMonth && currYear === selectedYear && date === selectedDayOfMonth,
       // not modified
       isDisabled: checkDisabledForADate(
         currYear,
@@ -682,7 +693,9 @@ export function getDaysOfMonthViewMetrix(params: GetDaysOfMonthViewMetrixParams)
       isLastRow: row === 5,
       isFirsColumn: weekColumn === 0,
       isLastColumn: weekColumn === 6,
-      isSelected: currMonth === selectedMonth && currYear === selectedYear && date === selectedDayOfMonth,
+      isSelected: isSelectMultiDate
+        ? !!selectedMultiDates[toString(new Date(currDate.year, currDate.month, currDate.monthDate))]
+        : currMonth === selectedMonth && currYear === selectedYear && date === selectedDayOfMonth,
       isDisabled: checkDisabledForADate(
         currYear,
         currMonth,
@@ -747,7 +760,9 @@ export function getDaysOfMonthViewMetrix(params: GetDaysOfMonthViewMetrixParams)
       isLastRow: row === 5,
       isFirsColumn: weekColumn === 0,
       isLastColumn: weekColumn === 6,
-      isSelected: currMonth === selectedMonth && currYear === selectedYear && date === selectedDayOfMonth,
+      isSelected: isSelectMultiDate
+        ? !!selectedMultiDates[toString(new Date(currDate.year, currDate.month, currDate.monthDate))]
+        : currMonth === selectedMonth && currYear === selectedYear && date === selectedDayOfMonth,
       isDisabled: checkDisabledForADate(
         currYear,
         currMonth,

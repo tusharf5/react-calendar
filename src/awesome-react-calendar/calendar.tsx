@@ -19,6 +19,7 @@ import {
   getWeekendInfo,
   isValid,
   isBefore,
+  toString,
 } from './date-utils';
 
 import { NATIVE_INDEX_TO_LABEL_MONTHS_MAP } from './constants';
@@ -31,7 +32,8 @@ interface Value {
   formatted: string;
 }
 
-type MultiValue = { start: Value; end: Value };
+type RangeValue = [Value, Value];
+type MultiValue = Value[];
 
 interface Props {
   /**
@@ -106,9 +108,13 @@ interface Props {
    */
   selectRange?: boolean;
   /**
+   * Renders a multi date selector UI for the calendar
+   */
+  selectMultiDates?: boolean;
+  /**
    * OnChange callback functionn.
    */
-  onChange?: (value: Value | MultiValue) => any | Promise<any>;
+  onChange?: (value: Value | MultiValue | RangeValue) => any | Promise<any>;
 }
 
 // Add an option to freeze ui if date is invalid
@@ -126,6 +132,7 @@ function Calendar({
   startOfWeek = 1,
   maxAllowedDate,
   minAllowedDate,
+  selectMultiDates,
   isDisabled,
   onChange,
   separator = '-',
@@ -134,6 +141,11 @@ function Calendar({
   disablePast = false,
   disableToday = false,
 }: Props) {
+  // range takes precedence over multi select
+  const [isSelectMultiDate] = useState(
+    typeof selectMultiDates === 'boolean' && !selectRange ? selectMultiDates : false
+  );
+
   // start day of the week
   const [startOfTheWeek] = useState(startOfWeek);
 
@@ -205,6 +217,9 @@ function Calendar({
       ? new Date(date).getFullYear()
       : new Date().getFullYear()
   );
+
+  // selected multi dates
+  const [selectedMultiDates, setSelectedMultiDates] = useState<Record<string, Date | undefined>>({});
 
   // selected single date
   const [selectedMonth, setSelectedMonth] = useState(
@@ -283,6 +298,7 @@ function Calendar({
   const daysOfMMonthViewMatrix = useMemo(() => {
     return getDaysOfMonthViewMetrix({
       newRangeEndYear,
+      selectedMultiDates,
       newRangeEndDate,
       weekendIndexes,
       newRangeEndMonth,
@@ -292,6 +308,7 @@ function Calendar({
       isRangeView: !!selectRange,
       isRangeSelectModeOn,
       selectedEndYear,
+      isSelectMultiDate,
       selectedEndMonth,
       selectedEndDayOfMonth: selectedEndDate,
       selectedStartDayOfMonth: selectedStartDate,
@@ -314,6 +331,7 @@ function Calendar({
     });
   }, [
     newRangeEndYear,
+    selectedMultiDates,
     newRangeEndDate,
     weekendIndexes,
     newRangeEndMonth,
@@ -323,6 +341,7 @@ function Calendar({
     selectRange,
     isRangeSelectModeOn,
     selectedEndYear,
+    isSelectMultiDate,
     selectedEndMonth,
     selectedEndDate,
     selectedStartDate,
@@ -435,15 +454,15 @@ function Calendar({
             endDate.setMinutes(0, 0, 0);
 
             onChange &&
-              onChange({
-                start: {
+              onChange([
+                {
                   value: startDate,
                   year: clickedDate.year,
                   month: clickedDate.month,
                   date: clickedDate.monthDate,
                   formatted: formatter(clickedDate.year, clickedDate.month + 1, clickedDate.monthDate, separator),
                 },
-                end: {
+                {
                   value: endDate,
                   year: previouslySelected.year,
                   month: previouslySelected.month,
@@ -455,7 +474,7 @@ function Calendar({
                     separator
                   ),
                 },
-              });
+              ]);
           } else {
             setSelectedStartYear(previouslySelected.year);
             setSelectedStartMonth(previouslySelected.month);
@@ -478,8 +497,8 @@ function Calendar({
             endDate.setMinutes(0, 0, 0);
 
             onChange &&
-              onChange({
-                start: {
+              onChange([
+                {
                   value: startDate,
                   year: previouslySelected.year,
                   month: previouslySelected.month,
@@ -491,14 +510,14 @@ function Calendar({
                     separator
                   ),
                 },
-                end: {
+                {
                   value: endDate,
                   year: clickedDate.year,
                   month: clickedDate.month,
                   date: clickedDate.monthDate,
                   formatted: formatter(clickedDate.year, clickedDate.month + 1, clickedDate.monthDate, separator),
                 },
-              });
+              ]);
           }
 
           setNewRangeEndYear(undefined);
@@ -518,6 +537,39 @@ function Calendar({
 
           setIsRangeSelectModeOn(true);
         }
+      } else if (isSelectMultiDate) {
+        const date = new Date(cell.year, cell.month, cell.date);
+        const stringkey = toString(date);
+
+        if (!!selectedMultiDates[stringkey]) {
+          setSelectedMultiDates({
+            ...selectedMultiDates,
+            [stringkey]: undefined,
+          });
+        } else {
+          setSelectedMultiDates({
+            ...selectedMultiDates,
+            [stringkey]: date,
+          });
+        }
+
+        onChange &&
+          onChange(
+            Object.keys(selectedMultiDates)
+              .filter((dk) => !!selectedMultiDates[dk])
+              .map((dk) => ({
+                value: selectedMultiDates[dk] as Date,
+                year: (selectedMultiDates[dk] as Date).getFullYear(),
+                month: (selectedMultiDates[dk] as Date).getMonth(),
+                date: (selectedMultiDates[dk] as Date).getDate(),
+                formatted: formatter(
+                  (selectedMultiDates[dk] as Date).getFullYear(),
+                  (selectedMultiDates[dk] as Date).getMonth() + 1,
+                  (selectedMultiDates[dk] as Date).getDate(),
+                  separator
+                ),
+              }))
+          );
       } else {
         setSelectedMonth(cell.month);
         setSelectedYear(cell.year);
@@ -543,6 +595,7 @@ function Calendar({
     },
     [
       selectRange,
+      isSelectMultiDate,
       isRangeSelectModeOn,
       newRangeStartMonth,
       newRangeStartDate,
@@ -550,6 +603,7 @@ function Calendar({
       onChange,
       formatter,
       separator,
+      selectedMultiDates,
     ]
   );
 

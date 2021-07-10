@@ -329,12 +329,19 @@ button::-moz-focus-inner {
 
 .arc_view-days-of-month .arc_view_cell.arc_selected .arc_view_cell_value {
   background-color: #5599ff;
-  font-weight: 500;
+}
+
+.arc_view-days-of-month .arc_view_cell.arc_selected:not(.arc_active) .arc_view_cell_value {
+  background-color: #ecf3ff;
 }
 
 .arc_view-days-of-month .arc_view_cell.arc_selected .arc_view_cell_value button {
   color: #fff;
   font-weight: 500;
+}
+
+.arc_view-days-of-month .arc_view_cell.arc_selected:not(.arc_active) .arc_view_cell_value button {
+  color: #c2d7f9;
 }
 
 .arc_view-days-of-month .arc_view_cell.arc_selected button:focus {
@@ -345,9 +352,17 @@ button::-moz-focus-inner {
   background-color: red;
 }
 
+.arc_view-days-of-month .arc_view_cell.arc_selected.arc_wknd:not(.arc_active) .arc_view_cell_value {
+  background-color: #ffecec;
+}
+
 .arc_view-days-of-month .arc_view_cell.arc_selected.arc_wknd .arc_view_cell_value button {
   color: #fff;
   font-weight: 500;
+}
+
+.arc_view-days-of-month .arc_view_cell.arc_selected.arc_wknd:not(.arc_active) .arc_view_cell_value button {
+  color: #f9c2c2;
 }
 
 .arc_view-days-of-month .arc_view_cell.arc_disabled {
