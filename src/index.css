@@ -220,6 +220,7 @@ button::-moz-focus-inner {
 
 .arc_view-days-of-month {
   height: calc(100% - 42px);
+  cursor: pointer;
 }
 
 .arc_view-days-of-month .arc_view_row {

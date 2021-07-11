@@ -148,8 +148,8 @@ function App() {
         <div>
           <div className='calendar'>
             <Calendar
-              dates={[new Date(2021, 6, 21), new Date(2021, 6, 25), new Date(2021, 6, 9)]}
-              selectMultiDates
+              value={[new Date(2021, 6, 21), new Date(2021, 6, 25), new Date(2021, 6, 9)]}
+              isMultiSelector
               disableToday
               separator='/'
               format='MM-DD-YYYY'
@@ -169,14 +169,14 @@ function App() {
         <div>
           <div className='calendar'>
             <Calendar
-              selectRange
-              startdate={new Date(2021, 0, 8)}
-              endDate={new Date(2021, 0, 22)}
+              isRangeSelector
+              rangeStart={new Date(2021, 0, 8)}
+              rangeEnd={new Date(2021, 0, 22)}
               separator='/'
               format='MM-DD-YYYY'
               onChange={onChangethree}
               // startOfWeek={2}
-              date={new Date(2021, 1, 23)}
+              value={new Date(2021, 1, 23)}
             />
           </div>
           <div className='json'>
@@ -193,7 +193,7 @@ function App() {
           <div className='calendar'>
             <Calendar
               initialViewDate={new Date(2021, 7, 10)}
-              selectRange
+              isRangeSelector
               maxAllowedDate={maxDate}
               minAllowedDate={minDate}
               disableToday
@@ -215,7 +215,7 @@ function App() {
         </div>
         <div>
           <div className='calendar'>
-            <Calendar fixedRange={6} onChange={onChangeThirteen} />
+            <Calendar isRangeSelector fixedRange={6} onChange={onChangeThirteen} />
           </div>
           <div className='json'>
             <ReactJson name='value' enableClipboard={false} src={thirteen} />
@@ -273,7 +273,7 @@ function App() {
           <div className='calendar'>
             <Calendar
               disableToday
-              date={new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate() + 1)}
+              value={new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate() + 1)}
               onChange={onChangeseven}
             />
           </div>

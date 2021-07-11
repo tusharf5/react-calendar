@@ -41,24 +41,32 @@ interface Props {
    */
   initialViewDate?: Date;
   /**
-   * Value of the date in ISO format.
+   * Value of a single date or an array of dates in ISO format.
    * Only applicable if selectRange is false
    */
-  date?: Date;
+  value?: Date | Date[];
   /**
-   * Multiple dates
+   * Renders a multiple dates selector view
    */
-  dates?: Date[];
+  isMultiSelector?: boolean;
+  /**
+   * Renders a range selector UI for the calendar
+   */
+  isRangeSelector?: boolean;
+  /**
+   * Always select n number of days starting from the user's selected date
+   */
+  fixedRange?: number;
   /**
    * Start date of the date range.
    * Only applicable if selectRange is true.
    */
-  startdate?: Date;
+  rangeStart?: Date;
   /**
    * End date of the date range.
    * Only applicable if selectRange is true.
    */
-  endDate?: Date;
+  rangeEnd?: Date;
   /**
    * Array of weekday number that are part of weekend.
    * The weekday number depends on the start of the week if provided one.
@@ -86,10 +94,6 @@ interface Props {
    */
   disablePast?: boolean;
   /**
-   * Always select n number of days starting from the user's selected date
-   */
-  fixedRange?: number;
-  /**
    * A boolean flag to disable today's date.
    */
   disableToday?: boolean;
@@ -110,14 +114,6 @@ interface Props {
    */
   minAllowedDate?: Date;
   /**
-   * Renders a range selector UI for the calendar
-   */
-  selectRange?: boolean;
-  /**
-   * Renders a multi date selector UI for the calendar
-   */
-  selectMultiDates?: boolean;
-  /**
    * OnChange callback functionn.
    */
   onChange?: (value: Value | MultiValue | RangeValue) => any | Promise<any>;
@@ -129,17 +125,16 @@ interface Props {
 // dont show range hover on diabalbed
 
 function Calendar({
-  date,
-  dates = [],
-  selectRange,
+  value,
+  isMultiSelector,
+  isRangeSelector,
   weekends,
-  startdate,
+  rangeStart: rangeStartValue,
   initialViewDate,
-  endDate,
+  rangeEnd: rangeEndValue,
   startOfWeek = 1,
   maxAllowedDate,
   minAllowedDate,
-  selectMultiDates,
   fixedRange,
   isDisabled,
   onChange,
@@ -149,47 +144,29 @@ function Calendar({
   disablePast = false,
   disableToday = false,
 }: Props) {
-  // range takes precedence over multi select
-  const [isSelectMultiDate] = useState(
-    typeof selectMultiDates === 'boolean' && !selectRange ? selectMultiDates : false
+  const [today] = useState(new Date());
+
+  const [isRangeSelectorView] = useState(!!isRangeSelector);
+
+  const [isMultiSelectorView] = useState(!isRangeSelectorView && !!isMultiSelector);
+
+  const [isFixedRangeView] = useState(
+    isRangeSelectorView && typeof fixedRange === 'number' && fixedRange > 0 ? true : false
   );
 
-  const [isFixedRange] = useState(
-    !isSelectMultiDate && !selectRange && typeof fixedRange === 'number' && fixedRange > 1 ? true : false
-  );
+  const [isNormalView] = useState(!isRangeSelectorView && !isMultiSelectorView);
+
+  if (isNormalView && Array.isArray(value)) {
+    throw new Error('`value` should an instance of the Date class. Provided value is an Array.');
+  }
+
+  const [fixedRangeLength] = useState(isFixedRangeView ? (fixedRange as number) : 1);
 
   // is range select mode on
   const [isRangeSelectModeOn, setIsRangeSelectModeOn] = useState(false);
 
-  const [fixedRangeLength] = useState(isFixedRange ? (fixedRange as number) : 1);
-
   // start day of the week
   const [startOfTheWeek] = useState(startOfWeek);
-
-  // maxDate
-  const [maxDate] = useState(() => {
-    return isValid(maxAllowedDate) ? maxAllowedDate : new Date();
-  });
-  const [applyMaxConstraint] = useState(() => {
-    return isValid(maxAllowedDate)
-      ? isValid(minAllowedDate)
-        ? isBefore(maxAllowedDate, minAllowedDate)
-        : true
-      : false;
-  });
-
-  // minDate
-  const [minDate] = useState(() => {
-    return isValid(minAllowedDate) ? minAllowedDate : new Date();
-  });
-
-  const [applyminConstraint] = useState(() => {
-    return isValid(minAllowedDate)
-      ? isValid(maxAllowedDate)
-        ? isBefore(maxAllowedDate, minAllowedDate)
-        : true
-      : false;
-  });
 
   const [weekendIndexes] = useState(() => {
     return Array.isArray(weekends) && weekends.every((num) => typeof num === 'number')
@@ -197,53 +174,48 @@ function Calendar({
       : getWeekendInfo(startOfTheWeek);
   });
 
-  // current view
-  const [view, setView] = useState<'years' | 'months' | 'month_dates'>('month_dates');
-  const [monthInView, setMonthInView] = useState<MonthIndices>(
-    (isValid(initialViewDate)
-      ? new Date(initialViewDate).getMonth()
-      : !selectRange && isValid(date)
-      ? new Date(date).getMonth()
-      : new Date().getMonth()) as MonthIndices
-  );
-  const [yearInView, setYearInView] = useState(
-    isValid(initialViewDate)
-      ? new Date(initialViewDate).getFullYear()
-      : !selectRange && isValid(date)
-      ? new Date(date).getFullYear()
-      : new Date().getFullYear()
-  );
+  // week days as per the start day of the week
+  const weekDays = useMemo(() => {
+    return getWeekDaysIndexToLabelMapForAStartOfTheWeek(startOfTheWeek);
+  }, [startOfTheWeek]);
 
-  // selected multi dates
-  const [selectedMultiDates, setSelectedMultiDates] = useState<Record<string, Date | undefined>>(
-    dates.reduce((acc, currDate) => {
-      if (isValid(currDate)) {
-        acc[toString(currDate)] = currDate;
-      }
-      return acc;
-    }, {} as Record<string, Date | undefined>)
-  );
+  // date formatter
+  const formatter = useMemo(() => {
+    return validateAndReturnDateFormatter(format);
+  }, [format]);
 
   // selected single date
   const [selectedDate, setSelectedDate] = useState(() => {
-    const today = new Date();
-    if (isValid(date)) {
-      const year = date.getFullYear();
-      const month = date.getMonth();
-      const dateOfMonth = date.getDate();
+    if (isNormalView && isValid(value as Date)) {
+      const year = (value as Date).getFullYear();
+      const month = (value as Date).getMonth();
+      const dateOfMonth = (value as Date).getDate();
       return new Date(year, month, dateOfMonth);
     } else {
       return today;
     }
   });
 
+  // selected multi dates
+  const [selectedMultiDates, setSelectedMultiDates] = useState<Record<string, Date | undefined>>(() => {
+    if (isMultiSelectorView && Array.isArray(value) && value.every(isValid)) {
+      return value.reduce((acc, currDate) => {
+        if (isValid(currDate)) {
+          acc[toString(currDate)] = currDate;
+        }
+        return acc;
+      }, {} as Record<string, Date | undefined>);
+    } else {
+      return {} as Record<string, Date | undefined>;
+    }
+  });
+
   // selected range start date
   const [selectedRangeStart, setSelectedRangeStart] = useState(() => {
-    const today = new Date();
-    if (!!selectRange && isValid(startdate)) {
-      const year = startdate.getFullYear();
-      const month = startdate.getMonth();
-      const date = startdate.getDate();
+    if (!!isRangeSelectorView && isValid(rangeStartValue)) {
+      const year = rangeStartValue.getFullYear();
+      const month = rangeStartValue.getMonth();
+      const date = rangeStartValue.getDate();
 
       return new Date(year, month, date);
     } else {
@@ -252,14 +224,13 @@ function Calendar({
   });
 
   const [selectedRangeEnd, setSelectedRangeEnd] = useState(() => {
-    const today = new Date();
     // FIXME Check if endDAte is after startDAte
-    if (!!selectRange && isValid(endDate)) {
-      const year = endDate.getFullYear();
-      const month = endDate.getMonth();
-      const date = endDate.getDate();
+    if (!!isRangeSelectorView && isValid(rangeEndValue)) {
+      const year = rangeEndValue.getFullYear();
+      const month = rangeEndValue.getMonth();
+      const date = rangeEndValue.getDate();
       return new Date(year, month, date);
-    } else if (isFixedRange) {
+    } else if (isFixedRangeView) {
       return addDays(selectedRangeStart, fixedRangeLength);
     } else {
       return today;
@@ -274,26 +245,64 @@ function Calendar({
     return selectedRangeEnd;
   });
 
+  // View States
+  const [view, setView] = useState<'years' | 'months' | 'month_dates'>('month_dates');
+
+  const [monthInView, setMonthInView] = useState<MonthIndices>(
+    (isValid(initialViewDate)
+      ? initialViewDate.getMonth()
+      : isNormalView && isValid(value as Date)
+      ? (value as Date).getMonth()
+      : isRangeSelectorView
+      ? selectedRangeStart.getMonth()
+      : today.getMonth()) as MonthIndices
+  );
+
+  const [yearInView, setYearInView] = useState(
+    isValid(initialViewDate)
+      ? initialViewDate.getFullYear()
+      : isNormalView && isValid(value as Date)
+      ? (value as Date).getFullYear()
+      : isRangeSelectorView
+      ? selectedRangeStart.getFullYear()
+      : today.getFullYear()
+  );
+
   const [startingYearForCurrRange, setStartingYearForCurrRange] = useState(getStartOfRangeForAYear(yearInView));
+
+  useEffect(() => {
+    setStartingYearForCurrRange(getStartOfRangeForAYear(yearInView));
+  }, [yearInView, setStartingYearForCurrRange]);
+
+  // max allowed Date
+  const [maxDate] = useState(() => {
+    return isValid(maxAllowedDate) ? maxAllowedDate : today;
+  });
+  const [applyMaxConstraint] = useState(() => {
+    return isValid(maxAllowedDate)
+      ? isValid(minAllowedDate)
+        ? isBefore(maxAllowedDate, minAllowedDate)
+        : true
+      : false;
+  });
+
+  // min allowed Date
+  const [minDate] = useState(() => {
+    return isValid(minAllowedDate) ? minAllowedDate : today;
+  });
+
+  const [applyminConstraint] = useState(() => {
+    return isValid(minAllowedDate)
+      ? isValid(maxAllowedDate)
+        ? isBefore(maxAllowedDate, minAllowedDate)
+        : true
+      : false;
+  });
 
   // 1 - 20, 21 - 40
   const [yearMatrixRangeStart, yearMatrixRangeEnd] = useMemo(() => {
     return getYearRangeLimits(startingYearForCurrRange);
   }, [startingYearForCurrRange]);
-
-  // week days as per the start day of the week
-  const WEEK_DAYS = useMemo(() => {
-    return getWeekDaysIndexToLabelMapForAStartOfTheWeek(startOfTheWeek);
-  }, [startOfTheWeek]);
-
-  // date formatter
-  const formatter = useMemo(() => {
-    return validateAndReturnDateFormatter(format);
-  }, [format]);
-
-  useEffect(() => {
-    setStartingYearForCurrRange(getStartOfRangeForAYear(yearInView));
-  }, [yearInView, setStartingYearForCurrRange]);
 
   // matrices for different views
   const yearsViewMatrix = useMemo<YearCell[][]>(() => {
@@ -311,11 +320,11 @@ function Calendar({
       selectedRangeEnd: selectedRangeEnd,
       newSelectedRangeStart: newSelectedRangeStart,
       newSelectedRangeEnd: newSelectedRangeEnd,
-      isRangeView: !!selectRange || isFixedRange,
+      isRangeView: !!isRangeSelectorView || isFixedRangeView,
       isRangeSelectModeOn,
       weekendIndexes,
       selectedMultiDates,
-      isSelectMultiDate,
+      isSelectMultiDate: isMultiSelectorView,
       yearInView,
       monthInView,
       startOfTheWeek,
@@ -334,12 +343,12 @@ function Calendar({
     selectedRangeEnd,
     newSelectedRangeStart,
     newSelectedRangeEnd,
-    selectRange,
-    isFixedRange,
+    isRangeSelectorView,
+    isFixedRangeView,
     isRangeSelectModeOn,
     weekendIndexes,
     selectedMultiDates,
-    isSelectMultiDate,
+    isMultiSelectorView,
     yearInView,
     monthInView,
     startOfTheWeek,
@@ -413,7 +422,7 @@ function Calendar({
     (cell: DayOfMonthCell) => {
       const clickedDate = new Date(cell.year, cell.month, cell.date);
 
-      if (selectRange) {
+      if (isRangeSelectorView && !isFixedRangeView) {
         if (isRangeSelectModeOn && newSelectedRangeStart) {
           // check if it is the first click or seconds
 
@@ -485,7 +494,27 @@ function Calendar({
 
           setIsRangeSelectModeOn(true);
         }
-      } else if (isSelectMultiDate) {
+      } else if (isFixedRangeView) {
+        setSelectedRangeStart(clickedDate);
+        const endDate = addDays(clickedDate, fixedRangeLength);
+        setSelectedRangeEnd(endDate);
+        onChange &&
+          onChange([
+            {
+              value: clickedDate,
+              formatted: formatter(
+                clickedDate.getFullYear(),
+                clickedDate.getMonth() + 1,
+                clickedDate.getDate(),
+                separator
+              ),
+            },
+            {
+              value: endDate,
+              formatted: formatter(endDate.getFullYear(), endDate.getMonth() + 1, endDate.getDate(), separator),
+            },
+          ]);
+      } else if (isMultiSelectorView) {
         const date = new Date(cell.year, cell.month, cell.date);
         const stringkey = toString(date);
 
@@ -516,26 +545,6 @@ function Calendar({
                 ),
               }))
           );
-      } else if (isFixedRange) {
-        setSelectedRangeStart(clickedDate);
-        const endDate = addDays(clickedDate, fixedRangeLength);
-        setSelectedRangeEnd(endDate);
-        onChange &&
-          onChange([
-            {
-              value: clickedDate,
-              formatted: formatter(
-                clickedDate.getFullYear(),
-                clickedDate.getMonth() + 1,
-                clickedDate.getDate(),
-                separator
-              ),
-            },
-            {
-              value: endDate,
-              formatted: formatter(endDate.getFullYear(), endDate.getMonth() + 1, endDate.getDate(), separator),
-            },
-          ]);
       } else {
         setSelectedDate(clickedDate);
 
@@ -555,9 +564,9 @@ function Calendar({
       setYearInView(cell.year);
     },
     [
-      selectRange,
-      isSelectMultiDate,
-      isFixedRange,
+      isRangeSelectorView,
+      isMultiSelectorView,
+      isFixedRangeView,
       isRangeSelectModeOn,
       newSelectedRangeStart,
       onChange,
@@ -644,13 +653,13 @@ function Calendar({
         {view === 'month_dates' && (
           <>
             <ul className='arc_view_weekdays'>
-              {Object.keys(WEEK_DAYS).map((weekDay) => (
+              {Object.keys(weekDays).map((weekDay) => (
                 <li
                   key={weekDay}
                   className={`arc_view_weekdays_cell${
                     typeof weekendIndexes.find((weekend) => weekend === Number(weekDay)) === 'number' ? ' arc_wknd' : ''
                   }`}>
-                  <span>{WEEK_DAYS[Number(weekDay) as WeekdayIndices]}</span>
+                  <span>{weekDays[Number(weekDay) as WeekdayIndices]}</span>
                 </li>
               ))}
             </ul>
@@ -660,7 +669,7 @@ function Calendar({
                   {row.map((cell) => (
                     <div
                       onMouseEnter={() => {
-                        if (selectRange) {
+                        if (isRangeSelectorView) {
                           if (isRangeSelectModeOn) {
                             setNewSelectedRangeEnd(new Date(cell.year, cell.month, cell.date));
                           }
@@ -672,7 +681,7 @@ function Calendar({
                       }${cell.isToday ? ' arc_today' : ''}${cell.isFirstRow ? ' arc_fr' : ''}${
                         cell.isLastRow ? ' arc_lr' : ''
                       }${cell.isFirsColumn ? ' arc_fc' : ''}${cell.isLastColumn ? ' arc_lc' : ''}${
-                        cell.isSelected && !selectRange ? ' arc_selected' : ''
+                        cell.isSelected && !isRangeSelectorView ? ' arc_selected' : ''
                       }${cell.isDisabled ? ' arc_disabled' : ''}${cell.isInRange ? ' arc_in_range' : ''}${
                         cell.isRangeStart ? ' arc_range_start' : ''
                       }${cell.isRangeEnd ? ' arc_range_end' : ''}${isRangeSelectModeOn ? ' arc_range_mode' : ''}`}>

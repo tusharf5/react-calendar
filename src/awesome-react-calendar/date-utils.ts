@@ -561,9 +561,10 @@ export function getDaysOfMonthViewMetrix(params: GetDaysOfMonthViewMetrixParams)
     applyMin,
   });
 
-  const todaysDate = new Date().getDate();
-  const todaysMonth = new Date().getMonth();
-  const todaysYear = new Date().getFullYear();
+  const today = new Date();
+  const todaysDate = today.getDate();
+  const todaysMonth = today.getMonth();
+  const todaysYear = today.getFullYear();
   const totalDaysInCurrentMonth = getNumberOfDaysInAMonth(yearInView, monthInView);
 
   const isPrevMonthFromLastYear = monthInView === 0;
