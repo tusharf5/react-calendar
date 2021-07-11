@@ -518,9 +518,24 @@ function Calendar({
           );
       } else if (isFixedRange) {
         setSelectedRangeStart(clickedDate);
-
         const endDate = addDays(clickedDate, fixedRangeLength);
         setSelectedRangeEnd(endDate);
+        onChange &&
+          onChange([
+            {
+              value: clickedDate,
+              formatted: formatter(
+                clickedDate.getFullYear(),
+                clickedDate.getMonth() + 1,
+                clickedDate.getDate(),
+                separator
+              ),
+            },
+            {
+              value: endDate,
+              formatted: formatter(endDate.getFullYear(), endDate.getMonth() + 1, endDate.getDate(), separator),
+            },
+          ]);
       } else {
         setSelectedDate(clickedDate);
 

@@ -164,7 +164,7 @@ function App() {
 
       <div>
         <div>
-          <p>Select Range Select View</p>
+          <p>Range Select View</p>
         </div>
         <div>
           <div className='calendar'>
@@ -187,7 +187,7 @@ function App() {
 
       <div>
         <div>
-          <p>Select Range Select View With Min-Max Allowed Dates</p>
+          <p>Range Select View With Min-Max Allowed Dates</p>
         </div>
         <div>
           <div className='calendar'>
@@ -211,7 +211,7 @@ function App() {
 
       <div>
         <div>
-          <p>Select Fixed Range View (6 Days)</p>
+          <p>Fixed Range View (6 Days)</p>
         </div>
         <div>
           <div className='calendar'>
