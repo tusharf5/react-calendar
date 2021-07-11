@@ -522,6 +522,7 @@ export function getDaysOfMonthViewMetrix(params: GetDaysOfMonthViewMetrixParams)
     selectedDate,
     selectedRangeStart,
     selectedRangeEnd,
+    highlightsMap,
     newSelectedRangeStart,
     newSelectedRangeEnd,
     isSelectMultiDate,
@@ -600,6 +601,7 @@ export function getDaysOfMonthViewMetrix(params: GetDaysOfMonthViewMetrixParams)
       date: date,
       month: currMonth,
       activeMonthInView: false,
+      isHighlight: highlightsMap[toString(currDate)] === 1,
       isInRange: isRangeView
         ? isRangeSelectModeOn
           ? isValid(newSelectedRangeStart) && isValid(newSelectedRangeEnd)
@@ -659,6 +661,7 @@ export function getDaysOfMonthViewMetrix(params: GetDaysOfMonthViewMetrixParams)
       date: date,
       month: currMonth,
       activeMonthInView: true,
+      isHighlight: highlightsMap[toString(currDate)] === 1,
       isInRange: isRangeView
         ? isRangeSelectModeOn
           ? isValid(newSelectedRangeStart) && isValid(newSelectedRangeEnd)
@@ -718,6 +721,7 @@ export function getDaysOfMonthViewMetrix(params: GetDaysOfMonthViewMetrixParams)
       date: date,
       month: currMonth,
       activeMonthInView: false,
+      isHighlight: highlightsMap[toString(currDate)] === 1,
       isInRange: isRangeView
         ? isRangeSelectModeOn
           ? isValid(newSelectedRangeStart) && isValid(newSelectedRangeEnd)

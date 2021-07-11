@@ -13,6 +13,7 @@ export interface DayOfMonthCell {
   isRangeEnd: boolean;
   isWeekend: boolean;
   isToday: boolean;
+  isHighlight: boolean;
   isFirstRow: boolean;
   isLastRow: boolean;
   isFirsColumn: boolean;
@@ -58,6 +59,7 @@ export interface GetDaysOfMonthViewMetrixParams {
   minDate: Date;
   applyMax: boolean;
   applyMin: boolean;
+  highlightsMap: Record<string, 1>;
   disableFuture: boolean;
   disablePast: boolean;
   disableToday: boolean;

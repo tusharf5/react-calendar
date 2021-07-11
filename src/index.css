@@ -328,6 +328,11 @@ button::-moz-focus-inner {
   border-bottom: 1px solid currentColor;
 }
 
+.arc_view-days-of-month .arc_view_cell.arc_highlight:not(.arc_selected):not(.arc_disabled) button {
+  font-weight: 500;
+  border-bottom: 1px solid currentColor;
+}
+
 .arc_view-days-of-month .arc_view_cell.arc_selected .arc_view_cell_value {
   background-color: #5599ff;
 }

@@ -114,6 +114,10 @@ interface Props {
    */
   minAllowedDate?: Date;
   /**
+   * These dates will be highlighted
+   */
+  highlights?: Date[];
+  /**
    * OnChange callback functionn.
    */
   onChange?: (value: Value | MultiValue | RangeValue) => any | Promise<any>;
@@ -129,6 +133,7 @@ function Calendar({
   isMultiSelector,
   isRangeSelector,
   weekends,
+  highlights = [],
   rangeStart: rangeStartValue,
   initialViewDate,
   rangeEnd: rangeEndValue,
@@ -164,6 +169,18 @@ function Calendar({
 
   // is range select mode on
   const [isRangeSelectModeOn, setIsRangeSelectModeOn] = useState(false);
+
+  const [highlightsMap] = useState<Record<string, 1>>(() => {
+    if (Array.isArray(highlights)) {
+      return highlights
+        .filter((d) => isValid(d))
+        .reduce((acc, curr) => {
+          acc[toString(curr)] = 1;
+          return acc;
+        }, {} as Record<string, 1>);
+    }
+    return {};
+  });
 
   // start day of the week
   const [startOfTheWeek] = useState(startOfWeek);
@@ -212,11 +229,10 @@ function Calendar({
 
   // selected range start date
   const [selectedRangeStart, setSelectedRangeStart] = useState(() => {
-    if (!!isRangeSelectorView && isValid(rangeStartValue)) {
+    if (isRangeSelectorView && isValid(rangeStartValue)) {
       const year = rangeStartValue.getFullYear();
       const month = rangeStartValue.getMonth();
       const date = rangeStartValue.getDate();
-
       return new Date(year, month, date);
     } else {
       return today;
@@ -224,8 +240,7 @@ function Calendar({
   });
 
   const [selectedRangeEnd, setSelectedRangeEnd] = useState(() => {
-    // FIXME Check if endDAte is after startDAte
-    if (!!isRangeSelectorView && isValid(rangeEndValue)) {
+    if (isRangeSelectorView && isValid(rangeEndValue) && isBefore(rangeEndValue, selectedRangeStart)) {
       const year = rangeEndValue.getFullYear();
       const month = rangeEndValue.getMonth();
       const date = rangeEndValue.getDate();
@@ -233,7 +248,7 @@ function Calendar({
     } else if (isFixedRangeView) {
       return addDays(selectedRangeStart, fixedRangeLength);
     } else {
-      return today;
+      return addDays(selectedRangeStart, 2);
     }
   });
 
@@ -320,10 +335,11 @@ function Calendar({
       selectedRangeEnd: selectedRangeEnd,
       newSelectedRangeStart: newSelectedRangeStart,
       newSelectedRangeEnd: newSelectedRangeEnd,
-      isRangeView: !!isRangeSelectorView || isFixedRangeView,
+      isRangeView: isRangeSelectorView || isFixedRangeView,
       isRangeSelectModeOn,
       weekendIndexes,
       selectedMultiDates,
+      highlightsMap,
       isSelectMultiDate: isMultiSelectorView,
       yearInView,
       monthInView,
@@ -348,6 +364,7 @@ function Calendar({
     isRangeSelectModeOn,
     weekendIndexes,
     selectedMultiDates,
+    highlightsMap,
     isMultiSelectorView,
     yearInView,
     monthInView,
@@ -679,8 +696,10 @@ function Calendar({
                       className={`arc_view_cell${cell.activeMonthInView ? ' arc_active' : ''}${
                         cell.isWeekend ? ' arc_wknd' : ''
                       }${cell.isToday ? ' arc_today' : ''}${cell.isFirstRow ? ' arc_fr' : ''}${
-                        cell.isLastRow ? ' arc_lr' : ''
-                      }${cell.isFirsColumn ? ' arc_fc' : ''}${cell.isLastColumn ? ' arc_lc' : ''}${
+                        cell.isToday ? ' arc_today' : ''
+                      }${cell.isHighlight ? ' arc_highlight' : ''}${cell.isLastRow ? ' arc_lr' : ''}${
+                        cell.isFirsColumn ? ' arc_fc' : ''
+                      }${cell.isLastColumn ? ' arc_lc' : ''}${
                         cell.isSelected && !isRangeSelectorView ? ' arc_selected' : ''
                       }${cell.isDisabled ? ' arc_disabled' : ''}${cell.isInRange ? ' arc_in_range' : ''}${
                         cell.isRangeStart ? ' arc_range_start' : ''

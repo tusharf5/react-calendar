@@ -123,6 +123,24 @@ function App() {
     [setThirteen]
   );
 
+  const [fourteen, setFourteen] = useState<object>({});
+
+  const onChangeFourteen = useCallback(
+    (value) => {
+      setFourteen(value);
+    },
+    [setFourteen]
+  );
+
+  const [fiveteen, setFiveteen] = useState<object>({});
+
+  const onChangeFiveteen = useCallback(
+    (value) => {
+      setFiveteen(value);
+    },
+    [setFiveteen]
+  );
+
   const maxDate = new Date(2021, 7, 28);
   const minDate = new Date(2021, 7, 4);
   return (
@@ -143,7 +161,7 @@ function App() {
 
       <div>
         <div className='desc'>
-          <p>Select Multiple Dates View</p>
+          <p>Multiple Dates View</p>
         </div>
         <div>
           <div className='calendar'>
@@ -171,7 +189,7 @@ function App() {
             <Calendar
               isRangeSelector
               rangeStart={new Date(2021, 0, 8)}
-              rangeEnd={new Date(2021, 0, 22)}
+              rangeEnd={new Date(2021, 0, 9)}
               separator='/'
               format='MM-DD-YYYY'
               onChange={onChangethree}
@@ -219,6 +237,43 @@ function App() {
           </div>
           <div className='json'>
             <ReactJson name='value' enableClipboard={false} src={thirteen} />
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div>
+          <p>Highlight Custom Dates</p>
+        </div>
+        <div>
+          <div className='calendar'>
+            <Calendar
+              initialViewDate={new Date(2020, 5, 6)}
+              highlights={[new Date(2020, 5, 6), new Date(2020, 5, 12), new Date(2020, 5, 16), new Date(2020, 5, 24)]}
+              onChange={onChangeFourteen}
+            />
+          </div>
+          <div className='json'>
+            <ReactJson name='value' enableClipboard={false} src={fourteen} />
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div>
+          <p>Disable Custom Dates (here disabled if (date % 4 === 0))</p>
+        </div>
+        <div>
+          <div className='calendar'>
+            <Calendar
+              isDisabled={(params) => {
+                return params.date % 4 === 0;
+              }}
+              onChange={onChangeFiveteen}
+            />
+          </div>
+          <div className='json'>
+            <ReactJson name='value' enableClipboard={false} src={fiveteen} />
           </div>
         </div>
       </div>
