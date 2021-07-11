@@ -220,7 +220,6 @@ button::-moz-focus-inner {
 
 .arc_view-days-of-month {
   height: calc(100% - 42px);
-  cursor: pointer;
 }
 
 .arc_view-days-of-month .arc_view_row {
@@ -234,29 +233,29 @@ button::-moz-focus-inner {
   flex-basis: 14.285%;
   max-width: 14.285%;
   height: 100%;
-  padding: 2px 0;
-}
-
-.arc_view-days-of-month .arc_view_cell + .arc_view_cell {
-  margin-left: 6px;
-}
-
-.arc_view-days-of-month .arc_view_cell .arc_view_cell_value {
-  border-radius: 2px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.arc_view-days-of-month .arc_view_cell button {
-  width: 26px;
-  height: 26px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
+}
+
+.arc_view-days-of-month .arc_view_cell + .arc_view_cell {
+  /* margin-left: 6px; */
+}
+
+.arc_view-days-of-month .arc_view_cell .arc_view_cell_value {
+  border-radius: 2px;
+  width: 26px;
+  height: 26px;
+  cursor: pointer;
+}
+
+.arc_view-days-of-month .arc_view_cell button {
+  width: 100%;
+  height: 100%;
   font-size: 13px;
   color: #b6b6b7;
+  cursor: pointer;
 }
 
 .arc_view-days-of-month .arc_view_cell.arc_active button {
@@ -383,6 +382,8 @@ button::-moz-focus-inner {
 .arc_view-days-of-month .arc_view_cell.arc_disabled button::before {
   content: '';
   position: absolute;
+  top: 15%;
+  left: 50%;
   transform: rotate(45deg);
   font-weight: 300;
   display: block;
