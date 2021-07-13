@@ -3,7 +3,8 @@ export type MonthIndices = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11;
 export type WeekdayIndices = 0 | 1 | 2 | 3 | 4 | 5 | 6;
 
 export interface DayOfMonthCell {
-  date: number;
+  date: Date;
+  dayOfMonth: number;
   month: MonthIndices;
   year: number;
   dayOfWeek: number;

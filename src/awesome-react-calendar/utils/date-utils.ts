@@ -590,7 +590,7 @@ export function getDaysOfMonthViewMetrix(params: GetDaysOfMonthViewMetrixParams)
   const lastMonthDateStartFrom = totalDaysInPrevMonth - (currentMonthDatesStartIndex - 1);
 
   // first loop to fill cell values of last month
-  for (let date = lastMonthDateStartFrom; date <= totalDaysInPrevMonth; date++) {
+  for (let dayOfMonth = lastMonthDateStartFrom; dayOfMonth <= totalDaysInPrevMonth; dayOfMonth++) {
     if (weekColumn === 7) {
       weekColumn = 0;
       row++;
@@ -598,13 +598,14 @@ export function getDaysOfMonthViewMetrix(params: GetDaysOfMonthViewMetrixParams)
     const currMonth = getPreviousMonth(monthInView);
     const currYear = isPrevMonthFromLastYear ? getPreviousYear(yearInView) : yearInView;
 
-    const currDate = new Date(currYear, currMonth, date);
+    const currDate = new Date(currYear, currMonth, dayOfMonth);
 
     // if new range dates are VALID
     // then use them to compute in range values
 
     matrix[row].push({
-      date: date,
+      date: currDate,
+      dayOfMonth: dayOfMonth,
       month: currMonth,
       activeMonthInView: false,
       isHighlight: highlightsMap[toString(currDate)] === 1,
@@ -628,7 +629,7 @@ export function getDaysOfMonthViewMetrix(params: GetDaysOfMonthViewMetrixParams)
       year: currYear,
       isWeekend: typeof weekends.find((c) => c === weekColumn) === 'number' ? true : false,
       dayOfWeek: getNativeWeekDayIndexFromAStartDayInfluencedIndex(weekColumn, startOfTheWeek),
-      isToday: date === todaysDate && currMonth === todaysMonth && currYear === todaysYear,
+      isToday: dayOfMonth === todaysDate && currMonth === todaysMonth && currYear === todaysYear,
       isFirstRow: row === 0,
       isLastRow: row === 5,
       isFirsColumn: weekColumn === 0,
@@ -639,12 +640,12 @@ export function getDaysOfMonthViewMetrix(params: GetDaysOfMonthViewMetrixParams)
         ? false
         : currMonth === selectedDate.getMonth() &&
           currYear === selectedDate.getFullYear() &&
-          date === selectedDate.getDate(),
+          dayOfMonth === selectedDate.getDate(),
       // not modified
       isDisabled: checkDisabledForADate(
         currYear,
         currMonth,
-        date,
+        dayOfMonth,
         getNativeWeekDayIndexFromAStartDayInfluencedIndex(weekColumn, startOfTheWeek)
       ),
     });
@@ -652,19 +653,20 @@ export function getDaysOfMonthViewMetrix(params: GetDaysOfMonthViewMetrixParams)
   }
 
   // second loop to fill cell values of current month
-  for (let date = 1; date <= totalDaysInCurrentMonth; date++) {
+  for (let dayOfMonth = 1; dayOfMonth <= totalDaysInCurrentMonth; dayOfMonth++) {
     if (weekColumn === 7) {
       weekColumn = 0;
       row++;
     }
     const currMonth = monthInView;
     const currYear = yearInView;
-    const isToday = date === todaysDate && monthInView === todaysMonth && yearInView === todaysYear;
+    const isToday = dayOfMonth === todaysDate && monthInView === todaysMonth && yearInView === todaysYear;
 
-    const currDate = new Date(currYear, currMonth, date);
+    const currDate = new Date(currYear, currMonth, dayOfMonth);
 
     matrix[row].push({
-      date: date,
+      date: currDate,
+      dayOfMonth: dayOfMonth,
       month: currMonth,
       activeMonthInView: true,
       isHighlight: highlightsMap[toString(currDate)] === 1,
@@ -699,18 +701,18 @@ export function getDaysOfMonthViewMetrix(params: GetDaysOfMonthViewMetrixParams)
         ? false
         : currMonth === selectedDate.getMonth() &&
           currYear === selectedDate.getFullYear() &&
-          date === selectedDate.getDate(),
+          dayOfMonth === selectedDate.getDate(),
       isDisabled: checkDisabledForADate(
         currYear,
         currMonth,
-        date,
+        dayOfMonth,
         getNativeWeekDayIndexFromAStartDayInfluencedIndex(weekColumn, startOfTheWeek)
       ),
     });
     weekColumn++;
   }
 
-  let date = 1;
+  let dayOfMonth = 1;
   // last loop to fill cell values of next month
 
   while (matrix[5].length < 7) {
@@ -721,10 +723,11 @@ export function getDaysOfMonthViewMetrix(params: GetDaysOfMonthViewMetrixParams)
     const currMonth = getNextMonth(monthInView);
     const currYear = isCurrentMonthLast ? yearInView + 1 : yearInView;
 
-    const currDate = new Date(currYear, currMonth, date);
+    const currDate = new Date(currYear, currMonth, dayOfMonth);
 
     matrix[row].push({
-      date: date,
+      date: currDate,
+      dayOfMonth: dayOfMonth,
       month: currMonth,
       activeMonthInView: false,
       isHighlight: highlightsMap[toString(currDate)] === 1,
@@ -748,7 +751,7 @@ export function getDaysOfMonthViewMetrix(params: GetDaysOfMonthViewMetrixParams)
       year: currYear,
       dayOfWeek: getNativeWeekDayIndexFromAStartDayInfluencedIndex(weekColumn, startOfTheWeek),
       isWeekend: typeof weekends.find((c) => c === weekColumn) === 'number' ? true : false,
-      isToday: date === todaysDate && currMonth === todaysMonth && currYear === todaysYear,
+      isToday: dayOfMonth === todaysDate && currMonth === todaysMonth && currYear === todaysYear,
       isFirstRow: row === 0,
       isLastRow: row === 5,
       isFirsColumn: weekColumn === 0,
@@ -759,16 +762,16 @@ export function getDaysOfMonthViewMetrix(params: GetDaysOfMonthViewMetrixParams)
         ? false
         : currMonth === selectedDate.getMonth() &&
           currYear === selectedDate.getFullYear() &&
-          date === selectedDate.getDate(),
+          dayOfMonth === selectedDate.getDate(),
       isDisabled: checkDisabledForADate(
         currYear,
         currMonth,
-        date,
+        dayOfMonth,
         getNativeWeekDayIndexFromAStartDayInfluencedIndex(weekColumn, startOfTheWeek)
       ),
     });
     weekColumn++;
-    date++;
+    dayOfMonth++;
   }
 
   return matrix;

@@ -29,8 +29,8 @@ interface Props {
   onChangenSelectedDate: (dates: Date) => any;
   viewingMonth: MonthIndices;
   viewingYear: number;
-  fixedRangeLength: number;
   weekStartIndex: WeekdayIndices;
+  fixedRangeLength: number;
   selectedDate: Date;
   selectedRangeStart: Date;
   selectedRangeEnd: Date;
@@ -49,11 +49,6 @@ interface Props {
   separator?: string;
   highlights: Date[];
   isDisabled?: (params: IsDisabledParams) => boolean;
-  /**
-   * A combination of YYYY-MM-DD.
-   * Eg. MM-DD-YYYY, DD-MM-YYYY etc.
-   * Default is '-' i.e 'DD-MM-YYYY'
-   */
   format?: string;
   today: Date;
   onChange?: (value: Value | MultiValue | RangeValue) => any | Promise<any>;
@@ -192,7 +187,7 @@ function DayOfMonthSelectorComponent({
 
   const onDateClicked = useCallback(
     (cell: DayOfMonthCell) => {
-      const clickedDate = new Date(cell.year, cell.month, cell.date);
+      const clickedDate = cell.date;
 
       if (isRangeSelectorView && !isFixedRangeView) {
         if (isRangeSelectModeOn && newSelectedRangeStart) {
@@ -287,15 +282,13 @@ function DayOfMonthSelectorComponent({
             },
           ]);
       } else if (isMultiSelectorView) {
-        const date = new Date(cell.year, cell.month, cell.date);
-        const stringkey = toString(date);
-
+        const stringkey = toString(clickedDate);
         const newselectedMultiDates = { ...selectedMultiDates };
 
         if (!!selectedMultiDates[stringkey]) {
           newselectedMultiDates[stringkey] = undefined;
         } else {
-          newselectedMultiDates[stringkey] = date;
+          newselectedMultiDates[stringkey] = clickedDate;
         }
 
         onChangenSelectedMultiDates(newselectedMultiDates);
@@ -366,11 +359,11 @@ function DayOfMonthSelectorComponent({
               onMouseEnter={() => {
                 if (isRangeSelectorView) {
                   if (isRangeSelectModeOn) {
-                    onChangenNewSelectedRangeEnd(new Date(cell.year, cell.month, cell.date));
+                    onChangenNewSelectedRangeEnd(new Date(cell.year, cell.month, cell.dayOfMonth));
                   }
                 }
               }}
-              key={cell.date}
+              key={cell.dayOfMonth}
               className={`arc_view_cell${cell.activeMonthInView ? ' arc_active' : ''}${
                 cell.isWeekend ? ' arc_wknd' : ''
               }${cell.isToday ? ' arc_today' : ''}${cell.isFirstRow ? ' arc_fr' : ''}${
@@ -387,7 +380,7 @@ function DayOfMonthSelectorComponent({
                   disabled={cell.isDisabled}
                   tabIndex={cell.isDisabled ? -1 : 0}
                   onClick={() => onDateClicked(cell)}>
-                  {cell.date}
+                  {cell.dayOfMonth}
                 </button>
               </div>
             </div>
