@@ -7,7 +7,7 @@ import type {
   DayOfMonthCell,
   GetDaysOfMonthViewMetrixParams,
   CheckIfDateIsDisabledHOFParams,
-} from './types';
+} from '../types';
 
 import { NATIVE_INDEX_TO_LABEL_WEEKDAY_MAP } from './constants';
 
@@ -227,19 +227,25 @@ export function getNumberOfDaysInAMonth(year: number, month: MonthIndices) {
  * the convention used by the Date methods.
  * @param startOfTheWeek index of the day to be considered as start of the week
  */
-export function getWeekDaysIndexToLabelMapForAStartOfTheWeek(startOfTheWeek = 0): Record<WeekdayIndices, string> {
+export function getWeekDaysIndexToLabelMapForAStartOfTheWeek(startOfTheWeek = 0): {
+  map: Record<WeekdayIndices, string>;
+  order: WeekdayIndices[];
+} {
   // we break [0,1,2,3,4,5,6] in two parts, startOfTheWeek = 3
   // [startOfTheWeek,4,5,6] and [0,1,2] and join them with their labels
   // this is just to re-order the label in the **correct order**
   // i.e 0 becomes Wed although in native order 0 is Sunday
-  return Object.keys(NATIVE_INDEX_TO_LABEL_WEEKDAY_MAP)
+  const order = Object.keys(NATIVE_INDEX_TO_LABEL_WEEKDAY_MAP)
     .slice(startOfTheWeek, 7)
-    .concat(Object.keys(NATIVE_INDEX_TO_LABEL_WEEKDAY_MAP).slice(0, startOfTheWeek))
-    .reduce((acc, weekdayIndex, index) => {
-      // acc[0] = DEFAULT_WEEKDAY_INDEX[3]
-      acc[Number(index) as WeekdayIndices] = NATIVE_INDEX_TO_LABEL_WEEKDAY_MAP[Number(weekdayIndex) as WeekdayIndices];
-      return acc;
-    }, {} as Record<WeekdayIndices, string>);
+    .concat(Object.keys(NATIVE_INDEX_TO_LABEL_WEEKDAY_MAP).slice(0, startOfTheWeek)) as unknown as WeekdayIndices[];
+
+  const map = order.reduce((acc, weekdayIndex, index) => {
+    // acc[0] = DEFAULT_WEEKDAY_INDEX[3]
+    acc[Number(index) as WeekdayIndices] = NATIVE_INDEX_TO_LABEL_WEEKDAY_MAP[Number(weekdayIndex) as WeekdayIndices];
+    return acc;
+  }, {} as Record<WeekdayIndices, string>);
+
+  return { map, order };
 }
 
 /**
@@ -382,12 +388,12 @@ export function getStartOfRangeForAYear(year: number) {
  * Returns matrix for the month select view.
  * @param selectedMonth
  */
-export function getMonthViewMetrix(selectedMonth: number): Array<MonthCell>[] {
+export function getMonthViewMetrix(selectedMonth: Record<number, 1>): Array<MonthCell>[] {
   const months = Array.from({ length: 12 }, (v, k) => {
     return {
       month: k as MonthIndices,
       isCurrentMonth: new Date().getMonth() === k,
-      isSelectedMonth: selectedMonth === k,
+      isSelectedMonth: selectedMonth[k] === 1,
     };
   });
   return [months.slice(0, 3), months.slice(3, 6), months.slice(6, 9), months.slice(9, 12)];
@@ -408,12 +414,12 @@ export function getYearRangeLimits(rangeStartYear: number) {
   return [rangeStartYear, rangeStartYear + 19];
 }
 
-export function getYearsViewMetrix(rangeStartYear: number, selectedYear: number): Array<YearCell>[] {
+export function getYearsViewMetrix(rangeStartYear: number, selectedYearMap: Record<number, 1>): Array<YearCell>[] {
   const years = Array.from({ length: 20 }, (v, index) => {
     return {
       year: rangeStartYear + index,
       isCurrentYear: new Date().getFullYear() === rangeStartYear + index,
-      isSelectedYear: selectedYear === rangeStartYear + index,
+      isSelectedYear: selectedYearMap[rangeStartYear + index] === 1,
     };
   });
   return [years.slice(0, 5), years.slice(5, 10), years.slice(10, 15), years.slice(15, 20)];

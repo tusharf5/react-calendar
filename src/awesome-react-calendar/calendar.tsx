@@ -1,9 +1,8 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 
-import type { DayOfMonthCell, IsDisabledParams, MonthCell, MonthIndices, YearCell, WeekdayIndices } from './types';
+import type { IsDisabledParams, MonthIndices, WeekdayIndices } from './types';
 
 import {
-  getWeekDaysIndexToLabelMapForAStartOfTheWeek,
   getStartOfRangeForAYear,
   getPreviousYear,
   getPreviousMonth,
@@ -11,19 +10,19 @@ import {
   getNextYear,
   getNextMonth,
   getNextRangeStartingYear,
-  getYearsViewMetrix,
-  getMonthViewMetrix,
-  getDaysOfMonthViewMetrix,
   getYearRangeLimits,
-  validateAndReturnDateFormatter,
   getWeekendInfo,
   isValid,
   isBefore,
   toString,
   addDays,
-} from './date-utils';
+} from './utils/date-utils';
 
-import { NATIVE_INDEX_TO_LABEL_MONTHS_MAP } from './constants';
+import { Header } from './components/header/Header';
+import { MonthSelector } from './components/month-selector/MonthSelector';
+import { YearSelector } from './components/year-selector/YearSelector';
+import { WeekDaysRow } from './components/week-days-row/WeekDaysRow';
+import { DayOfMonthSelector } from './components/day-of-month-selector/DayOfMonthSelector';
 
 interface Value {
   value: Date;
@@ -167,21 +166,6 @@ function Calendar({
 
   const [fixedRangeLength] = useState(isFixedRangeView ? (fixedRange as number) : 1);
 
-  // is range select mode on
-  const [isRangeSelectModeOn, setIsRangeSelectModeOn] = useState(false);
-
-  const [highlightsMap] = useState<Record<string, 1>>(() => {
-    if (Array.isArray(highlights)) {
-      return highlights
-        .filter((d) => isValid(d))
-        .reduce((acc, curr) => {
-          acc[toString(curr)] = 1;
-          return acc;
-        }, {} as Record<string, 1>);
-    }
-    return {};
-  });
-
   // start day of the week
   const [startOfTheWeek] = useState(startOfWeek);
 
@@ -190,16 +174,6 @@ function Calendar({
       ? weekends
       : getWeekendInfo(startOfTheWeek);
   });
-
-  // week days as per the start day of the week
-  const weekDays = useMemo(() => {
-    return getWeekDaysIndexToLabelMapForAStartOfTheWeek(startOfTheWeek);
-  }, [startOfTheWeek]);
-
-  // date formatter
-  const formatter = useMemo(() => {
-    return validateAndReturnDateFormatter(format);
-  }, [format]);
 
   // selected single date
   const [selectedDate, setSelectedDate] = useState(() => {
@@ -289,95 +263,10 @@ function Calendar({
     setStartingYearForCurrRange(getStartOfRangeForAYear(yearInView));
   }, [yearInView, setStartingYearForCurrRange]);
 
-  // max allowed Date
-  const [maxDate] = useState(() => {
-    return isValid(maxAllowedDate) ? maxAllowedDate : today;
-  });
-  const [applyMaxConstraint] = useState(() => {
-    return isValid(maxAllowedDate)
-      ? isValid(minAllowedDate)
-        ? isBefore(maxAllowedDate, minAllowedDate)
-        : true
-      : false;
-  });
-
-  // min allowed Date
-  const [minDate] = useState(() => {
-    return isValid(minAllowedDate) ? minAllowedDate : today;
-  });
-
-  const [applyminConstraint] = useState(() => {
-    return isValid(minAllowedDate)
-      ? isValid(maxAllowedDate)
-        ? isBefore(maxAllowedDate, minAllowedDate)
-        : true
-      : false;
-  });
-
   // 1 - 20, 21 - 40
   const [yearMatrixRangeStart, yearMatrixRangeEnd] = useMemo(() => {
     return getYearRangeLimits(startingYearForCurrRange);
   }, [startingYearForCurrRange]);
-
-  // matrices for different views
-  const yearsViewMatrix = useMemo<YearCell[][]>(() => {
-    return getYearsViewMetrix(startingYearForCurrRange, selectedDate.getFullYear());
-  }, [startingYearForCurrRange, selectedDate]);
-
-  const monthsViewMatrix = useMemo<MonthCell[][]>(() => {
-    return getMonthViewMetrix(selectedDate.getMonth());
-  }, [selectedDate]);
-
-  const daysOfMMonthViewMatrix = useMemo(() => {
-    return getDaysOfMonthViewMetrix({
-      selectedDate: selectedDate,
-      selectedRangeStart: selectedRangeStart,
-      selectedRangeEnd: selectedRangeEnd,
-      newSelectedRangeStart: newSelectedRangeStart,
-      newSelectedRangeEnd: newSelectedRangeEnd,
-      isRangeView: isRangeSelectorView || isFixedRangeView,
-      isRangeSelectModeOn,
-      weekendIndexes,
-      selectedMultiDates,
-      highlightsMap,
-      isSelectMultiDate: isMultiSelectorView,
-      yearInView,
-      monthInView,
-      startOfTheWeek,
-      disableFuture,
-      disablePast,
-      disableToday,
-      isDisabled,
-      maxDate: maxDate,
-      minDate: minDate,
-      applyMax: applyMaxConstraint,
-      applyMin: applyminConstraint,
-    });
-  }, [
-    selectedDate,
-    selectedRangeStart,
-    selectedRangeEnd,
-    newSelectedRangeStart,
-    newSelectedRangeEnd,
-    isRangeSelectorView,
-    isFixedRangeView,
-    isRangeSelectModeOn,
-    weekendIndexes,
-    selectedMultiDates,
-    highlightsMap,
-    isMultiSelectorView,
-    yearInView,
-    monthInView,
-    startOfTheWeek,
-    disableFuture,
-    disablePast,
-    disableToday,
-    isDisabled,
-    maxDate,
-    minDate,
-    applyMaxConstraint,
-    applyminConstraint,
-  ]);
 
   // callback handlers
   const onPrevClick = useCallback(
@@ -435,288 +324,66 @@ function Calendar({
     ]
   );
 
-  const onDateClicked = useCallback(
-    (cell: DayOfMonthCell) => {
-      const clickedDate = new Date(cell.year, cell.month, cell.date);
-
-      if (isRangeSelectorView && !isFixedRangeView) {
-        if (isRangeSelectModeOn && newSelectedRangeStart) {
-          // check if it is the first click or seconds
-
-          const previouslySelectedDate = new Date(
-            newSelectedRangeStart.getFullYear(),
-            newSelectedRangeStart.getMonth(),
-            newSelectedRangeStart.getDate()
-          );
-
-          if (isBefore(previouslySelectedDate, clickedDate)) {
-            setSelectedRangeStart(clickedDate);
-            setSelectedRangeEnd(previouslySelectedDate);
-
-            const startDate = clickedDate;
-
-            const endDate = previouslySelectedDate;
-
-            onChange &&
-              onChange([
-                {
-                  value: startDate,
-                  formatted: formatter(
-                    startDate.getFullYear(),
-                    startDate.getMonth() + 1,
-                    startDate.getDate(),
-                    separator
-                  ),
-                },
-                {
-                  value: endDate,
-                  formatted: formatter(endDate.getFullYear(), endDate.getMonth() + 1, endDate.getDate(), separator),
-                },
-              ]);
-          } else {
-            setSelectedRangeStart(previouslySelectedDate);
-
-            setSelectedRangeEnd(clickedDate);
-
-            const startDate = previouslySelectedDate;
-
-            const endDate = clickedDate;
-
-            onChange &&
-              onChange([
-                {
-                  value: startDate,
-                  formatted: formatter(
-                    startDate.getFullYear(),
-                    startDate.getMonth() + 1,
-                    startDate.getDate(),
-                    separator
-                  ),
-                },
-                {
-                  value: endDate,
-                  formatted: formatter(endDate.getFullYear(), endDate.getMonth() + 1, endDate.getDate(), separator),
-                },
-              ]);
-          }
-
-          setNewSelectedRangeEnd(undefined);
-
-          setIsRangeSelectModeOn(false);
-        } else {
-          // select first date
-          setNewSelectedRangeStart(clickedDate);
-
-          setNewSelectedRangeEnd(undefined);
-
-          setIsRangeSelectModeOn(true);
-        }
-      } else if (isFixedRangeView) {
-        setSelectedRangeStart(clickedDate);
-        const endDate = addDays(clickedDate, fixedRangeLength);
-        setSelectedRangeEnd(endDate);
-        onChange &&
-          onChange([
-            {
-              value: clickedDate,
-              formatted: formatter(
-                clickedDate.getFullYear(),
-                clickedDate.getMonth() + 1,
-                clickedDate.getDate(),
-                separator
-              ),
-            },
-            {
-              value: endDate,
-              formatted: formatter(endDate.getFullYear(), endDate.getMonth() + 1, endDate.getDate(), separator),
-            },
-          ]);
-      } else if (isMultiSelectorView) {
-        const date = new Date(cell.year, cell.month, cell.date);
-        const stringkey = toString(date);
-
-        const newselectedMultiDates = { ...selectedMultiDates };
-
-        if (!!selectedMultiDates[stringkey]) {
-          newselectedMultiDates[stringkey] = undefined;
-        } else {
-          newselectedMultiDates[stringkey] = date;
-        }
-
-        setSelectedMultiDates(newselectedMultiDates);
-
-        onChange &&
-          onChange(
-            Object.keys(newselectedMultiDates)
-              .filter((dk) => !!newselectedMultiDates[dk])
-              .map((dk) => ({
-                value: newselectedMultiDates[dk] as Date,
-                year: (newselectedMultiDates[dk] as Date).getFullYear(),
-                month: (newselectedMultiDates[dk] as Date).getMonth(),
-                date: (newselectedMultiDates[dk] as Date).getDate(),
-                formatted: formatter(
-                  (newselectedMultiDates[dk] as Date).getFullYear(),
-                  (newselectedMultiDates[dk] as Date).getMonth() + 1,
-                  (newselectedMultiDates[dk] as Date).getDate(),
-                  separator
-                ),
-              }))
-          );
-      } else {
-        setSelectedDate(clickedDate);
-
-        onChange &&
-          onChange({
-            value: clickedDate,
-            formatted: formatter(
-              clickedDate.getFullYear(),
-              clickedDate.getMonth() + 1,
-              clickedDate.getDate(),
-              separator
-            ),
-          });
-      }
-
-      setMonthInView(cell.month);
-      setYearInView(cell.year);
-    },
-    [
-      isRangeSelectorView,
-      isMultiSelectorView,
-      isFixedRangeView,
-      isRangeSelectModeOn,
-      newSelectedRangeStart,
-      onChange,
-      formatter,
-      separator,
-      selectedMultiDates,
-      fixedRangeLength,
-    ]
-  );
-
   return (
     <section className='arc'>
-      <header className='arc_header'>
-        <button className='arc_header_nav arc_header_nav-prev' onClick={onPrevClick}>
-          ←
-        </button>
-        {view === 'month_dates' ? (
-          <button className='arc_header_label arc_header_label-days-of-month' onClick={() => setView('years')}>
-            <div>
-              <span>{NATIVE_INDEX_TO_LABEL_MONTHS_MAP[monthInView]}</span>
-            </div>
-            <div>
-              <span>{yearInView}</span>
-            </div>
-          </button>
-        ) : view === 'months' ? (
-          <button className='arc_header_label arc_header_label-months'>
-            <div onClick={() => setView('years')}>
-              <span>{yearInView}</span>
-            </div>
-          </button>
-        ) : (
-          <button className='arc_header_label arc_header_label-years' onClick={() => setView('month_dates')}>
-            <div>
-              <span>
-                {yearMatrixRangeStart}-{yearMatrixRangeEnd}
-              </span>
-            </div>
-          </button>
-        )}
-        <button className='arc_header_nav arc_header_nav-next' onClick={onNextClick}>
-          →
-        </button>
-      </header>
+      <Header
+        onClickPrev={onPrevClick}
+        onClickNext={onNextClick}
+        onChangeViewType={setView}
+        viewType={view}
+        viewingMonth={monthInView}
+        viewingYear={yearInView}
+        yearMatrixStart={yearMatrixRangeStart}
+        yearMatrixEnd={yearMatrixRangeEnd}
+      />
       <main className='arc_view'>
-        {view === 'months' && (
-          <div className='arc_view-months'>
-            {monthsViewMatrix.map((row, index) => (
-              <div className='arc_view_row' key={index}>
-                {row.map((cell) => (
-                  <div className={`arc_view_cell${cell.isCurrentMonth ? ' arc_this_month' : ''}`} key={cell.month}>
-                    <button
-                      onClick={() => {
-                        setMonthInView(cell.month);
-                        setView('month_dates');
-                      }}>
-                      {NATIVE_INDEX_TO_LABEL_MONTHS_MAP[cell.month]}
-                    </button>
-                  </div>
-                ))}
-              </div>
-            ))}
-          </div>
-        )}
+        {view === 'months' && <MonthSelector onChangeViewType={setView} onChangeViewingMonth={setMonthInView} />}
         {view === 'years' && (
-          <div className='arc_view-years'>
-            {yearsViewMatrix.map((row, index) => (
-              <div className='arc_view_row' key={index}>
-                {row.map((cell) => (
-                  <div className={`arc_view_cell${cell.isCurrentYear ? ' arc_this_year' : ''}`} key={cell.year}>
-                    <button
-                      onClick={() => {
-                        setYearInView(cell.year);
-                        setView('months');
-                      }}>
-                      {cell.year}
-                    </button>
-                  </div>
-                ))}
-              </div>
-            ))}
-          </div>
+          <YearSelector
+            onChangeViewType={setView}
+            onChangeViewingYear={setYearInView}
+            yearMatrixStart={yearMatrixRangeStart}
+            yearMatrixEnd={yearMatrixRangeEnd}
+          />
         )}
         {view === 'month_dates' && (
           <>
-            <ul className='arc_view_weekdays'>
-              {Object.keys(weekDays).map((weekDay) => (
-                <li
-                  key={weekDay}
-                  className={`arc_view_weekdays_cell${
-                    typeof weekendIndexes.find((weekend) => weekend === Number(weekDay)) === 'number' ? ' arc_wknd' : ''
-                  }`}>
-                  <span>{weekDays[Number(weekDay) as WeekdayIndices]}</span>
-                </li>
-              ))}
-            </ul>
-            <div className='arc_view-days-of-month' role='grid'>
-              {daysOfMMonthViewMatrix.map((row, index) => (
-                <div className='arc_view_row' key={index}>
-                  {row.map((cell) => (
-                    <div
-                      onMouseEnter={() => {
-                        if (isRangeSelectorView) {
-                          if (isRangeSelectModeOn) {
-                            setNewSelectedRangeEnd(new Date(cell.year, cell.month, cell.date));
-                          }
-                        }
-                      }}
-                      key={cell.date}
-                      className={`arc_view_cell${cell.activeMonthInView ? ' arc_active' : ''}${
-                        cell.isWeekend ? ' arc_wknd' : ''
-                      }${cell.isToday ? ' arc_today' : ''}${cell.isFirstRow ? ' arc_fr' : ''}${
-                        cell.isToday ? ' arc_today' : ''
-                      }${cell.isHighlight ? ' arc_highlight' : ''}${cell.isLastRow ? ' arc_lr' : ''}${
-                        cell.isFirsColumn ? ' arc_fc' : ''
-                      }${cell.isLastColumn ? ' arc_lc' : ''}${
-                        cell.isSelected && !isRangeSelectorView ? ' arc_selected' : ''
-                      }${cell.isDisabled ? ' arc_disabled' : ''}${cell.isInRange ? ' arc_in_range' : ''}${
-                        cell.isRangeStart ? ' arc_range_start' : ''
-                      }${cell.isRangeEnd ? ' arc_range_end' : ''}${isRangeSelectModeOn ? ' arc_range_mode' : ''}`}>
-                      <div className='arc_view_cell_value'>
-                        <button
-                          disabled={cell.isDisabled}
-                          tabIndex={cell.isDisabled ? -1 : 0}
-                          onClick={() => onDateClicked(cell)}>
-                          {cell.date}
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ))}
-            </div>
+            <WeekDaysRow weekStartIndex={startOfTheWeek} weekendIndices={weekendIndexes} />
+            <DayOfMonthSelector
+              selectedDate={selectedDate}
+              selectedRangeStart={selectedRangeStart}
+              selectedRangeEnd={selectedRangeEnd}
+              newSelectedRangeStart={newSelectedRangeStart}
+              weekStartIndex={startOfTheWeek}
+              onChangeViewingYear={setYearInView}
+              onChangeViewingMonth={setMonthInView}
+              onChangenSelectedMultiDates={setSelectedMultiDates}
+              onChangenNewSelectedRangeEnd={setNewSelectedRangeEnd}
+              onChangenNewSelectedRangeStart={setNewSelectedRangeStart}
+              onChangenSelectedRangeEnd={setSelectedRangeEnd}
+              onChangenSelectedRangeStart={setSelectedRangeStart}
+              onChangenSelectedDate={setSelectedDate}
+              newSelectedRangeEnd={newSelectedRangeEnd}
+              isRangeSelectorView={isRangeSelectorView}
+              fixedRangeLength={fixedRangeLength}
+              isFixedRangeView={isFixedRangeView}
+              isDisabled={isDisabled}
+              selectedMultiDates={selectedMultiDates}
+              isMultiSelectorView={isMultiSelectorView}
+              viewingMonth={monthInView}
+              format={format}
+              today={today}
+              maxAllowedDate={maxAllowedDate}
+              minAllowedDate={minAllowedDate}
+              weekendIndices={weekendIndexes}
+              onChange={onChange}
+              viewingYear={yearInView}
+              disableFuture={disableFuture}
+              disablePast={disablePast}
+              separator={separator}
+              highlights={highlights}
+              disableToday={disableToday}
+            />
           </>
         )}
       </main>
