@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState, CSSProperties } from 'react';
 
 import type { IsDisabledParams, MonthIndices, WeekdayIndices } from './types';
 
@@ -34,6 +34,11 @@ type MultiValue = Value[];
 
 interface Props {
   /**
+   * Width & Height of the calendar.
+   * Default is 276
+   */
+  size?: number;
+  /**
    * The initial month and year that will be shown to the user.
    * By default it shows today's date month and year. If a date is selected it shows the selected
    * date's month and year.
@@ -52,6 +57,10 @@ interface Props {
    * Renders a range selector UI for the calendar
    */
   isRangeSelector?: boolean;
+  /**
+   * Calendar takes the total width and height of the parent.
+   */
+  isFluid?: boolean;
   /**
    * Always select n number of days starting from the user's selected date
    */
@@ -122,6 +131,64 @@ interface Props {
   onChange?: (value: Value | MultiValue | RangeValue) => any | Promise<any>;
 }
 
+// const getStyles: (size: number) => ComputedStyles = (size: number) => ({
+//   appliedWidth: `${size!}px`,
+//   appliedHeight: `${size!}px`,
+//   headerHeightPercent: '14.65%',
+//   bodyHeightPercent: '85.35%',
+//   weekdaysRowBottomMarginPercent: '3.26%',
+//   weekdayColumnCellLeftMarginPercent: '2.17%',
+//   weekdayColumnCellWidthPercent: '12.736%',
+//   dayOfMonthViewHeightPercent: '82.179%',
+//   weekdaysRowHeightPercent: '14.001%',
+//   dayOfMonthRowHeightPercent: '16.664%',
+//   dayOfMonthColumnWidthPercent: '14.286%',
+//   monthRowHeightPercent: '24.9%',
+//   monthColumnWidthPercent: '33.33%',
+//   yearRowHeightPercent: '24.9%',
+//   yearColumnWidthPercent: '20%',
+// });
+
+const getStyles: (size: number) => CSSProps = (size) => ({
+  root: {
+    arc: { width: `${size!}px`, height: `${size!}px` },
+    arc_view: { height: '85.35%' },
+  },
+  weekdaysRow: {
+    arc_view_weekdays: {
+      height: '14.001%',
+      marginBottom: '3.26%',
+    },
+    arc_view_weekdays_cell: {
+      flexBasis: '12.736%',
+      maxWidth: '12.736%',
+      // TODO add index === 0 || index === 6 ? 0 :
+      marginLeft: '2.17%',
+    },
+  },
+  dayOfMonth: {
+    'arc_view-days-of-month': { height: '82.179%' },
+    arc_view_row: { height: '16.664%' },
+    arc_view_cell: {
+      flexBasis: '14.286%',
+      maxWidth: '14.286%',
+    },
+  },
+  months: {
+    arc_view_row: { height: '24.9%' },
+    arc_view_cell: { flexBasis: '33.33%', maxWidth: '33.33%' },
+  },
+  years: {
+    arc_view_row: { height: '24.9%' },
+    arc_view_cell: { width: '20%' },
+  },
+  header: {
+    arc_header: { height: '14.65%', padding: '2.50%' },
+    arc_header_nav: { width: '10.14%', height: '100%' },
+    arch_header_label: { width: '65.21%', height: '100%', margin: '0 4.34%' },
+  },
+});
+
 // Add an option to freeze ui if date is invalid
 // Add a isEditable option
 // Change is in range to could be in range as a class rather than hover
@@ -145,9 +212,12 @@ function Calendar({
   separator = '-',
   format = 'DD-MM-YYYY',
   disableFuture = false,
+  size = 276,
   disablePast = false,
   disableToday = false,
 }: Props) {
+  const styles = useMemo(() => getStyles(size), [size]);
+
   const [today] = useState(new Date());
 
   const [isRangeSelectorView] = useState(!!isRangeSelector);
@@ -159,6 +229,9 @@ function Calendar({
   );
 
   const [isNormalView] = useState(!isRangeSelectorView && !isMultiSelectorView);
+
+  // is range select mode on
+  const [isRangeSelectModeOn, setIsRangeSelectModeOn] = useState(false);
 
   if (isNormalView && Array.isArray(value)) {
     throw new Error('`value` should an instance of the Date class. Provided value is an Array.');
@@ -325,8 +398,9 @@ function Calendar({
   );
 
   return (
-    <section className='arc'>
+    <section style={styles.root.arc} className='arc'>
       <Header
+        layoutCalcs={styles}
         onClickPrev={onPrevClick}
         onClickNext={onNextClick}
         onChangeViewType={setView}
@@ -336,10 +410,13 @@ function Calendar({
         yearMatrixStart={yearMatrixRangeStart}
         yearMatrixEnd={yearMatrixRangeEnd}
       />
-      <main className='arc_view'>
-        {view === 'months' && <MonthSelector onChangeViewType={setView} onChangeViewingMonth={setMonthInView} />}
+      <main style={styles.root.arc_view} className='arc_view'>
+        {view === 'months' && (
+          <MonthSelector layoutCalcs={styles} onChangeViewType={setView} onChangeViewingMonth={setMonthInView} />
+        )}
         {view === 'years' && (
           <YearSelector
+            layoutCalcs={styles}
             onChangeViewType={setView}
             onChangeViewingYear={setYearInView}
             yearMatrixStart={yearMatrixRangeStart}
@@ -348,8 +425,11 @@ function Calendar({
         )}
         {view === 'month_dates' && (
           <>
-            <WeekDaysRow weekStartIndex={startOfTheWeek} weekendIndices={weekendIndexes} />
+            <WeekDaysRow layoutCalcs={styles} weekStartIndex={startOfTheWeek} weekendIndices={weekendIndexes} />
             <DayOfMonthSelector
+              isRangeSelectModeOn={isRangeSelectModeOn}
+              setIsRangeSelectModeOn={setIsRangeSelectModeOn}
+              layoutCalcs={styles}
               selectedDate={selectedDate}
               selectedRangeStart={selectedRangeStart}
               selectedRangeEnd={selectedRangeEnd}
@@ -392,3 +472,32 @@ function Calendar({
 }
 
 export default Calendar;
+
+export interface CSSProps {
+  root: {
+    arc: CSSProperties;
+    arc_view: CSSProperties;
+  };
+  weekdaysRow: {
+    arc_view_weekdays: CSSProperties;
+    arc_view_weekdays_cell: CSSProperties;
+  };
+  dayOfMonth: {
+    'arc_view-days-of-month': CSSProperties;
+    arc_view_row: CSSProperties;
+    arc_view_cell: CSSProperties;
+  };
+  months: {
+    arc_view_row: CSSProperties;
+    arc_view_cell: CSSProperties;
+  };
+  years: {
+    arc_view_row: CSSProperties;
+    arc_view_cell: CSSProperties;
+  };
+  header: {
+    arc_header: CSSProperties;
+    arc_header_nav: CSSProperties;
+    arch_header_label: CSSProperties;
+  };
+}

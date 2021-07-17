@@ -1,4 +1,5 @@
 import React, { memo, useCallback, useMemo, useState } from 'react';
+import { CSSProps } from '../../calendar';
 
 import { DayOfMonthCell, IsDisabledParams, MonthIndices, WeekdayIndices } from '../../types';
 import {
@@ -41,6 +42,8 @@ interface Props {
   weekendIndices: WeekdayIndices[];
   selectedMultiDates: Record<string, Date | undefined>;
   isMultiSelectorView: boolean;
+  isRangeSelectModeOn: boolean;
+  setIsRangeSelectModeOn: (on: boolean) => void;
   disableFuture: boolean;
   disablePast: boolean;
   disableToday: boolean;
@@ -52,6 +55,7 @@ interface Props {
   format?: string;
   today: Date;
   onChange?: (value: Value | MultiValue | RangeValue) => any | Promise<any>;
+  layoutCalcs: CSSProps;
 }
 
 function DayOfMonthSelectorComponent({
@@ -64,8 +68,10 @@ function DayOfMonthSelectorComponent({
   onChangeViewingMonth,
   newSelectedRangeEnd,
   isRangeSelectorView,
+  setIsRangeSelectModeOn,
   fixedRangeLength,
   isFixedRangeView,
+  isRangeSelectModeOn,
   isDisabled,
   onChangenSelectedMultiDates,
   selectedMultiDates,
@@ -79,6 +85,7 @@ function DayOfMonthSelectorComponent({
   today,
   onChangenSelectedDate,
   maxAllowedDate,
+  layoutCalcs,
   minAllowedDate,
   weekendIndices,
   onChange,
@@ -89,9 +96,6 @@ function DayOfMonthSelectorComponent({
   highlights,
   disableToday,
 }: Props) {
-  // is range select mode on
-  const [isRangeSelectModeOn, setIsRangeSelectModeOn] = useState(false);
-
   const [highlightsMap] = useState<Record<string, 1>>(() => {
     if (Array.isArray(highlights)) {
       return highlights
@@ -351,11 +355,12 @@ function DayOfMonthSelectorComponent({
   );
 
   return (
-    <div className='arc_view-days-of-month' role='grid'>
+    <div style={layoutCalcs.dayOfMonth['arc_view-days-of-month']} className='arc_view-days-of-month' role='grid'>
       {daysOfMMonthViewMatrix.map((row, index) => (
-        <div className='arc_view_row' key={index}>
+        <div style={layoutCalcs.dayOfMonth.arc_view_row} className='arc_view_row' key={index}>
           {row.map((cell) => (
             <div
+              style={layoutCalcs.dayOfMonth.arc_view_cell}
               onMouseEnter={() => {
                 if (isRangeSelectorView) {
                   if (isRangeSelectModeOn) {

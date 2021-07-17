@@ -1,4 +1,5 @@
 import React, { memo } from 'react';
+import { CSSProps } from '../../calendar';
 
 import { MonthIndices } from '../../types';
 
@@ -13,6 +14,7 @@ interface Props {
   viewingYear: number;
   yearMatrixStart: number;
   yearMatrixEnd: number;
+  layoutCalcs: CSSProps;
 }
 
 function HeaderComponent({
@@ -24,14 +26,21 @@ function HeaderComponent({
   viewingYear,
   yearMatrixEnd,
   yearMatrixStart,
+  layoutCalcs,
 }: Props) {
   return (
-    <header className='arc_header'>
-      <button className='arc_header_nav arc_header_nav-prev' onClick={onClickPrev}>
+    <header style={layoutCalcs.header.arc_header} className='arc_header'>
+      <button
+        style={layoutCalcs.header.arc_header_nav}
+        className='arc_header_nav arc_header_nav-prev'
+        onClick={onClickPrev}>
         ←
       </button>
       {viewType === 'month_dates' ? (
-        <button className='arc_header_label arc_header_label-days-of-month' onClick={() => onChangeViewType('years')}>
+        <button
+          style={layoutCalcs.header.arch_header_label}
+          className='arc_header_label arc_header_label-days-of-month'
+          onClick={() => onChangeViewType('years')}>
           <div>
             <span>{NATIVE_INDEX_TO_LABEL_MONTHS_MAP[viewingMonth]}</span>
           </div>
@@ -40,13 +49,16 @@ function HeaderComponent({
           </div>
         </button>
       ) : viewType === 'months' ? (
-        <button className='arc_header_label arc_header_label-months'>
+        <button style={layoutCalcs.header.arch_header_label} className='arc_header_label arc_header_label-months'>
           <div onClick={() => onChangeViewType('years')}>
             <span>{viewingYear}</span>
           </div>
         </button>
       ) : (
-        <button className='arc_header_label arc_header_label-years' onClick={() => onChangeViewType('month_dates')}>
+        <button
+          style={layoutCalcs.header.arch_header_label}
+          className='arc_header_label arc_header_label-years'
+          onClick={() => onChangeViewType('month_dates')}>
           <div>
             <span>
               {yearMatrixStart}-{yearMatrixEnd}
@@ -54,7 +66,10 @@ function HeaderComponent({
           </div>
         </button>
       )}
-      <button className='arc_header_nav arc_header_nav-next' onClick={onClickNext}>
+      <button
+        style={layoutCalcs.header.arc_header_nav}
+        className='arc_header_nav arc_header_nav-next'
+        onClick={onClickNext}>
         →
       </button>
     </header>

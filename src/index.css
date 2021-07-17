@@ -19,11 +19,10 @@ code {
   display: flex;
   align-items: flex-start;
   flex-direction: column;
-  width: 276px;
-  height: 276px;
   overflow: hidden;
   border: 1px solid #efeff1;
   border-radius: 8px;
+  box-sizing: border-box;
 }
 
 button {
@@ -52,17 +51,13 @@ button::-moz-focus-inner {
   display: flex;
   align-items: center;
   width: 100%;
-  padding: 8px;
-  height: 14.6%;
 }
 
 .arc_header_nav {
-  flex: 0 0 28px;
+  flex: 0 0 auto;
   box-shadow: 0 0px 4px 2px #f1f1f1;
   border-radius: 6px;
   cursor: pointer;
-  width: 28px;
-  height: 28px;
 }
 
 .arc_header_label {
@@ -70,11 +65,9 @@ button::-moz-focus-inner {
   display: flex;
   justify-content: center;
   align-items: center;
-  margin: 0 12px;
   box-shadow: 0 0px 4px 2px #f1f1f1;
   border-radius: 6px;
   cursor: pointer;
-  padding: 5px;
 }
 
 .arc_header_label span {
@@ -98,7 +91,6 @@ button::-moz-focus-inner {
 /** Body Content **/
 
 .arc_view {
-  height: calc(100% - 14.6%);
   width: 100%;
 }
 
@@ -111,12 +103,9 @@ button::-moz-focus-inner {
 .arc_view-months .arc_view_row {
   display: flex;
   width: 100%;
-  height: 25%;
 }
 
 .arc_view-months .arc_view_cell {
-  flex-basis: 33.33%;
-  max-width: 33.33%;
   height: 100%;
   display: flex;
   align-items: center;
@@ -157,12 +146,9 @@ button::-moz-focus-inner {
 .arc_view-years .arc_view_row {
   display: flex;
   width: 100%;
-  height: 25%;
 }
 
 .arc_view-years .arc_view_cell {
-  flex-basis: 20%;
-  max-width: 20%;
   height: 100%;
   display: flex;
   align-items: center;
@@ -194,16 +180,13 @@ button::-moz-focus-inner {
   display: flex;
   width: 100%;
   border-bottom: 1px solid #f7f7f7;
-  margin-bottom: 9px;
 }
 
 .arc_view_weekdays_cell {
   display: flex;
   align-items: center;
   justify-content: center;
-  flex-basis: 14.285%;
-  max-width: 14.285%;
-  height: 32px;
+  height: 100%;
   color: #b6b6b7;
   font-size: 13px;
   text-transform: uppercase;
@@ -213,26 +196,18 @@ button::-moz-focus-inner {
   color: #f3a0a0;
 }
 
-.arc_view_weekdays_cell + .arc_view_weekdays_cell {
-  margin-left: 6px;
-}
-
 /** Days of Month View **/
 
 .arc_view-days-of-month {
-  height: calc(100% - 42px);
 }
 
 .arc_view-days-of-month .arc_view_row {
   display: flex;
   width: 100%;
-  height: 16.66%;
   align-items: center;
 }
 
 .arc_view-days-of-month .arc_view_cell {
-  flex-basis: 14.285%;
-  max-width: 14.285%;
   height: 100%;
   display: flex;
   align-items: center;

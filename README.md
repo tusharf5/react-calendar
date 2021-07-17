@@ -42,3 +42,17 @@ https://codepen.io/ashfaqace/pen/RpyYdG
 ### Months view
 
 ![Months View](./images/view-3.png)
+
+```
+// min width and height should be 276px
+  // header(flex) is 14.65 of parent, width of 100%
+    // each button is height 28px and first and last button have width 28px and middle one exapands
+  // main is 100% - 14.6%
+    // weekdays(flex) are 33px in height, botto margin of 9px,
+      // each weekday(flex) is flex-basis: 14.285%, max-width: 14.285%, height: 32px;
+    // day-of-month is 100% - (33px + 9px)
+      // each row is 16.6% i height
+        // each cell is 14.285% in width
+          // each cell value is width: 65.95%, height: 80.5%;
+            // button is 100% width and height
+```

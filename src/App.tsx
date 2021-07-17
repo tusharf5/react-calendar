@@ -151,7 +151,7 @@ function App() {
         </div>
         <div>
           <div className='calendar'>
-            <Calendar onChange={onChangenine} />
+            <Calendar isFluid onChange={onChangenine} />
           </div>
           <div className='json'>
             <ReactJson name='value' enableClipboard={false} src={nine} />
@@ -390,6 +390,20 @@ function App() {
           </div>
           <div className='json'>
             <ReactJson name='value' enableClipboard={false} src={tweleve} />
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div>
+          <p>Can adjust size by `size` prop (600px/400px)</p>
+        </div>
+        <div>
+          <div>
+            <Calendar size={600} isRangeSelector />
+          </div>
+          <div>
+            <Calendar size={400} isMultiSelector />
           </div>
         </div>
       </div>

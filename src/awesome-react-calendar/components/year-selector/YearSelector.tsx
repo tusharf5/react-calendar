@@ -1,4 +1,5 @@
 import React, { memo, useMemo } from 'react';
+import { CSSProps } from '../../calendar';
 
 import { YearCell } from '../../types';
 
@@ -9,9 +10,16 @@ interface Props {
   onChangeViewingYear: (year: number) => any;
   yearMatrixStart: number;
   yearMatrixEnd: number;
+  layoutCalcs: CSSProps;
 }
 
-function YearSelectorComponent({ onChangeViewType, onChangeViewingYear, yearMatrixStart, yearMatrixEnd }: Props) {
+function YearSelectorComponent({
+  onChangeViewType,
+  onChangeViewingYear,
+  yearMatrixStart,
+  yearMatrixEnd,
+  layoutCalcs,
+}: Props) {
   // TODO add highlight slected dates years
   const yearsMatrix = useMemo<YearCell[][]>(() => {
     return getYearsViewMetrix(yearMatrixStart, {});
@@ -20,9 +28,12 @@ function YearSelectorComponent({ onChangeViewType, onChangeViewingYear, yearMatr
   return (
     <div className='arc_view-years'>
       {yearsMatrix.map((row, index) => (
-        <div className='arc_view_row' key={index}>
+        <div style={layoutCalcs.years.arc_view_row} className='arc_view_row' key={index}>
           {row.map((cell) => (
-            <div className={`arc_view_cell${cell.isCurrentYear ? ' arc_this_year' : ''}`} key={cell.year}>
+            <div
+              style={layoutCalcs.years.arc_view_cell}
+              className={`arc_view_cell${cell.isCurrentYear ? ' arc_this_year' : ''}`}
+              key={cell.year}>
               <button
                 onClick={() => {
                   onChangeViewingYear(cell.year);
