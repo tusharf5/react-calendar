@@ -337,13 +337,9 @@ function Calendar({
     }
   });
 
-  const [newSelectedRangeStart, setNewSelectedRangeStart] = useState<Date | undefined>(() => {
-    return selectedRangeStart;
-  });
+  const [newSelectedRangeStart, setNewSelectedRangeStart] = useState<Date | undefined>(selectedRangeStart);
 
-  const [newSelectedRangeEnd, setNewSelectedRangeEnd] = useState<Date | undefined>(() => {
-    return selectedRangeEnd;
-  });
+  const [newSelectedRangeEnd, setNewSelectedRangeEnd] = useState<Date | undefined>(selectedRangeEnd);
 
   // View States
   const [view, setView] = useState<'years' | 'months' | 'month_dates'>('month_dates');

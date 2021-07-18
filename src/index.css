@@ -203,55 +203,62 @@ button::-moz-focus-inner {
   color: #f3a0a0;
 }
 
-.arc_view-days-of-month .arc_view_cell.arc_in_range.arc_active:not(.arc_disabled) .arc_view_cell_value {
+/* in range bg colors */
+.arc_view-days-of-month .arc_view_cell.arc_in_range.arc_active .arc_view_cell_value {
   background-color: #f1f6ff;
 }
 
-.arc_view-days-of-month .arc_view_cell.arc_in_range.arc_wknd.arc_active:not(.arc_disabled) .arc_view_cell_value {
+.arc_view-days-of-month .arc_view_cell.arc_in_range.arc_wknd.arc_active .arc_view_cell_value {
   background-color: #fff1f3;
 }
 
-/* .arc_view-days-of-month .arc_view_cell.arc_in_range:not(.arc_active) .arc_view_cell_value {
-  background-color: #fafbfd;
+/* range endpoints active color */
+.arc_view-days-of-month .arc_view_cell.arc_range_start.arc_active button,
+.arc_view-days-of-month .arc_view_cell.arc_range_end.arc_active button {
+  color: #fff;
 }
 
-.arc_view-days-of-month .arc_view_cell.arc_in_range.arc_wknd:not(.arc_active) .arc_view_cell_value {
-  background-color: #fdfafa;
-} */
-
-.arc_view-days-of-month .arc_view_cell.arc_in_range.arc_range_start.arc_active .arc_view_cell_value,
-.arc_view-days-of-month .arc_view_cell.arc_in_range.arc_range_end.arc_active .arc_view_cell_value {
+/* active range non weekend endoints */
+.arc_view-days-of-month .arc_view_cell.arc_range_start.arc_active .arc_view_cell_value,
+.arc_view-days-of-month .arc_view_cell.arc_range_end.arc_active .arc_view_cell_value {
   background-color: #448fff;
 }
 
-.arc_view-days-of-month .arc_view_cell.arc_in_range.arc_range_start.arc_active button,
-.arc_view-days-of-month .arc_view_cell.arc_in_range.arc_range_end.arc_active button {
-  color: #fff;
-}
-
-.arc_view-days-of-month .arc_view_cell.arc_in_range.arc_range_start.arc_wknd.arc_active .arc_view_cell_value,
-.arc_view-days-of-month .arc_view_cell.arc_in_range.arc_range_end.arc_wknd.arc_active .arc_view_cell_value {
+/* active range weekend endoints */
+.arc_view-days-of-month .arc_view_cell.arc_range_start.arc_wknd.arc_active .arc_view_cell_value,
+.arc_view-days-of-month .arc_view_cell.arc_range_end.arc_wknd.arc_active .arc_view_cell_value {
   background-color: red;
 }
 
-.arc_view-days-of-month .arc_view_cell.arc_in_range.arc_range_start.arc_wknd.arc_active button,
-.arc_view-days-of-month .arc_view_cell.arc_in_range.arc_range_end.arc_wknd.arc_active button {
-  color: #fff;
-}
-
-.arc_view-days-of-month .arc_view_cell.arc_range_start:not(.arc_active) .arc_view_cell_value,
-.arc_view-days-of-month .arc_view_cell.arc_range_end:not(.arc_active) .arc_view_cell_value {
-  /* background-color: #fff; */
-}
-
-.arc_view-days-of-month .arc_view_cell.arc_in_range.arc_range_start.arc_wknd:not(.arc_active) .arc_view_cell_value,
-.arc_view-days-of-month .arc_view_cell.arc_in_range.arc_range_end.arc_wknd:not(.arc_active) .arc_view_cell_value {
-  /* background-color: #fff; */
-}
-
-.arc_view-days-of-month .arc_view_cell.arc_in_range.arc_range_start.arc_wknd.arc_active .arc_view_cell_value button,
-.arc_view-days-of-month .arc_view_cell.arc_in_range.arc_range_end.arc_wknd.arc_active .arc_view_cell_value button {
+.arc_view-days-of-month .arc_view_cell.arc_range_start.arc_wknd.arc_active .arc_view_cell_value button,
+.arc_view-days-of-month .arc_view_cell.arc_range_end.arc_wknd.arc_active .arc_view_cell_value button {
   border-bottom-color: red;
+}
+
+/* inacrtive range non-weekend endonts */
+.arc_view-days-of-month .arc_view_cell.arc_range_start:not(.arc_active) .arc_view_cell_value,
+.arc_view-days-of-month .arc_view_cell.arc_range_end:not(.arc_active) .arc_view_cell_value,
+.arc_view-days-of-month .arc_view_cell.arc_selected:not(.arc_active) .arc_view_cell_value {
+  background-color: #ecf3ff;
+}
+
+.arc_view-days-of-month .arc_view_cell.arc_range_start:not(.arc_active) button,
+.arc_view-days-of-month .arc_view_cell.arc_range_end:not(.arc_active) button,
+.arc_view-days-of-month .arc_view_cell.arc_selected:not(.arc_active) .arc_view_cell_value button {
+  color: #c2d7f9;
+}
+
+/* inacrtive range weekend endonts */
+.arc_view-days-of-month .arc_view_cell.arc_in_range.arc_range_start.arc_wknd:not(.arc_active) .arc_view_cell_value,
+.arc_view-days-of-month .arc_view_cell.arc_in_range.arc_range_end.arc_wknd:not(.arc_active) .arc_view_cell_value,
+.arc_view-days-of-month .arc_view_cell.arc_selected.arc_wknd:not(.arc_active) .arc_view_cell_value {
+  background-color: #ffecec;
+}
+
+.arc_view-days-of-month .arc_view_cell.arc_in_range.arc_range_start.arc_wknd:not(.arc_active) button,
+.arc_view-days-of-month .arc_view_cell.arc_in_range.arc_range_end.arc_wknd:not(.arc_active) button,
+.arc_view-days-of-month .arc_view_cell.arc_selected.arc_wknd:not(.arc_active) .arc_view_cell_value button {
+  color: #f9c2c2;
 }
 
 .arc_view-days-of-month .arc_view_cell.arc_today:not(.arc_selected):not(.arc_disabled) button {
@@ -273,18 +280,6 @@ button::-moz-focus-inner {
   font-weight: 500;
 }
 
-.arc_view-days-of-month .arc_view_cell.arc_range_start:not(.arc_active) .arc_view_cell_value,
-.arc_view-days-of-month .arc_view_cell.arc_range_end:not(.arc_active) .arc_view_cell_value,
-.arc_view-days-of-month .arc_view_cell.arc_selected:not(.arc_active) .arc_view_cell_value {
-  background-color: #ecf3ff;
-}
-
-.arc_view-days-of-month .arc_view_cell.arc_range_start:not(.arc_active) button,
-.arc_view-days-of-month .arc_view_cell.arc_range_end:not(.arc_active) button,
-.arc_view-days-of-month .arc_view_cell.arc_selected:not(.arc_active) .arc_view_cell_value button {
-  color: #c2d7f9;
-}
-
 .arc_view-days-of-month .arc_view_cell.arc_selected button:focus {
   outline: none;
 }
@@ -296,18 +291,6 @@ button::-moz-focus-inner {
 .arc_view-days-of-month .arc_view_cell.arc_selected.arc_wknd .arc_view_cell_value button {
   color: #fff;
   font-weight: 500;
-}
-
-.arc_view-days-of-month .arc_view_cell.arc_in_range.arc_range_start.arc_wknd:not(.arc_active) .arc_view_cell_value,
-.arc_view-days-of-month .arc_view_cell.arc_in_range.arc_range_end.arc_wknd:not(.arc_active) .arc_view_cell_value,
-.arc_view-days-of-month .arc_view_cell.arc_selected.arc_wknd:not(.arc_active) .arc_view_cell_value {
-  background-color: #ffecec;
-}
-
-.arc_view-days-of-month .arc_view_cell.arc_in_range.arc_range_start.arc_wknd:not(.arc_active) button,
-.arc_view-days-of-month .arc_view_cell.arc_in_range.arc_range_end.arc_wknd:not(.arc_active) button,
-.arc_view-days-of-month .arc_view_cell.arc_selected.arc_wknd:not(.arc_active) .arc_view_cell_value button {
-  color: #f9c2c2;
 }
 
 .arc_view-days-of-month .arc_view_cell.arc_disabled {
