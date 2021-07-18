@@ -35,6 +35,7 @@ function YearSelectorComponent({
               className={`arc_view_cell${cell.isCurrentYear ? ' arc_this_year' : ''}`}
               key={cell.year}>
               <button
+                style={layoutCalcs.months.arc_view_cell_value_button}
                 onClick={() => {
                   onChangeViewingYear(cell.year);
                   onChangeViewType('months');

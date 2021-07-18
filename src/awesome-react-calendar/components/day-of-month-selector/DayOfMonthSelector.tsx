@@ -381,8 +381,9 @@ function DayOfMonthSelectorComponent({
               }${cell.isInRange ? ' arc_in_range' : ''}${cell.isRangeStart ? ' arc_range_start' : ''}${
                 cell.isRangeEnd ? ' arc_range_end' : ''
               }${isRangeSelectModeOn ? ' arc_range_mode' : ''}`}>
-              <div className='arc_view_cell_value'>
+              <div style={layoutCalcs.dayOfMonth.arc_view_cell_value} className='arc_view_cell_value'>
                 <button
+                  style={layoutCalcs.dayOfMonth.arc_view_cell_value_button}
                   disabled={cell.isDisabled}
                   tabIndex={cell.isDisabled ? -1 : 0}
                   onClick={() => onDateClicked(cell)}>

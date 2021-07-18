@@ -180,8 +180,23 @@ const getStyles: (size: number) => CSSProps = (size) => ({
       height: '100%',
       flexBasis: '12.736%',
       maxWidth: '12.736%',
-      // TODO add index === 0 || index === 6 ? 0 :
       marginLeft: '2.17%',
+    },
+
+    arc_view_weekdays_cell_corners: {
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      height: '100%',
+      flexBasis: '12.736%',
+      maxWidth: '12.736%',
+      marginLeft: '0',
+    },
+    arc_view_weekdays_cell_value: {
+      width: '65.95%',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
     },
   },
   dayOfMonth: {
@@ -197,6 +212,14 @@ const getStyles: (size: number) => CSSProps = (size) => ({
       alignItems: 'center',
       justifyContent: 'center',
     },
+    arc_view_cell_value: {
+      width: '65.95%',
+      height: '80.5%',
+    },
+    arc_view_cell_value_button: {
+      width: '100%',
+      height: '100%',
+    },
   },
   months: {
     arc_view_row: { height: '24.9%', display: 'flex', width: '100%' },
@@ -208,10 +231,24 @@ const getStyles: (size: number) => CSSProps = (size) => ({
       alignItems: 'center',
       justifyContent: 'center',
     },
+    arc_view_cell_value_button: {
+      width: '78px',
+      height: '28px',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
   },
   years: {
     arc_view_row: { height: '24.9%', display: 'flex', width: '100%' },
     arc_view_cell: { width: '20%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' },
+    arc_view_cell_value_button: {
+      width: '48px',
+      height: '26px',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
   },
   header: {
     arc_header_nav: { width: '10.14%', height: '100%', flex: '0 0 auto' },
@@ -518,19 +555,25 @@ export interface CSSProps {
   weekdaysRow: {
     arc_view_weekdays: CSSProperties;
     arc_view_weekdays_cell: CSSProperties;
+    arc_view_weekdays_cell_corners: CSSProperties;
+    arc_view_weekdays_cell_value: CSSProperties;
   };
   dayOfMonth: {
     'arc_view-days-of-month': CSSProperties;
     arc_view_row: CSSProperties;
     arc_view_cell: CSSProperties;
+    arc_view_cell_value: CSSProperties;
+    arc_view_cell_value_button: CSSProperties;
   };
   months: {
     arc_view_row: CSSProperties;
     arc_view_cell: CSSProperties;
+    arc_view_cell_value_button: CSSProperties;
   };
   years: {
     arc_view_row: CSSProperties;
     arc_view_cell: CSSProperties;
+    arc_view_cell_value_button: CSSProperties;
   };
   header: {
     arc_header_nav: CSSProperties;

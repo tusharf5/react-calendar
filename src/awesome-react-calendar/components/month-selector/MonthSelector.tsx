@@ -27,6 +27,7 @@ function MonthSelectorComponent({ onChangeViewingMonth, onChangeViewType, layout
               className={`arc_view_cell${cell.isCurrentMonth ? ' arc_this_month' : ''}`}
               key={cell.month}>
               <button
+                style={layoutCalcs.months.arc_view_cell_value_button}
                 onClick={() => {
                   onChangeViewingMonth(cell.month);
                   onChangeViewType('month_dates');
