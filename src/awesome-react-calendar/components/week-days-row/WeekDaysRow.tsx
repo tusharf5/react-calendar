@@ -26,17 +26,17 @@ function WeekDaysRowComponent({ weekStartIndex, weekendIndices, layoutCalcs }: P
 
   return (
     <ul style={layoutCalcs.weekdaysRow.arc_view_weekdays} className='arc_view_weekdays'>
-      {weekDayOrder.map((weekDay, index) => (
+      {weekDayOrder.map((weekDay, weekdayIndex) => (
         <li
           style={
-            index === 0 || index === 6
+            weekdayIndex === 0 || weekdayIndex === 6
               ? layoutCalcs.weekdaysRow.arc_view_weekdays_cell_corners
               : layoutCalcs.weekdaysRow.arc_view_weekdays_cell
           }
           key={weekDay}
-          className={`arc_view_weekdays_cell${weekendIndicesMap[weekDay] ? ' arc_wknd' : ''}`}>
+          className={`arc_view_weekdays_cell${weekendIndicesMap[weekdayIndex as WeekdayIndices] ? ' arc_wknd' : ''}`}>
           <div style={layoutCalcs.weekdaysRow.arc_view_weekdays_cell_value}>
-            <span>{weekDayMap[weekDay]}</span>
+            <span>{weekDayMap[weekdayIndex as WeekdayIndices]}</span>
           </div>
         </li>
       ))}
