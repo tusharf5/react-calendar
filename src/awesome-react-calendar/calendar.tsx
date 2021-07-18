@@ -24,6 +24,8 @@ import { YearSelector } from './components/year-selector/YearSelector';
 import { WeekDaysRow } from './components/week-days-row/WeekDaysRow';
 import { DayOfMonthSelector } from './components/day-of-month-selector/DayOfMonthSelector';
 
+import './calendar.css';
+
 interface Value {
   value: Date;
   formatted: string;
@@ -38,6 +40,11 @@ interface Props {
    * Default is 276
    */
   size?: number;
+  /**
+   * Base font-size of calendar.
+   * Default is 16
+   */
+  fontSize?: number;
   /**
    * The initial month and year that will be shown to the user.
    * By default it shows today's date month and year. If a date is selected it shows the selected
@@ -149,11 +156,12 @@ interface Props {
 //   yearColumnWidthPercent: '20%',
 // });
 
-const getStyles: (size: number) => CSSProps = (size) => ({
+const getStyles: (size: number, fontSize: number) => CSSProps = (size, fontSize) => ({
   root: {
     arc: {
       width: `${size!}px`,
       height: `${size!}px`,
+      fontSize: `${fontSize}px`,
       display: 'flex',
       alignItems: 'flex-start',
       flexDirection: 'column',
@@ -288,10 +296,11 @@ function Calendar({
   format = 'DD-MM-YYYY',
   disableFuture = false,
   size = 276,
+  fontSize = 16,
   disablePast = false,
   disableToday = false,
 }: Props) {
-  const styles = useMemo(() => getStyles(size), [size]);
+  const styles = useMemo(() => getStyles(size, fontSize), [size, fontSize]);
 
   const [today] = useState(new Date());
 

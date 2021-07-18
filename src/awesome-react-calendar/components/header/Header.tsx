@@ -34,7 +34,7 @@ function HeaderComponent({
         style={layoutCalcs.header.arc_header_nav}
         className='arc_header_nav arc_header_nav-prev'
         onClick={onClickPrev}>
-        ←
+        <span>←</span>
       </button>
       {viewType === 'month_dates' ? (
         <button
@@ -70,7 +70,7 @@ function HeaderComponent({
         style={layoutCalcs.header.arc_header_nav}
         className='arc_header_nav arc_header_nav-next'
         onClick={onClickNext}>
-        →
+        <span>→</span>
       </button>
     </header>
   );

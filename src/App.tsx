@@ -400,10 +400,10 @@ function App() {
         </div>
         <div>
           <div>
-            <Calendar size={600} isRangeSelector />
+            <Calendar fontSize={20} size={600} isRangeSelector />
           </div>
           <div>
-            <Calendar size={400} isMultiSelector />
+            <Calendar fontSize={17} size={400} isMultiSelector />
           </div>
         </div>
       </div>
