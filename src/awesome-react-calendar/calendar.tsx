@@ -151,15 +151,33 @@ interface Props {
 
 const getStyles: (size: number) => CSSProps = (size) => ({
   root: {
-    arc: { width: `${size!}px`, height: `${size!}px` },
-    arc_view: { height: '85.35%' },
+    arc: {
+      width: `${size!}px`,
+      height: `${size!}px`,
+      display: 'flex',
+      alignItems: 'flex-start',
+      flexDirection: 'column',
+      boxSizing: 'border-box',
+    },
+    arc_view: { height: '85.35%', width: '100%' },
+    'arc_view-months': { height: '100%' },
+    'arc_view-years': { height: '100%' },
+    arc_header: { height: '14.65%', padding: '2.50%', display: 'flex', alignTtems: 'center', width: '100%' },
   },
   weekdaysRow: {
     arc_view_weekdays: {
       height: '14.001%',
-      marginBottom: '3.26%',
+      margin: '0 0 3.26% 0',
+      padding: 0,
+      display: 'flex',
+      width: '100%',
+      listStyle: 'none',
     },
     arc_view_weekdays_cell: {
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      height: '100%',
       flexBasis: '12.736%',
       maxWidth: '12.736%',
       // TODO add index === 0 || index === 6 ? 0 :
@@ -167,25 +185,45 @@ const getStyles: (size: number) => CSSProps = (size) => ({
     },
   },
   dayOfMonth: {
-    'arc_view-days-of-month': { height: '82.179%' },
-    arc_view_row: { height: '16.664%' },
+    'arc_view-days-of-month': {
+      height: '82.179%',
+    },
+    arc_view_row: { height: '16.664%', display: 'flex', width: '100%', alignItems: 'center' },
     arc_view_cell: {
       flexBasis: '14.286%',
       maxWidth: '14.286%',
+      height: '100%',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
     },
   },
   months: {
-    arc_view_row: { height: '24.9%' },
-    arc_view_cell: { flexBasis: '33.33%', maxWidth: '33.33%' },
+    arc_view_row: { height: '24.9%', display: 'flex', width: '100%' },
+    arc_view_cell: {
+      flexBasis: '33.33%',
+      maxWidth: '33.33%',
+      height: '100%',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
   },
   years: {
-    arc_view_row: { height: '24.9%' },
-    arc_view_cell: { width: '20%' },
+    arc_view_row: { height: '24.9%', display: 'flex', width: '100%' },
+    arc_view_cell: { width: '20%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' },
   },
   header: {
-    arc_header: { height: '14.65%', padding: '2.50%' },
-    arc_header_nav: { width: '10.14%', height: '100%' },
-    arch_header_label: { width: '65.21%', height: '100%', margin: '0 4.34%' },
+    arc_header_nav: { width: '10.14%', height: '100%', flex: '0 0 auto' },
+    arch_header_label: {
+      width: '65.21%',
+      height: '100%',
+      margin: '0 4.34%',
+      flex: '1 1 auto',
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
   },
 });
 
@@ -477,6 +515,9 @@ export interface CSSProps {
   root: {
     arc: CSSProperties;
     arc_view: CSSProperties;
+    arc_header: CSSProperties;
+    'arc_view-months': CSSProperties;
+    'arc_view-years': CSSProperties;
   };
   weekdaysRow: {
     arc_view_weekdays: CSSProperties;
@@ -496,7 +537,6 @@ export interface CSSProps {
     arc_view_cell: CSSProperties;
   };
   header: {
-    arc_header: CSSProperties;
     arc_header_nav: CSSProperties;
     arch_header_label: CSSProperties;
   };

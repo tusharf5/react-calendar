@@ -29,7 +29,7 @@ function HeaderComponent({
   layoutCalcs,
 }: Props) {
   return (
-    <header style={layoutCalcs.header.arc_header} className='arc_header'>
+    <header style={layoutCalcs.root.arc_header} className='arc_header'>
       <button
         style={layoutCalcs.header.arc_header_nav}
         className='arc_header_nav arc_header_nav-prev'

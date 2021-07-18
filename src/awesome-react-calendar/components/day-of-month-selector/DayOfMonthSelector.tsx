@@ -341,6 +341,7 @@ function DayOfMonthSelectorComponent({
       isRangeSelectModeOn,
       newSelectedRangeStart,
       onChangenNewSelectedRangeEnd,
+      setIsRangeSelectModeOn,
       onChangenSelectedRangeStart,
       onChangenSelectedRangeEnd,
       onChange,

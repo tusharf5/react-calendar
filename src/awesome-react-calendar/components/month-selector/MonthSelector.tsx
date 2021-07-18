@@ -18,7 +18,7 @@ function MonthSelectorComponent({ onChangeViewingMonth, onChangeViewType, layout
   }, []);
 
   return (
-    <div className='arc_view-months'>
+    <div style={layoutCalcs.root['arc_view-months']} className='arc_view-months'>
       {monthsViewMatrix.map((row, index) => (
         <div style={layoutCalcs.months.arc_view_row} className='arc_view_row' key={index}>
           {row.map((cell) => (

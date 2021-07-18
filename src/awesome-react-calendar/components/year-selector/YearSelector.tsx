@@ -26,7 +26,7 @@ function YearSelectorComponent({
   }, [yearMatrixStart]);
 
   return (
-    <div className='arc_view-years'>
+    <div style={layoutCalcs.root['arc_view-years']} className='arc_view-years'>
       {yearsMatrix.map((row, index) => (
         <div style={layoutCalcs.years.arc_view_row} className='arc_view_row' key={index}>
           {row.map((cell) => (

@@ -16,13 +16,8 @@ code {
 }
 
 .arc {
-  display: flex;
-  align-items: flex-start;
-  flex-direction: column;
-  overflow: hidden;
   border: 1px solid #efeff1;
   border-radius: 8px;
-  box-sizing: border-box;
 }
 
 button {
@@ -48,35 +43,27 @@ button::-moz-focus-inner {
 /** Header **/
 
 .arc_header {
-  display: flex;
-  align-items: center;
-  width: 100%;
 }
 
 .arc_header_nav {
-  flex: 0 0 auto;
   box-shadow: 0 0px 4px 2px #f1f1f1;
   border-radius: 6px;
   cursor: pointer;
 }
 
 .arc_header_label {
-  flex: 1 1 auto;
-  display: flex;
-  justify-content: center;
-  align-items: center;
   box-shadow: 0 0px 4px 2px #f1f1f1;
   border-radius: 6px;
   cursor: pointer;
 }
 
+.arc_header_label div + div {
+  margin-left: 4px;
+}
+
 .arc_header_label span {
   font-weight: 500;
   font-size: 14px;
-}
-
-.arc_header_label > div + div {
-  margin-left: 8px;
 }
 
 .arc_header_label-days-of-month {
@@ -97,19 +84,12 @@ button::-moz-focus-inner {
 /** Months View **/
 
 .arc_view-months {
-  height: 100%;
 }
 
 .arc_view-months .arc_view_row {
-  display: flex;
-  width: 100%;
 }
 
 .arc_view-months .arc_view_cell {
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   cursor: pointer;
 }
 
@@ -139,20 +119,12 @@ button::-moz-focus-inner {
 /** Years View **/
 
 .arc_view-years {
-  height: 100%;
-  width: 100%;
 }
 
 .arc_view-years .arc_view_row {
-  display: flex;
-  width: 100%;
 }
 
 .arc_view-years .arc_view_cell {
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
 
 .arc_view-years .arc_view_cell button {
@@ -174,19 +146,10 @@ button::-moz-focus-inner {
 /** Days of Month View - Weekdays Header Row **/
 
 .arc_view_weekdays {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  width: 100%;
   border-bottom: 1px solid #f7f7f7;
 }
 
 .arc_view_weekdays_cell {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 100%;
   color: #b6b6b7;
   font-size: 13px;
   text-transform: uppercase;
@@ -202,16 +165,9 @@ button::-moz-focus-inner {
 }
 
 .arc_view-days-of-month .arc_view_row {
-  display: flex;
-  width: 100%;
-  align-items: center;
 }
 
 .arc_view-days-of-month .arc_view_cell {
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   cursor: pointer;
 }
 
