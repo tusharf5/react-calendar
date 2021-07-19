@@ -56,6 +56,12 @@
   --arc-color-accent-lighter: #f8f0e5;
 }
 
+.arc.violet {
+  --arc-color-primary: #8755ff;
+  --arc-color-primary-light: #e1c2f9;
+  --arc-color-primary-lighter: #f9ecff;
+}
+
 .arc {
   border: 1px solid var(--arc-color-border-root);
   border-radius: 8px;

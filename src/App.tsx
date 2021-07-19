@@ -405,6 +405,9 @@ function App() {
           <div>
             <Calendar className='brown' />
           </div>
+          <div>
+            <Calendar className='violet' isRangeSelector fixedRange={4} />
+          </div>
         </div>
       </div>
 
