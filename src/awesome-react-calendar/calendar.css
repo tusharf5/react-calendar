@@ -1,33 +1,46 @@
 .arc {
+  /* General */
+  --arc-color-border: #f7f7f7;
+  --arc-color-box-shadow: #f1f1f1;
+  --arc-color-text-dark: #000;
+  --arc-color-text-white: #fff;
+  --arc-color-text-inactive: #c9c9ca;
+  --arc-color-primary: #5599ff;
+  --arc-color-primary-light: #c2d7f9;
+  --arc-color-primary-lighter: #ecf3ff;
+  --arc-color-accent: #ff0000;
+  --arc-color-accent-light: #f3a0a0;
+  --arc-color-accent-lighter: #fff1f3;
   --arc-color-transparent: rgba(0, 0, 0, 0);
-  --arc-color-border-root: #efeff1;
-  --arc-color-box-shadow-header-button: #f1f1f1;
-  --arc-color-text-today: #448fff;
-  --arc-color-border-weekdays: #f7f7f7;
-  --arc-color-text-weekday-label: #b6b6b7;
-  --arc-color-text-weekend-label: #f3a0a0;
-  --arc-color-text-dom-inactive: #b6b6b7;
-  --arc-color-text-dom-active: #000;
-  --arc-color-text-dom-weekend-active: red;
-  --arc-color-text-dom-weekend-inactive: #f3a0a0;
-  --arc-color-bg-dom-in-range-active: #f1f6ff;
-  --arc-color-bg-dom-in-range-inactive: #ecf3ff;
-  --arc-color-bg-dom-in-range-weekend-active: #fff1f3;
-  --arc-color-bg-dom-range-ep-active: #448fff;
-  --arc-color-bg-dom-range-ep-inactive: #ecf3ff;
-  --arc-color-bg-dom-range-ep-weekend-active: red;
-  --arc-color-bg-dom-range-ep-weekend-inactive: #ffecec;
-  --arc-color-text-dom-range-ep-weekend-inactive: #f9c2c2;
-  --arc-color-text-dom-range-ep-active: #fff;
-  --arc-color-text-dom-range-ep-inactive: #c2d7f9;
-  --arc-color-bg-dom-selected: #5599ff;
-  --arc-color-bg-dom-weekend-selected: red;
-  --arc-color-text-dom-selected: #fff;
-  --arc-color-text-dom-weekend-selected: #fff;
-  --arc-color-text-disabled: #c9c9ca;
-  --arc-color-text-disabled-weekend: #f3a0a0;
-  --arc-color-bg-disabled-cross: #b6b6b7;
-  --arc-color-bg-disabled-weekend-cross: #f3a0a0;
+  /* Context Specific */
+  --arc-color-border-root: var(--arc-color-border);
+  --arc-color-box-shadow-header-button: var(--arc-color-box-shadow);
+  --arc-color-text-today: var(--arc-color-primary);
+  --arc-color-border-weekdays: var(--arc-color-border);
+  --arc-color-text-weekday-label: var(--arc-color-text-inactive);
+  --arc-color-text-weekend-label: var(--arc-color-accent-light);
+  --arc-color-text-dom-inactive: var(--arc-color-text-inactive);
+  --arc-color-text-dom-active: var(--arc-color-text-dark);
+  --arc-color-text-dom-weekend-active: var(--arc-color-accent);
+  --arc-color-text-dom-weekend-inactive: var(--arc-color-accent-light);
+  --arc-color-bg-dom-in-range-active: var(--arc-color-primary-lighter);
+  --arc-color-bg-dom-in-range-inactive: var(--arc-color-primary-lighter);
+  --arc-color-bg-dom-in-range-weekend-active: var(--arc-color-accent-lighter);
+  --arc-color-bg-dom-range-ep-active: var(--arc-color-primary);
+  --arc-color-bg-dom-range-ep-inactive: var(--arc-color-primary-lighter);
+  --arc-color-bg-dom-range-ep-weekend-active: var(--arc-color-accent);
+  --arc-color-bg-dom-range-ep-weekend-inactive: var(--arc-color-accent-lighter);
+  --arc-color-text-dom-range-ep-weekend-inactive: var(--arc-color-accent-light);
+  --arc-color-text-dom-range-ep-active: var(--arc-color-text-white);
+  --arc-color-text-dom-range-ep-inactive: var(--arc-color-primary-light);
+  --arc-color-bg-dom-selected: var(--arc-color-primary);
+  --arc-color-bg-dom-weekend-selected: var(--arc-color-accent);
+  --arc-color-text-dom-selected: var(--arc-color-text-white);
+  --arc-color-text-dom-weekend-selected: var(--arc-color-text-white);
+  --arc-color-text-disabled: var(--arc-color-text-inactive);
+  --arc-color-text-disabled-weekend: var(--arc-color-accent-light);
+  --arc-color-bg-disabled-cross: var(--arc-color-text-inactive);
+  --arc-color-bg-disabled-weekend-cross: var(--arc-color-accent-light);
 }
 
 .arc {
