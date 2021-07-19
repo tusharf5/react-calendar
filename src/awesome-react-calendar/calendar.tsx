@@ -36,6 +36,10 @@ type MultiValue = Value[];
 
 interface Props {
   /**
+   * Custom classname
+   */
+  className?: string;
+  /**
    * Width & Height of the calendar.
    * Default is 276
    */
@@ -280,6 +284,7 @@ const getStyles: (size: number, fontSize: number) => CSSProps = (size, fontSize)
 function Calendar({
   value,
   isMultiSelector,
+  className = '',
   isRangeSelector,
   weekends,
   highlights = [],
@@ -477,8 +482,10 @@ function Calendar({
     ]
   );
 
+  const computedClass = useMemo(() => (typeof className === 'string' ? 'arc ' + className : 'arc'), [className]);
+
   return (
-    <section style={styles.root.arc} className='arc'>
+    <section style={styles.root.arc} className={computedClass}>
       <Header
         layoutCalcs={styles}
         onClickPrev={onPrevClick}

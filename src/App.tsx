@@ -396,6 +396,20 @@ function App() {
 
       <div>
         <div>
+          <p>Easy to theme using CSS variables</p>
+        </div>
+        <div>
+          <div>
+            <Calendar className='green' isRangeSelector />
+          </div>
+          <div>
+            <Calendar className='brown' />
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div>
           <p>Can adjust size by `size` prop (600px/400px)</p>
         </div>
         <div>

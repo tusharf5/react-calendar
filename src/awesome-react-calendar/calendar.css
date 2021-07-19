@@ -1,17 +1,18 @@
 .arc {
-  /* General */
+  /* General Theme */
+  --arc-color-transparent: rgba(0, 0, 0, 0);
+  --arc-color-text-dark: #000;
+  --arc-color-text-inactive: #c9c9ca;
+  --arc-color-text-white: #fff;
   --arc-color-border: #f7f7f7;
   --arc-color-box-shadow: #f1f1f1;
-  --arc-color-text-dark: #000;
-  --arc-color-text-white: #fff;
-  --arc-color-text-inactive: #c9c9ca;
+  /* General Theme Main Colors */
   --arc-color-primary: #5599ff;
   --arc-color-primary-light: #c2d7f9;
   --arc-color-primary-lighter: #ecf3ff;
   --arc-color-accent: #ff0000;
   --arc-color-accent-light: #f3a0a0;
   --arc-color-accent-lighter: #fff1f3;
-  --arc-color-transparent: rgba(0, 0, 0, 0);
   /* Context Specific */
   --arc-color-border-root: var(--arc-color-border);
   --arc-color-box-shadow-header-button: var(--arc-color-box-shadow);
@@ -41,6 +42,18 @@
   --arc-color-text-disabled-weekend: var(--arc-color-accent-light);
   --arc-color-bg-disabled-cross: var(--arc-color-text-inactive);
   --arc-color-bg-disabled-weekend-cross: var(--arc-color-accent-light);
+}
+
+.arc.green {
+  --arc-color-accent: #9fbb06;
+  --arc-color-accent-light: #ddea99;
+  --arc-color-accent-lighter: #f6f8e7;
+}
+
+.arc.brown {
+  --arc-color-accent: #bb6a06;
+  --arc-color-accent-light: #e8c498;
+  --arc-color-accent-lighter: #f8f0e5;
 }
 
 .arc {
