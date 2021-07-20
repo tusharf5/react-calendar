@@ -40,6 +40,7 @@
   --arc-color-text-dom-weekend-selected: var(--arc-color-text-white);
   --arc-color-text-disabled: var(--arc-color-text-inactive);
   --arc-color-text-disabled-weekend: var(--arc-color-accent-light);
+  --arc-color-bg-disabled: #fff;
   --arc-color-bg-disabled-cross: var(--arc-color-text-inactive);
   --arc-color-bg-disabled-weekend-cross: var(--arc-color-accent-light);
 }
@@ -227,8 +228,8 @@
   background-color: var(--arc-color-bg-dom-range-ep-weekend-active);
 }
 
-.arc_view-days-of-month .arc_view_cell.arc_range_start.arc_wknd.arc_active .arc_view_cell_value button,
-.arc_view-days-of-month .arc_view_cell.arc_range_end.arc_wknd.arc_active .arc_view_cell_value button {
+.arc_view-days-of-month .arc_view_cell.arc_range_start.arc_wknd.arc_active button,
+.arc_view-days-of-month .arc_view_cell.arc_range_end.arc_wknd.arc_active button {
   border-bottom-color: var(--arc-color-bg-dom-range-ep-weekend-active);
 }
 
@@ -241,7 +242,7 @@
 
 .arc_view-days-of-month .arc_view_cell.arc_range_start:not(.arc_active) button,
 .arc_view-days-of-month .arc_view_cell.arc_range_end:not(.arc_active) button,
-.arc_view-days-of-month .arc_view_cell.arc_selected:not(.arc_active) .arc_view_cell_value button {
+.arc_view-days-of-month .arc_view_cell.arc_selected:not(.arc_active) button {
   color: var(--arc-color-text-dom-range-ep-inactive);
 }
 
@@ -254,9 +255,11 @@
 
 .arc_view-days-of-month .arc_view_cell.arc_in_range.arc_range_start.arc_wknd:not(.arc_active) button,
 .arc_view-days-of-month .arc_view_cell.arc_in_range.arc_range_end.arc_wknd:not(.arc_active) button,
-.arc_view-days-of-month .arc_view_cell.arc_selected.arc_wknd:not(.arc_active) .arc_view_cell_value button {
+.arc_view-days-of-month .arc_view_cell.arc_selected.arc_wknd:not(.arc_active) button {
   color: var(--arc-color-text-dom-range-ep-weekend-inactive);
 }
+
+/* Selected */
 
 .arc_view-days-of-month .arc_view_cell.arc_today:not(.arc_selected):not(.arc_disabled) button {
   font-weight: 500;
@@ -276,7 +279,7 @@
   background-color: var(--arc-color-bg-dom-selected);
 }
 
-.arc_view-days-of-month .arc_view_cell.arc_selected .arc_view_cell_value button {
+.arc_view-days-of-month .arc_view_cell.arc_selected button {
   color: var(--arc-color-text-dom-selected);
   font-weight: 500;
 }
@@ -285,13 +288,20 @@
   background-color: var(--arc-color-bg-dom-weekend-selected);
 }
 
-.arc_view-days-of-month .arc_view_cell.arc_selected.arc_wknd .arc_view_cell_value button {
+.arc_view-days-of-month .arc_view_cell.arc_selected.arc_wknd button {
   color: var(--arc-color-text-dom-weekend-selected);
   font-weight: 500;
 }
 
+/* Disabled */
+
 .arc_view-days-of-month .arc_view_cell.arc_disabled {
   position: relative;
+}
+
+.arc_view-days-of-month .arc_view_cell.arc_disabled.arc_wknd .arc_view_cell_value,
+.arc_view-days-of-month .arc_view_cell.arc_disabled .arc_view_cell_value {
+  background-color: var(--arc-color-bg-disabled);
 }
 
 .arc_view-days-of-month .arc_view_cell.arc_disabled button {

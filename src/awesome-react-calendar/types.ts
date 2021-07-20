@@ -35,13 +35,6 @@ export interface MonthCell {
   isSelectedMonth: boolean;
 }
 
-export interface IsDisabledParams {
-  date: number | -1;
-  year: number | -1;
-  month: MonthIndices | -1;
-  weekday: WeekdayIndices | -1;
-}
-
 export interface GetDaysOfMonthViewMetrixParams {
   isSelectMultiDate: boolean;
   selectedMultiDates: Record<string, Date | undefined>;
@@ -64,14 +57,14 @@ export interface GetDaysOfMonthViewMetrixParams {
   disableFuture: boolean;
   disablePast: boolean;
   disableToday: boolean;
-  isDisabled?: (params: IsDisabledParams) => boolean;
+  isDisabled?: (date: Date) => boolean;
 }
 
 export interface CheckIfDateIsDisabledHOFParams {
   disablePast: boolean;
   disableToday: boolean;
   disableFuture: boolean;
-  customDisabledCheck?: (params: IsDisabledParams) => boolean;
+  customDisabledCheck?: (date: Date) => boolean;
   maxDate: Date;
   minDate: Date;
   applyMax: boolean;

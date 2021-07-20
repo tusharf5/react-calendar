@@ -1,7 +1,7 @@
 import React, { memo, useCallback, useMemo, useState } from 'react';
 import { CSSProps } from '../../calendar';
 
-import { DayOfMonthCell, IsDisabledParams, MonthIndices, WeekdayIndices } from '../../types';
+import { DayOfMonthCell, MonthIndices, WeekdayIndices } from '../../types';
 import {
   addDays,
   getDaysOfMonthViewMetrix,
@@ -51,7 +51,7 @@ interface Props {
   minAllowedDate?: Date;
   separator?: string;
   highlights: Date[];
-  isDisabled?: (params: IsDisabledParams) => boolean;
+  isDisabled?: (date: Date) => boolean;
   format?: string;
   today: Date;
   onChange?: (value: Value | MultiValue | RangeValue) => any | Promise<any>;

@@ -25,6 +25,7 @@ export function addDays(date: Date, numberOfDaysToAdd: number): Date {
     let daysThatCanBeAddedInThisMonth = 0;
 
     if (remainingDaysInMonth >= daysLeftToAdd) {
+      // all days can be added in this month
       daysThatCanBeAddedInThisMonth = daysLeftToAdd;
       daysLeftToAdd = 0;
       newDate = new Date(newDate.getFullYear(), newDate.getMonth(), newDate.getDate() + daysThatCanBeAddedInThisMonth);
@@ -463,58 +464,65 @@ function checkIfDateIsDisabledHOF(params: CheckIfDateIsDisabledHOFParams) {
   const currentYear = date.getFullYear();
   const currentMonth = date.getMonth();
 
-  return function checkIfDateIsDisabled(year: number, month: MonthIndices, date: number, weekday: WeekdayIndices) {
+  return function checkIfDateIsDisabled(dateToCheck: Date) {
     if (disablePast) {
-      if (year < currentYear) {
+      if (dateToCheck.getFullYear() < currentYear) {
         return true;
       }
 
-      if (year === currentYear && month < currentMonth) {
+      if (dateToCheck.getFullYear() === currentYear && dateToCheck.getMonth() < currentMonth) {
         return true;
       }
 
-      if (year === currentYear && month === currentMonth && date < dayOfMonth) {
+      if (
+        dateToCheck.getFullYear() === currentYear &&
+        dateToCheck.getMonth() === currentMonth &&
+        date.getDate() < dayOfMonth
+      ) {
         return true;
       }
     }
     if (disableToday) {
-      if (year === currentYear && month === currentMonth && date === dayOfMonth) {
+      if (
+        dateToCheck.getFullYear() === currentYear &&
+        dateToCheck.getMonth() === currentMonth &&
+        date.getDate() === dayOfMonth
+      ) {
         return true;
       }
     }
     if (disableFuture) {
-      if (year > currentYear) {
+      if (dateToCheck.getFullYear() > currentYear) {
         return true;
       }
 
-      if (year === currentYear && month > currentMonth) {
+      if (dateToCheck.getFullYear() === currentYear && dateToCheck.getMonth() > currentMonth) {
         return true;
       }
 
-      if (year === currentYear && month === currentMonth && date > dayOfMonth) {
+      if (
+        dateToCheck.getFullYear() === currentYear &&
+        dateToCheck.getMonth() === currentMonth &&
+        date.getDate() > dayOfMonth
+      ) {
         return true;
       }
     }
 
     if (applyMax) {
-      if (isBefore(new Date(year, month, date), maxDate)) {
+      if (isBefore(dateToCheck, maxDate)) {
         return true;
       }
     }
 
     if (applyMin) {
-      if (isBefore(minDate, new Date(year, month, date))) {
+      if (isBefore(minDate, dateToCheck)) {
         return true;
       }
     }
 
     if (typeof customDisabledCheck === 'function') {
-      return customDisabledCheck({
-        year: year,
-        month: month,
-        weekday: weekday,
-        date: date,
-      });
+      return customDisabledCheck(date);
     }
 
     return false;
@@ -642,12 +650,7 @@ export function getDaysOfMonthViewMetrix(params: GetDaysOfMonthViewMetrixParams)
           currYear === selectedDate.getFullYear() &&
           dayOfMonth === selectedDate.getDate(),
       // not modified
-      isDisabled: checkDisabledForADate(
-        currYear,
-        currMonth,
-        dayOfMonth,
-        getNativeWeekDayIndexFromAStartDayInfluencedIndex(weekColumn, startOfTheWeek)
-      ),
+      isDisabled: checkDisabledForADate(currDate),
     });
     weekColumn++;
   }
@@ -702,12 +705,7 @@ export function getDaysOfMonthViewMetrix(params: GetDaysOfMonthViewMetrixParams)
         : currMonth === selectedDate.getMonth() &&
           currYear === selectedDate.getFullYear() &&
           dayOfMonth === selectedDate.getDate(),
-      isDisabled: checkDisabledForADate(
-        currYear,
-        currMonth,
-        dayOfMonth,
-        getNativeWeekDayIndexFromAStartDayInfluencedIndex(weekColumn, startOfTheWeek)
-      ),
+      isDisabled: checkDisabledForADate(currDate),
     });
     weekColumn++;
   }
@@ -763,12 +761,7 @@ export function getDaysOfMonthViewMetrix(params: GetDaysOfMonthViewMetrixParams)
         : currMonth === selectedDate.getMonth() &&
           currYear === selectedDate.getFullYear() &&
           dayOfMonth === selectedDate.getDate(),
-      isDisabled: checkDisabledForADate(
-        currYear,
-        currMonth,
-        dayOfMonth,
-        getNativeWeekDayIndexFromAStartDayInfluencedIndex(weekColumn, startOfTheWeek)
-      ),
+      isDisabled: checkDisabledForADate(currDate),
     });
     weekColumn++;
     dayOfMonth++;

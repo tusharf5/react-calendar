@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState, CSSProperties } from 'react';
 
-import type { IsDisabledParams, MonthIndices, WeekdayIndices } from './types';
+import type { MonthIndices, WeekdayIndices } from './types';
 
 import {
   getStartOfRangeForAYear,
@@ -123,7 +123,7 @@ interface Props {
   /**
    * A callback function that can be used to disable specific dates on the calendar.
    */
-  isDisabled?: (params: IsDisabledParams) => boolean;
+  isDisabled?: (date: Date) => boolean;
   /**
    * User will not be able to select past this date. This date will be selectable.
    */
@@ -321,7 +321,7 @@ function Calendar({
   const [startOfTheWeek] = useState(startOfWeek);
 
   const [weekendIndexes] = useState(() => {
-    return Array.isArray(weekends) && weekends.every((num) => typeof num === 'number')
+    return Array.isArray(weekends) && (weekends.every((num) => typeof num === 'number') || weekends.length === 0)
       ? weekends
       : getWeekendInfo(startOfTheWeek);
   });

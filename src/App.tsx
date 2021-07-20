@@ -266,8 +266,8 @@ function App() {
         <div>
           <div className='calendar'>
             <Calendar
-              isDisabled={(params) => {
-                return params.date % 4 === 0;
+              isDisabled={(date) => {
+                return date.getDate() % 4 === 0;
               }}
               onChange={onChangeFiveteen}
             />
@@ -299,6 +299,20 @@ function App() {
         <div>
           <div className='calendar'>
             <Calendar weekends={[4, 5, 6]} onChange={onChangefive} />
+          </div>
+          <div className='json'>
+            <ReactJson name='value' enableClipboard={false} src={five} />
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div>
+          <p>Can disable highliting Weekends</p>
+        </div>
+        <div>
+          <div className='calendar'>
+            <Calendar weekends={[]} onChange={onChangefive} />
           </div>
           <div className='json'>
             <ReactJson name='value' enableClipboard={false} src={five} />
