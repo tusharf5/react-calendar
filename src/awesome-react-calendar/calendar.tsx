@@ -190,19 +190,8 @@ const getStyles: (size: number, fontSize: number) => CSSProps = (size, fontSize)
       alignItems: 'center',
       justifyContent: 'center',
       height: '100%',
-      flexBasis: '12.736%',
-      maxWidth: '12.736%',
-      marginLeft: '2.17%',
-    },
-
-    arc_view_weekdays_cell_corners: {
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      height: '100%',
-      flexBasis: '12.736%',
-      maxWidth: '12.736%',
-      marginLeft: '0',
+      flexBasis: '14.286%',
+      maxWidth: '14.286%',
     },
     arc_view_weekdays_cell_value: {
       width: '65.95%',
@@ -571,7 +560,6 @@ export interface CSSProps {
   weekdaysRow: {
     arc_view_weekdays: CSSProperties;
     arc_view_weekdays_cell: CSSProperties;
-    arc_view_weekdays_cell_corners: CSSProperties;
     arc_view_weekdays_cell_value: CSSProperties;
   };
   dayOfMonth: {
