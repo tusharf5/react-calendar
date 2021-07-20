@@ -303,9 +303,6 @@ function DayOfMonthSelectorComponent({
               .filter((dk) => !!newselectedMultiDates[dk])
               .map((dk) => ({
                 value: newselectedMultiDates[dk] as Date,
-                year: (newselectedMultiDates[dk] as Date).getFullYear(),
-                month: (newselectedMultiDates[dk] as Date).getMonth(),
-                date: (newselectedMultiDates[dk] as Date).getDate(),
                 formatted: formatter(
                   (newselectedMultiDates[dk] as Date).getFullYear(),
                   (newselectedMultiDates[dk] as Date).getMonth() + 1,
