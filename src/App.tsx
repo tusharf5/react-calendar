@@ -4,8 +4,10 @@ import ReactJson from 'react-json-view';
 import Calendar from './awesome-react-calendar/calendar';
 
 import './App.css';
+import { Popover } from 'react-tiny-popover';
 
 function App() {
+  const [isPopoverOpen, setIsPopoverOpen] = useState<boolean>(false);
   const [one, setOne] = useState<object>({});
 
   const onChangeone = useCallback(
@@ -158,7 +160,6 @@ function App() {
           </div>
         </div>
       </div>
-
       <div>
         <div className='desc'>
           <p>Multiple Dates View</p>
@@ -179,7 +180,6 @@ function App() {
           </div>
         </div>
       </div>
-
       <div>
         <div>
           <p>Range Select View</p>
@@ -202,7 +202,6 @@ function App() {
           </div>
         </div>
       </div>
-
       <div>
         <div>
           <p>Range Select View With Min-Max Allowed Dates</p>
@@ -226,7 +225,6 @@ function App() {
           </div>
         </div>
       </div>
-
       <div>
         <div>
           <p>Fixed Range View (6 Days)</p>
@@ -240,7 +238,6 @@ function App() {
           </div>
         </div>
       </div>
-
       <div>
         <div>
           <p>Highlight Custom Dates</p>
@@ -258,7 +255,6 @@ function App() {
           </div>
         </div>
       </div>
-
       <div>
         <div>
           <p>Disable Custom Dates (here disabled if (date % 4 === 0))</p>
@@ -277,7 +273,6 @@ function App() {
           </div>
         </div>
       </div>
-
       <div>
         <div>
           <p>Can Modify Start Day Of The Week (Wed here)</p>
@@ -291,7 +286,6 @@ function App() {
           </div>
         </div>
       </div>
-
       <div>
         <div>
           <p>Can Specify Weekends (Fri, Sat, Sun here)</p>
@@ -305,7 +299,6 @@ function App() {
           </div>
         </div>
       </div>
-
       <div>
         <div>
           <p>Can disable highliting Weekends</p>
@@ -319,7 +312,6 @@ function App() {
           </div>
         </div>
       </div>
-
       <div>
         <div>
           <p>Can Set If Past Is Disabled</p>
@@ -333,7 +325,6 @@ function App() {
           </div>
         </div>
       </div>
-
       <div>
         <div>
           <p>Can Set If Today Is Disabled</p>
@@ -351,7 +342,6 @@ function App() {
           </div>
         </div>
       </div>
-
       <div>
         <div>
           <p>Can Set If Future Is Disabled</p>
@@ -365,7 +355,6 @@ function App() {
           </div>
         </div>
       </div>
-
       <div>
         <div>
           <p>Can Set Output Date Format (YYYY-DD-MM here)</p>
@@ -379,7 +368,6 @@ function App() {
           </div>
         </div>
       </div>
-
       <div>
         <div>
           <p>Can Set Output Date Separator (# here)</p>
@@ -393,7 +381,24 @@ function App() {
           </div>
         </div>
       </div>
-
+      <div>
+        <div>
+          <p>Can be rendered inside a popover</p>
+        </div>
+        <div>
+          <div>
+            <Popover
+              isOpen={isPopoverOpen}
+              padding={6}
+              positions={['bottom', 'top', 'left', 'right']}
+              content={<Calendar isRangeSelector />}>
+              <button onClick={() => setIsPopoverOpen(!isPopoverOpen)}>
+                {isPopoverOpen ? 'Close Calendar' : 'Open Calendar'}
+              </button>
+            </Popover>
+          </div>
+        </div>
+      </div>
       <div>
         <div>
           <p>Can Set Initial Month&Date View To Show (Sept, 2020 here)</p>
@@ -424,7 +429,6 @@ function App() {
           </div>
         </div>
       </div>
-
       <div>
         <div>
           <p>Can adjust size by `size` prop (600px/400px)</p>
