@@ -386,15 +386,22 @@ function App() {
           <p>Can be rendered inside a popover</p>
         </div>
         <div>
-          <div>
+          <div className='input'>
+            <input value={(ten as any).formatted as string} />
             <Popover
               isOpen={isPopoverOpen}
               padding={6}
               positions={['bottom', 'top', 'left', 'right']}
-              content={<Calendar isRangeSelector />}>
-              <button onClick={() => setIsPopoverOpen(!isPopoverOpen)}>
-                {isPopoverOpen ? 'Close Calendar' : 'Open Calendar'}
-              </button>
+              content={
+                <Calendar
+                  value={(ten as any).date as Date}
+                  onChange={(value) => {
+                    setTen(value);
+                    setIsPopoverOpen(false);
+                  }}
+                />
+              }>
+              <div onClick={() => setIsPopoverOpen(!isPopoverOpen)}>🗓</div>
             </Popover>
           </div>
         </div>

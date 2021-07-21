@@ -459,10 +459,10 @@ function checkIfDateIsDisabledHOF(params: CheckIfDateIsDisabledHOFParams) {
   const { disablePast, disableToday, disableFuture, customDisabledCheck, maxDate, minDate, applyMax, applyMin } =
     params;
 
-  const date = new Date();
-  const currentYear = date.getFullYear();
-  const currentMonth = date.getMonth();
-  const currDate = date.getDate();
+  const today = new Date();
+  const currentYear = today.getFullYear();
+  const currentMonth = today.getMonth();
+  const currDate = today.getDate();
 
   return function checkIfDateIsDisabled(dateToCheck: Date) {
     if (disablePast) {
@@ -522,7 +522,7 @@ function checkIfDateIsDisabledHOF(params: CheckIfDateIsDisabledHOFParams) {
     }
 
     if (typeof customDisabledCheck === 'function') {
-      return customDisabledCheck(date);
+      return customDisabledCheck(dateToCheck);
     }
 
     return false;
