@@ -166,7 +166,7 @@ function App() {
         <div>
           <div className='calendar'>
             <Calendar
-              value={[new Date(2021, 6, 21), new Date(2021, 6, 25), new Date(2021, 6, 9)]}
+              value={[new Date(2021, 6, 22), new Date(2021, 6, 25), new Date(2021, 6, 9)]}
               isMultiSelector
               disableToday
               separator='/'

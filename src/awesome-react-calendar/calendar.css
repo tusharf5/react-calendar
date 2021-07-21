@@ -4,7 +4,7 @@
   --arc-color-text-dark: #000;
   --arc-color-text-inactive: #c9c9ca;
   --arc-color-text-white: #fff;
-  --arc-color-border: #f7f7f7;
+  --arc-color-border: #f3f3f3;
   --arc-color-box-shadow: #f1f1f1;
   /* General Theme Main Colors */
   --arc-color-primary: #5599ff;
@@ -100,13 +100,13 @@
 /** arc_header **/
 
 .arc_header_nav {
-  box-shadow: 0 0px 4px 2px var(--arc-color-box-shadow-header-button);
+  box-shadow: 0 0px 3px 1px var(--arc-color-box-shadow-header-button);
   border-radius: 6px;
   cursor: pointer;
 }
 
 .arc_header_label {
-  box-shadow: 0 0px 4px 2px var(--arc-color-box-shadow-header-button);
+  box-shadow: 0 0px 3px 1px var(--arc-color-box-shadow-header-button);
   border-radius: 6px;
   cursor: pointer;
 }
@@ -133,7 +133,7 @@
 }
 
 .arc_view-months .arc_view_cell button {
-  font-size: 0.8em;
+  font-size: 0.85em;
 }
 
 .arc_view-months .arc_view_cell.arc_this_month {
@@ -145,7 +145,7 @@
 /** arc_view-years **/
 
 .arc_view-years .arc_view_cell button {
-  font-size: 0.8em;
+  font-size: 0.85em;
   cursor: pointer;
 }
 
@@ -163,7 +163,7 @@
 
 .arc_view_weekdays_cell {
   color: var(--arc-color-text-weekday-label);
-  font-size: 0.8em;
+  font-size: 0.85em;
   text-transform: uppercase;
 }
 
@@ -183,7 +183,7 @@
 }
 
 .arc_view-days-of-month .arc_view_cell button {
-  font-size: 0.8em;
+  font-size: 0.85em;
   color: var(--arc-color-text-dom-inactive);
   cursor: pointer;
 }

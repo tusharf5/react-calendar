@@ -391,6 +391,8 @@ function Calendar({
       ? (value as Date).getMonth()
       : isRangeSelectorView
       ? selectedRangeStart.getMonth()
+      : isMultiSelectorView && Array.isArray(value) && isValid(value[0])
+      ? value[0].getMonth()
       : today.getMonth()) as MonthIndices
   );
 
@@ -401,6 +403,8 @@ function Calendar({
       ? (value as Date).getFullYear()
       : isRangeSelectorView
       ? selectedRangeStart.getFullYear()
+      : isMultiSelectorView && Array.isArray(value) && isValid(value[0])
+      ? value[0].getFullYear()
       : today.getFullYear()
   );
 

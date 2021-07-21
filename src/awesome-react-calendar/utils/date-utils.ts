@@ -460,9 +460,9 @@ function checkIfDateIsDisabledHOF(params: CheckIfDateIsDisabledHOFParams) {
     params;
 
   const date = new Date();
-  const dayOfMonth = date.getDate();
   const currentYear = date.getFullYear();
   const currentMonth = date.getMonth();
+  const currDate = date.getDate();
 
   return function checkIfDateIsDisabled(dateToCheck: Date) {
     if (disablePast) {
@@ -477,7 +477,7 @@ function checkIfDateIsDisabledHOF(params: CheckIfDateIsDisabledHOFParams) {
       if (
         dateToCheck.getFullYear() === currentYear &&
         dateToCheck.getMonth() === currentMonth &&
-        date.getDate() < dayOfMonth
+        dateToCheck.getDate() < currDate
       ) {
         return true;
       }
@@ -486,7 +486,7 @@ function checkIfDateIsDisabledHOF(params: CheckIfDateIsDisabledHOFParams) {
       if (
         dateToCheck.getFullYear() === currentYear &&
         dateToCheck.getMonth() === currentMonth &&
-        date.getDate() === dayOfMonth
+        dateToCheck.getDate() === currDate
       ) {
         return true;
       }
@@ -503,7 +503,7 @@ function checkIfDateIsDisabledHOF(params: CheckIfDateIsDisabledHOFParams) {
       if (
         dateToCheck.getFullYear() === currentYear &&
         dateToCheck.getMonth() === currentMonth &&
-        date.getDate() > dayOfMonth
+        dateToCheck.getDate() > currDate
       ) {
         return true;
       }
