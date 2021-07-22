@@ -47,6 +47,7 @@ interface Props {
   disableFuture: boolean;
   disablePast: boolean;
   disableToday: boolean;
+  lockView: boolean;
   maxAllowedDate?: Date;
   minAllowedDate?: Date;
   separator?: string;
@@ -92,6 +93,7 @@ function DayOfMonthSelectorComponent({
   viewingYear,
   disableFuture,
   disablePast,
+  lockView,
   separator = '-',
   highlights,
   disableToday,
@@ -192,6 +194,12 @@ function DayOfMonthSelectorComponent({
   const onDateClicked = useCallback(
     (cell: DayOfMonthCell) => {
       const clickedDate = cell.date;
+
+      const cantSelectAsItsLocked = lockView && clickedDate.getMonth() !== viewingMonth;
+
+      if (cantSelectAsItsLocked) {
+        return;
+      }
 
       if (isRangeSelectorView && !isFixedRangeView) {
         if (isRangeSelectModeOn && newSelectedRangeStart) {

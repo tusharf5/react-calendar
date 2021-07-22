@@ -59,6 +59,10 @@ interface Props {
    */
   initialViewDate?: Date;
   /**
+   * User can not change month/year
+   */
+  lockView?: boolean;
+  /**
    * Value of a single date or an array of dates in ISO format.
    * Only applicable if selectRange is false
    */
@@ -71,10 +75,6 @@ interface Props {
    * Renders a range selector UI for the calendar
    */
   isRangeSelector?: boolean;
-  /**
-   * Calendar takes the total width and height of the parent.
-   */
-  isFluid?: boolean;
   /**
    * Always select n number of days starting from the user's selected date
    */
@@ -290,6 +290,7 @@ function Calendar({
   fixedRange,
   isDisabled,
   onChange,
+  lockView = false,
   separator = '-',
   format = 'DD-MM-YYYY',
   disableFuture = false,
@@ -416,6 +417,27 @@ function Calendar({
       : today.getFullYear()
   );
 
+  const changeMonthInView = useCallback(
+    (month: MonthIndices) => {
+      !lockView && setMonthInView(month);
+    },
+    [lockView, setMonthInView]
+  );
+
+  const changeYearInView = useCallback(
+    (year: number) => {
+      !lockView && setYearInView(year);
+    },
+    [lockView, setYearInView]
+  );
+
+  const changeView = useCallback(
+    (view: 'years' | 'months' | 'month_dates') => {
+      !lockView && setView(view);
+    },
+    [lockView, setView]
+  );
+
   const [startingYearForCurrRange, setStartingYearForCurrRange] = useState(getStartOfRangeForAYear(yearInView));
 
   useEffect(() => {
@@ -435,19 +457,19 @@ function Calendar({
         if (isPrevMonthFromLastYear) {
           setYearInView(getPreviousYear(yearInView));
         }
-        setMonthInView(getPreviousMonth(monthInView));
+        changeMonthInView(getPreviousMonth(monthInView));
       }
       if (view === 'years') {
         setStartingYearForCurrRange(getPreviousRangeStartingYear(startingYearForCurrRange));
       }
       if (view === 'months') {
-        setYearInView(yearInView !== 1 ? yearInView - 1 : 1);
+        changeYearInView(yearInView !== 1 ? yearInView - 1 : 1);
       }
     },
     [
-      setMonthInView,
+      changeMonthInView,
       monthInView,
-      setYearInView,
+      changeYearInView,
       yearInView,
       view,
       setStartingYearForCurrRange,
@@ -460,22 +482,22 @@ function Calendar({
       if (view === 'month_dates') {
         const isCurrentMonthLast = monthInView === 11;
         if (isCurrentMonthLast) {
-          setYearInView(getNextYear(yearInView));
+          changeYearInView(getNextYear(yearInView));
         }
-        setMonthInView(getNextMonth(monthInView));
+        changeMonthInView(getNextMonth(monthInView));
       }
       if (view === 'years') {
         setStartingYearForCurrRange(getNextRangeStartingYear(startingYearForCurrRange));
       }
 
       if (view === 'months') {
-        setYearInView(getNextYear(yearInView));
+        changeYearInView(getNextYear(yearInView));
       }
     },
     [
-      setMonthInView,
+      changeMonthInView,
       monthInView,
-      setYearInView,
+      changeYearInView,
       yearInView,
       view,
       setStartingYearForCurrRange,
@@ -497,7 +519,7 @@ function Calendar({
         layoutCalcs={styles}
         onClickPrev={onPrevClick}
         onClickNext={onNextClick}
-        onChangeViewType={setView}
+        onChangeViewType={changeView}
         viewType={view}
         viewingMonth={monthInView}
         viewingYear={yearInView}
@@ -506,13 +528,13 @@ function Calendar({
       />
       <main style={styles.root.arc_view} className='arc_view'>
         {view === 'months' && (
-          <MonthSelector layoutCalcs={styles} onChangeViewType={setView} onChangeViewingMonth={setMonthInView} />
+          <MonthSelector layoutCalcs={styles} onChangeViewType={changeView} onChangeViewingMonth={changeMonthInView} />
         )}
         {view === 'years' && (
           <YearSelector
             layoutCalcs={styles}
-            onChangeViewType={setView}
-            onChangeViewingYear={setYearInView}
+            onChangeViewType={changeView}
+            onChangeViewingYear={changeYearInView}
             yearMatrixStart={yearMatrixRangeStart}
             yearMatrixEnd={yearMatrixRangeEnd}
           />
@@ -527,10 +549,11 @@ function Calendar({
               selectedDate={selectedDate}
               selectedRangeStart={selectedRangeStart}
               selectedRangeEnd={selectedRangeEnd}
+              lockView={!!lockView}
               newSelectedRangeStart={newSelectedRangeStart}
               weekStartIndex={startOfTheWeek}
-              onChangeViewingYear={setYearInView}
-              onChangeViewingMonth={setMonthInView}
+              onChangeViewingYear={changeYearInView}
+              onChangeViewingMonth={changeMonthInView}
               onChangenSelectedMultiDates={setSelectedMultiDates}
               onChangenNewSelectedRangeEnd={setNewSelectedRangeEnd}
               onChangenNewSelectedRangeStart={setNewSelectedRangeStart}

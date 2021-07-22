@@ -154,7 +154,7 @@ function App() {
         </div>
         <div>
           <div className='calendar'>
-            <Calendar isFluid onChange={onChangenine} />
+            <Calendar onChange={onChangenine} />
           </div>
           <div className='json'>
             <ReactJson name='value' enableClipboard={false} src={nine} />
@@ -330,6 +330,19 @@ function App() {
           </div>
           <div className='calendar'>
             <Calendar disableFuture onChange={onChangeeight} />
+          </div>
+        </div>
+      </div>
+      <div>
+        <div>
+          <p>Can lock the calendar to a specific month/year</p>
+        </div>
+        <div>
+          <div className='calendar'>
+            <Calendar lockView onChange={onChangesix} />
+          </div>
+          <div className='json'>
+            <ReactJson name='value' enableClipboard={false} src={six} />
           </div>
         </div>
       </div>
