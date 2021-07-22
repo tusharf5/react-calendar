@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useCallback, useState } from 'react';
 import ReactJson from 'react-json-view';
 
@@ -257,7 +258,7 @@ function App() {
       </div>
       <div>
         <div>
-          <p>Disable Custom Dates (here disabled if (date % 4 === 0))</p>
+          <p>Can disable custom dates (here disabled if (date % 4 === 0))</p>
         </div>
         <div>
           <div className='calendar'>
@@ -275,7 +276,7 @@ function App() {
       </div>
       <div>
         <div>
-          <p>Can Modify Start Day Of The Week (Wed here)</p>
+          <p>Can change start day of the week (Wed here)</p>
         </div>
         <div>
           <div className='calendar'>
@@ -288,7 +289,7 @@ function App() {
       </div>
       <div>
         <div>
-          <p>Can Specify Weekends (Fri, Sat, Sun here)</p>
+          <p>Can specify weekend days (Fri, Sat, Sun here)</p>
         </div>
         <div>
           <div className='calendar'>
@@ -301,7 +302,7 @@ function App() {
       </div>
       <div>
         <div>
-          <p>Can disable highliting Weekends</p>
+          <p>Can disable highlighting Weekends</p>
         </div>
         <div>
           <div className='calendar'>
@@ -314,22 +315,12 @@ function App() {
       </div>
       <div>
         <div>
-          <p>Can Set If Past Is Disabled</p>
+          <p>Can set if past,today,future is disabled by simple props</p>
         </div>
         <div>
           <div className='calendar'>
             <Calendar disablePast onChange={onChangesix} />
           </div>
-          <div className='json'>
-            <ReactJson name='value' enableClipboard={false} src={six} />
-          </div>
-        </div>
-      </div>
-      <div>
-        <div>
-          <p>Can Set If Today Is Disabled</p>
-        </div>
-        <div>
           <div className='calendar'>
             <Calendar
               disableToday
@@ -337,27 +328,14 @@ function App() {
               onChange={onChangeseven}
             />
           </div>
-          <div className='json'>
-            <ReactJson name='value' enableClipboard={false} src={seven} />
-          </div>
-        </div>
-      </div>
-      <div>
-        <div>
-          <p>Can Set If Future Is Disabled</p>
-        </div>
-        <div>
           <div className='calendar'>
             <Calendar disableFuture onChange={onChangeeight} />
           </div>
-          <div className='json'>
-            <ReactJson name='value' enableClipboard={false} src={eight} />
-          </div>
         </div>
       </div>
       <div>
         <div>
-          <p>Can Set Output Date Format (YYYY-DD-MM here)</p>
+          <p>Can set output date format (YYYY-DD-MM here)</p>
         </div>
         <div>
           <div className='calendar'>
@@ -370,7 +348,7 @@ function App() {
       </div>
       <div>
         <div>
-          <p>Can Set Output Date Separator (# here)</p>
+          <p>Can set output date separator (# here)</p>
         </div>
         <div>
           <div className='calendar'>
@@ -438,7 +416,20 @@ function App() {
       </div>
       <div>
         <div>
-          <p>Can adjust size by `size` prop (600px/400px)</p>
+          <p>In-built and customizable dark mode</p>
+        </div>
+        <div>
+          <div>
+            <Calendar useDarkMode isRangeSelector />
+          </div>
+          <div>
+            <Calendar useDarkMode />
+          </div>
+        </div>
+      </div>
+      <div>
+        <div>
+          <p>Can easily adjust scale</p>
         </div>
         <div>
           <div>

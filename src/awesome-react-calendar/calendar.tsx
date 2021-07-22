@@ -35,6 +35,10 @@ type MultiValue = Value[];
 
 interface Props {
   /**
+   * Dark mode
+   */
+  useDarkMode?: boolean;
+  /**
    * Custom classname
    */
   className?: string;
@@ -274,6 +278,7 @@ function Calendar({
   isMultiSelector,
   className = '',
   isRangeSelector,
+  useDarkMode = false,
   weekends,
   highlights = [],
   rangeStart: rangeStartValue,
@@ -478,7 +483,13 @@ function Calendar({
     ]
   );
 
-  const computedClass = useMemo(() => (typeof className === 'string' ? 'arc ' + className : 'arc'), [className]);
+  const computedClass = useMemo(
+    () =>
+      typeof className === 'string'
+        ? `arc ${useDarkMode ? 'dark' : ''} ` + className
+        : `arc ${useDarkMode ? 'dark' : ''}`,
+    [className, useDarkMode]
+  );
 
   return (
     <section style={styles.root.arc} className={computedClass}>

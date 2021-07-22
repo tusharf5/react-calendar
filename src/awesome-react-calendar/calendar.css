@@ -1,9 +1,10 @@
 .arc {
   /* General Theme */
   --arc-color-transparent: rgba(0, 0, 0, 0);
-  --arc-color-text-dark: #000;
+  --arc-color-text-dark: #353535;
   --arc-color-text-inactive: #c9c9ca;
-  --arc-color-text-white: #fff;
+  --arc-color-text-light: #fff;
+  --arc-color-bg-light: #fff;
   --arc-color-border: #f3f3f3;
   --arc-color-box-shadow: #f1f1f1;
   /* General Theme Main Colors */
@@ -32,15 +33,15 @@
   --arc-color-bg-dom-range-ep-weekend-active: var(--arc-color-accent);
   --arc-color-bg-dom-range-ep-weekend-inactive: var(--arc-color-accent-lighter);
   --arc-color-text-dom-range-ep-weekend-inactive: var(--arc-color-accent-light);
-  --arc-color-text-dom-range-ep-active: var(--arc-color-text-white);
+  --arc-color-text-dom-range-ep-active: var(--arc-color-text-light);
   --arc-color-text-dom-range-ep-inactive: var(--arc-color-primary-light);
   --arc-color-bg-dom-selected: var(--arc-color-primary);
   --arc-color-bg-dom-weekend-selected: var(--arc-color-accent);
-  --arc-color-text-dom-selected: var(--arc-color-text-white);
-  --arc-color-text-dom-weekend-selected: var(--arc-color-text-white);
+  --arc-color-text-dom-selected: var(--arc-color-text-light);
+  --arc-color-text-dom-weekend-selected: var(--arc-color-text-light);
   --arc-color-text-disabled: var(--arc-color-text-inactive);
   --arc-color-text-disabled-weekend: var(--arc-color-accent-light);
-  --arc-color-bg-disabled: #fff;
+  --arc-color-bg-disabled: var(--arc-color-bg-light);
   --arc-color-bg-disabled-cross: var(--arc-color-text-inactive);
   --arc-color-bg-disabled-weekend-cross: var(--arc-color-accent-light);
 }
@@ -63,13 +64,31 @@
   --arc-color-primary-lighter: #f9ecff;
 }
 
+.arc.dark {
+  /* General Theme */
+  --arc-color-transparent: rgba(0, 0, 0, 0);
+  --arc-color-text-dark: #fff;
+  --arc-color-text-inactive: #727273;
+  --arc-color-text-light: #353535;
+  --arc-color-bg-light: #353535;
+  --arc-color-border: #4e4d4d;
+  --arc-color-box-shadow: #403e3e;
+  /* General Theme Main Colors */
+  --arc-color-primary: #c8d8f0;
+  --arc-color-primary-light: #2e3745;
+  --arc-color-primary-lighter: #5d6675;
+  --arc-color-accent: #f0c8c8;
+  --arc-color-accent-light: #b55959;
+  --arc-color-accent-lighter: #623b3b;
+}
+
 .arc {
   border: 1px solid var(--arc-color-border-root);
   border-radius: 8px;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans',
     'Droid Sans', 'Helvetica Neue', sans-serif;
   font-size: 1rem;
-  background-color: #fff;
+  background-color: var(--arc-color-bg-light);
 }
 
 .arc * {
@@ -119,6 +138,7 @@
 .arc_header span {
   font-weight: 500;
   font-size: 0.85em;
+  color: var(--arc-color-text-dark);
 }
 
 /** arc_view **/
@@ -135,6 +155,7 @@
 
 .arc_view-months .arc_view_cell button {
   font-size: 0.85em;
+  color: var(--arc-color-text-dom-active);
 }
 
 .arc_view-months .arc_view_cell.arc_this_month {
@@ -148,6 +169,7 @@
 .arc_view-years .arc_view_cell button {
   font-size: 0.85em;
   cursor: pointer;
+  color: var(--arc-color-text-dom-active);
 }
 
 .arc_view-years .arc_view_cell.arc_this_year {
@@ -205,10 +227,12 @@
 /* in range bg colors */
 .arc_view-days-of-month .arc_view_cell.arc_in_range.arc_active .arc_view_cell_value {
   background-color: var(--arc-color-bg-dom-in-range-active);
+  color: var(--arc-color-text-dark);
 }
 
 .arc_view-days-of-month .arc_view_cell.arc_in_range.arc_wknd.arc_active .arc_view_cell_value {
   background-color: var(--arc-color-bg-dom-in-range-weekend-active);
+  color: var(--arc-color-text-dark);
 }
 
 /* range endpoints active color */
