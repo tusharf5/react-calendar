@@ -32,9 +32,9 @@ interface Props {
   viewingYear: number;
   weekStartIndex: WeekdayIndices;
   fixedRangeLength: number;
-  selectedDate: Date;
-  selectedRangeStart: Date;
-  selectedRangeEnd: Date;
+  selectedDate: Date | undefined;
+  selectedRangeStart: Date | undefined;
+  selectedRangeEnd: Date | undefined;
   newSelectedRangeStart: Date | undefined;
   newSelectedRangeEnd: Date | undefined;
   isRangeSelectorView: boolean;

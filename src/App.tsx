@@ -394,7 +394,7 @@ function App() {
               positions={['bottom', 'top', 'left', 'right']}
               content={
                 <Calendar
-                  value={(ten as any).date as Date}
+                  value={(ten as any).value as Date}
                   onChange={(value) => {
                     setTen(value);
                     setIsPopoverOpen(false);

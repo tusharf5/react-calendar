@@ -624,16 +624,20 @@ export function getDaysOfMonthViewMetrix(params: GetDaysOfMonthViewMetrixParams)
               ? isPartOfRange(newSelectedRangeStart, newSelectedRangeEnd, currDate)
               : isPartOfRange(newSelectedRangeEnd, newSelectedRangeStart, currDate)
             : false
-          : isPartOfRange(selectedRangeStart, selectedRangeEnd, currDate)
+          : !!selectedRangeStart && !!selectedRangeEnd && isPartOfRange(selectedRangeStart, selectedRangeEnd, currDate)
         : false,
       isRangeStart: isRangeView
         ? isRangeSelectModeOn
           ? isValid(newSelectedRangeStart)
             ? isEqual(newSelectedRangeStart, currDate)
             : false
-          : isEqual(selectedRangeStart, currDate)
+          : !!selectedRangeStart && isEqual(selectedRangeStart, currDate)
         : false,
-      isRangeEnd: isRangeView ? (isRangeSelectModeOn ? false : isEqual(selectedRangeEnd, currDate)) : false,
+      isRangeEnd: isRangeView
+        ? isRangeSelectModeOn
+          ? false
+          : !!selectedRangeEnd && isEqual(selectedRangeEnd, currDate)
+        : false,
       year: currYear,
       isWeekend: typeof weekends.find((c) => c === weekColumn) === 'number' ? true : false,
       dayOfWeek: getNativeWeekDayIndexFromAStartDayInfluencedIndex(weekColumn, startOfTheWeek),
@@ -646,9 +650,11 @@ export function getDaysOfMonthViewMetrix(params: GetDaysOfMonthViewMetrixParams)
         ? !!selectedMultiDates[toString(currDate)]
         : isRangeView
         ? false
-        : currMonth === selectedDate.getMonth() &&
+        : selectedDate
+        ? currMonth === selectedDate.getMonth() &&
           currYear === selectedDate.getFullYear() &&
-          dayOfMonth === selectedDate.getDate(),
+          dayOfMonth === selectedDate.getDate()
+        : false,
       // not modified
       isDisabled: checkDisabledForADate(currDate),
     });
@@ -680,16 +686,20 @@ export function getDaysOfMonthViewMetrix(params: GetDaysOfMonthViewMetrixParams)
               ? isPartOfRange(newSelectedRangeStart, newSelectedRangeEnd, currDate)
               : isPartOfRange(newSelectedRangeEnd, newSelectedRangeStart, currDate)
             : false
-          : isPartOfRange(selectedRangeStart, selectedRangeEnd, currDate)
+          : !!selectedRangeStart && !!selectedRangeEnd && isPartOfRange(selectedRangeStart, selectedRangeEnd, currDate)
         : false,
       isRangeStart: isRangeView
         ? isRangeSelectModeOn
           ? isValid(newSelectedRangeStart)
             ? isEqual(newSelectedRangeStart, currDate)
             : false
-          : isEqual(selectedRangeStart, currDate)
+          : !!selectedRangeStart && isEqual(selectedRangeStart, currDate)
         : false,
-      isRangeEnd: isRangeView ? (isRangeSelectModeOn ? false : isEqual(selectedRangeEnd, currDate)) : false,
+      isRangeEnd: isRangeView
+        ? isRangeSelectModeOn
+          ? false
+          : !!selectedRangeEnd && isEqual(selectedRangeEnd, currDate)
+        : false,
       year: currYear,
       dayOfWeek: getNativeWeekDayIndexFromAStartDayInfluencedIndex(weekColumn, startOfTheWeek),
       isWeekend: typeof weekends.find((c) => c === weekColumn) === 'number' ? true : false,
@@ -702,9 +712,11 @@ export function getDaysOfMonthViewMetrix(params: GetDaysOfMonthViewMetrixParams)
         ? !!selectedMultiDates[toString(currDate)]
         : isRangeView
         ? false
-        : currMonth === selectedDate.getMonth() &&
+        : selectedDate
+        ? currMonth === selectedDate.getMonth() &&
           currYear === selectedDate.getFullYear() &&
-          dayOfMonth === selectedDate.getDate(),
+          dayOfMonth === selectedDate.getDate()
+        : false,
       isDisabled: checkDisabledForADate(currDate),
     });
     weekColumn++;
@@ -736,16 +748,20 @@ export function getDaysOfMonthViewMetrix(params: GetDaysOfMonthViewMetrixParams)
               ? isPartOfRange(newSelectedRangeStart, newSelectedRangeEnd, currDate)
               : isPartOfRange(newSelectedRangeEnd, newSelectedRangeStart, currDate)
             : false
-          : isPartOfRange(selectedRangeStart, selectedRangeEnd, currDate)
+          : !!selectedRangeStart && !!selectedRangeEnd && isPartOfRange(selectedRangeStart, selectedRangeEnd, currDate)
         : false,
       isRangeStart: isRangeView
         ? isRangeSelectModeOn
           ? isValid(newSelectedRangeStart)
             ? isEqual(newSelectedRangeStart, currDate)
             : false
-          : isEqual(selectedRangeStart, currDate)
+          : !!selectedRangeStart && isEqual(selectedRangeStart, currDate)
         : false,
-      isRangeEnd: isRangeView ? (isRangeSelectModeOn ? false : isEqual(selectedRangeEnd, currDate)) : false,
+      isRangeEnd: isRangeView
+        ? isRangeSelectModeOn
+          ? false
+          : !!selectedRangeEnd && isEqual(selectedRangeEnd, currDate)
+        : false,
       year: currYear,
       dayOfWeek: getNativeWeekDayIndexFromAStartDayInfluencedIndex(weekColumn, startOfTheWeek),
       isWeekend: typeof weekends.find((c) => c === weekColumn) === 'number' ? true : false,
@@ -758,9 +774,11 @@ export function getDaysOfMonthViewMetrix(params: GetDaysOfMonthViewMetrixParams)
         ? !!selectedMultiDates[toString(currDate)]
         : isRangeView
         ? false
-        : currMonth === selectedDate.getMonth() &&
+        : selectedDate
+        ? currMonth === selectedDate.getMonth() &&
           currYear === selectedDate.getFullYear() &&
-          dayOfMonth === selectedDate.getDate(),
+          dayOfMonth === selectedDate.getDate()
+        : false,
       isDisabled: checkDisabledForADate(currDate),
     });
     weekColumn++;

@@ -44,9 +44,9 @@ export interface GetDaysOfMonthViewMetrixParams {
   monthInView: MonthIndices;
   weekendIndexes: WeekdayIndices[];
   startOfTheWeek: WeekdayIndices;
-  selectedDate: Date;
-  selectedRangeStart: Date;
-  selectedRangeEnd: Date;
+  selectedDate: Date | undefined;
+  selectedRangeStart: Date | undefined;
+  selectedRangeEnd: Date | undefined;
   newSelectedRangeStart: undefined | Date;
   newSelectedRangeEnd: undefined | Date;
   maxDate: Date;

@@ -15,7 +15,6 @@ import {
   isValid,
   isBefore,
   toString,
-  addDays,
 } from './utils/date-utils';
 
 import { Header } from './components/header/Header';
@@ -334,7 +333,7 @@ function Calendar({
       const dateOfMonth = (value as Date).getDate();
       return new Date(year, month, dateOfMonth);
     } else {
-      return today;
+      return undefined;
     }
   });
 
@@ -360,20 +359,24 @@ function Calendar({
       const date = rangeStartValue.getDate();
       return new Date(year, month, date);
     } else {
-      return today;
+      return undefined;
     }
   });
 
   const [selectedRangeEnd, setSelectedRangeEnd] = useState(() => {
-    if (isRangeSelectorView && isValid(rangeEndValue) && isBefore(rangeEndValue, selectedRangeStart)) {
+    if (
+      isRangeSelectorView &&
+      selectedRangeStart &&
+      isValid(rangeEndValue) &&
+      isBefore(rangeEndValue, selectedRangeStart)
+    ) {
       const year = rangeEndValue.getFullYear();
       const month = rangeEndValue.getMonth();
       const date = rangeEndValue.getDate();
       return new Date(year, month, date);
-    } else if (isFixedRangeView) {
-      return addDays(selectedRangeStart, fixedRangeLength);
     } else {
-      return addDays(selectedRangeStart, 2);
+      // TODO read from user's value prop
+      return undefined;
     }
   });
 
@@ -389,7 +392,7 @@ function Calendar({
       ? initialViewDate.getMonth()
       : isNormalView && isValid(value as Date)
       ? (value as Date).getMonth()
-      : isRangeSelectorView
+      : isRangeSelectorView && selectedRangeStart
       ? selectedRangeStart.getMonth()
       : isMultiSelectorView && Array.isArray(value) && isValid(value[0])
       ? value[0].getMonth()
@@ -401,7 +404,7 @@ function Calendar({
       ? initialViewDate.getFullYear()
       : isNormalView && isValid(value as Date)
       ? (value as Date).getFullYear()
-      : isRangeSelectorView
+      : isRangeSelectorView && selectedRangeStart
       ? selectedRangeStart.getFullYear()
       : isMultiSelectorView && Array.isArray(value) && isValid(value[0])
       ? value[0].getFullYear()
