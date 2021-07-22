@@ -49,15 +49,11 @@ export interface GetDaysOfMonthViewMetrixParams {
   selectedRangeEnd: Date | undefined;
   newSelectedRangeStart: undefined | Date;
   newSelectedRangeEnd: undefined | Date;
-  maxDate: Date;
-  minDate: Date;
-  applyMax: boolean;
-  applyMin: boolean;
   highlightsMap: Record<string, 1>;
   disableFuture: boolean;
   disablePast: boolean;
   disableToday: boolean;
-  isDisabled?: (date: Date) => boolean;
+  isDisabled: (date: Date) => boolean;
 }
 
 export interface CheckIfDateIsDisabledHOFParams {

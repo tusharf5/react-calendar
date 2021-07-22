@@ -455,7 +455,7 @@ export function validateAndReturnDateFormatter(format: string) {
   };
 }
 
-function checkIfDateIsDisabledHOF(params: CheckIfDateIsDisabledHOFParams) {
+export function checkIfDateIsDisabledHOF(params: CheckIfDateIsDisabledHOFParams) {
   const { disablePast, disableToday, disableFuture, customDisabledCheck, maxDate, minDate, applyMax, applyMin } =
     params;
 
@@ -545,13 +545,6 @@ export function getDaysOfMonthViewMetrix(params: GetDaysOfMonthViewMetrixParams)
     yearInView,
     monthInView,
     startOfTheWeek,
-    disableFuture = false,
-    disablePast = false,
-    disableToday = false,
-    maxDate,
-    minDate,
-    applyMax,
-    applyMin,
     isDisabled,
   } = params;
 
@@ -564,17 +557,6 @@ export function getDaysOfMonthViewMetrix(params: GetDaysOfMonthViewMetrixParams)
   );
 
   const weekends = weekendIndexes;
-
-  const checkDisabledForADate = checkIfDateIsDisabledHOF({
-    disablePast,
-    disableToday,
-    disableFuture,
-    customDisabledCheck: isDisabled,
-    maxDate,
-    minDate,
-    applyMax,
-    applyMin,
-  });
 
   const today = new Date();
   const todaysDate = today.getDate();
@@ -656,7 +638,7 @@ export function getDaysOfMonthViewMetrix(params: GetDaysOfMonthViewMetrixParams)
           dayOfMonth === selectedDate.getDate()
         : false,
       // not modified
-      isDisabled: checkDisabledForADate(currDate),
+      isDisabled: isDisabled(currDate),
     });
     weekColumn++;
   }
@@ -717,7 +699,7 @@ export function getDaysOfMonthViewMetrix(params: GetDaysOfMonthViewMetrixParams)
           currYear === selectedDate.getFullYear() &&
           dayOfMonth === selectedDate.getDate()
         : false,
-      isDisabled: checkDisabledForADate(currDate),
+      isDisabled: isDisabled(currDate),
     });
     weekColumn++;
   }
@@ -779,7 +761,7 @@ export function getDaysOfMonthViewMetrix(params: GetDaysOfMonthViewMetrixParams)
           currYear === selectedDate.getFullYear() &&
           dayOfMonth === selectedDate.getDate()
         : false,
-      isDisabled: checkDisabledForADate(currDate),
+      isDisabled: isDisabled(currDate),
     });
     weekColumn++;
     dayOfMonth++;

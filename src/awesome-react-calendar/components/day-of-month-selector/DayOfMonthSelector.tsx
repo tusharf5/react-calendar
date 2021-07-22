@@ -52,7 +52,7 @@ interface Props {
   minAllowedDate?: Date;
   separator?: string;
   highlights: Date[];
-  isDisabled?: (date: Date) => boolean;
+  isDisabled: (date: Date) => boolean;
   format?: string;
   today: Date;
   onChange?: (value: Value | MultiValue | RangeValue) => any | Promise<any>;
@@ -83,11 +83,8 @@ function DayOfMonthSelectorComponent({
   onChangenNewSelectedRangeStart,
   onChangenSelectedRangeEnd,
   onChangenSelectedRangeStart,
-  today,
   onChangenSelectedDate,
-  maxAllowedDate,
   layoutCalcs,
-  minAllowedDate,
   weekendIndices,
   onChange,
   viewingYear,
@@ -115,31 +112,6 @@ function DayOfMonthSelectorComponent({
     return validateAndReturnDateFormatter(format || 'DD-MM-YYYY');
   }, [format]);
 
-  // max allowed Date
-  const [maxDate] = useState(() => {
-    return isValid(maxAllowedDate) ? maxAllowedDate : today;
-  });
-  const [applyMaxConstraint] = useState(() => {
-    return isValid(maxAllowedDate)
-      ? isValid(minAllowedDate)
-        ? isBefore(maxAllowedDate, minAllowedDate)
-        : true
-      : false;
-  });
-
-  // min allowed Date
-  const [minDate] = useState(() => {
-    return isValid(minAllowedDate) ? minAllowedDate : today;
-  });
-
-  const [applyminConstraint] = useState(() => {
-    return isValid(minAllowedDate)
-      ? isValid(maxAllowedDate)
-        ? isBefore(maxAllowedDate, minAllowedDate)
-        : true
-      : false;
-  });
-
   const daysOfMMonthViewMatrix = useMemo(() => {
     return getDaysOfMonthViewMetrix({
       selectedDate: selectedDate,
@@ -160,10 +132,6 @@ function DayOfMonthSelectorComponent({
       disablePast,
       disableToday,
       isDisabled,
-      maxDate: maxDate,
-      minDate: minDate,
-      applyMax: applyMaxConstraint,
-      applyMin: applyminConstraint,
     });
   }, [
     selectedDate,
@@ -185,10 +153,6 @@ function DayOfMonthSelectorComponent({
     disablePast,
     disableToday,
     isDisabled,
-    maxDate,
-    minDate,
-    applyMaxConstraint,
-    applyminConstraint,
   ]);
 
   const onDateClicked = useCallback(
@@ -338,6 +302,8 @@ function DayOfMonthSelectorComponent({
       onChangeViewingYear(cell.year);
     },
     [
+      lockView,
+      viewingMonth,
       isRangeSelectorView,
       isFixedRangeView,
       isMultiSelectorView,

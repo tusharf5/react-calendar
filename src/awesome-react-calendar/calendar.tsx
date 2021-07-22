@@ -15,6 +15,7 @@ import {
   isValid,
   isBefore,
   toString,
+  checkIfDateIsDisabledHOF,
 } from './utils/date-utils';
 
 import { Header } from './components/header/Header';
@@ -513,6 +514,43 @@ function Calendar({
     [className, useDarkMode]
   );
 
+  // max allowed Date
+  const [maxDate] = useState(() => {
+    return isValid(maxAllowedDate) ? maxAllowedDate : today;
+  });
+
+  // min allowed Date
+  const [minDate] = useState(() => {
+    return isValid(minAllowedDate) ? minAllowedDate : today;
+  });
+
+  const [applyMaxConstraint] = useState(() => {
+    return isValid(maxAllowedDate)
+      ? isValid(minAllowedDate)
+        ? isBefore(maxAllowedDate, minAllowedDate)
+        : true
+      : false;
+  });
+
+  const [applyminConstraint] = useState(() => {
+    return isValid(minAllowedDate)
+      ? isValid(maxAllowedDate)
+        ? isBefore(maxAllowedDate, minAllowedDate)
+        : true
+      : false;
+  });
+
+  const checkDisabledForADate = checkIfDateIsDisabledHOF({
+    disablePast,
+    disableToday,
+    disableFuture,
+    customDisabledCheck: isDisabled,
+    maxDate,
+    minDate,
+    applyMax: applyMaxConstraint,
+    applyMin: applyminConstraint,
+  });
+
   return (
     <section style={styles.root.arc} className={computedClass}>
       <Header
@@ -564,7 +602,7 @@ function Calendar({
               isRangeSelectorView={isRangeSelectorView}
               fixedRangeLength={fixedRangeLength}
               isFixedRangeView={isFixedRangeView}
-              isDisabled={isDisabled}
+              isDisabled={checkDisabledForADate}
               selectedMultiDates={selectedMultiDates}
               isMultiSelectorView={isMultiSelectorView}
               viewingMonth={monthInView}
