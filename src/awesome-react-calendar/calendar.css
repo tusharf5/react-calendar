@@ -74,12 +74,12 @@
   --arc-color-border: #4e4d4d;
   --arc-color-box-shadow: #403e3e;
   /* General Theme Main Colors */
-  --arc-color-primary: #c8d8f0;
+  --arc-color-primary: #ced9ea;
   --arc-color-primary-light: #2e3745;
-  --arc-color-primary-lighter: #5d6675;
-  --arc-color-accent: #f0c8c8;
-  --arc-color-accent-light: #b55959;
-  --arc-color-accent-lighter: #623b3b;
+  --arc-color-primary-lighter: #474b52;
+  --arc-color-accent: #eacece;
+  --arc-color-accent-light: #7f6d6d;
+  --arc-color-accent-lighter: #524747;
 }
 
 .arc {
