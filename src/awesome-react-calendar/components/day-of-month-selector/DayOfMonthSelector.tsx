@@ -29,6 +29,7 @@ interface Props {
   onChangenSelectedMultiDates: (dates: Record<string, Date | undefined>) => any;
   onChangenSelectedDate: (dates: Date) => any;
   viewingMonth: MonthIndices;
+  skipDisabledDatesInRange: boolean;
   viewingYear: number;
   weekStartIndex: WeekdayIndices;
   fixedRangeLength: number;
@@ -69,6 +70,7 @@ function DayOfMonthSelectorComponent({
   onChangeViewingMonth,
   newSelectedRangeEnd,
   isRangeSelectorView,
+  skipDisabledDatesInRange,
   setIsRangeSelectModeOn,
   fixedRangeLength,
   isFixedRangeView,
@@ -239,7 +241,7 @@ function DayOfMonthSelectorComponent({
         }
       } else if (isFixedRangeView) {
         onChangenSelectedRangeStart(clickedDate);
-        const endDate = addDays(clickedDate, fixedRangeLength);
+        const endDate = addDays(clickedDate, fixedRangeLength, isDisabled, skipDisabledDatesInRange);
         onChangenSelectedRangeEnd(endDate);
         onChange &&
           onChange([
@@ -320,6 +322,8 @@ function DayOfMonthSelectorComponent({
       separator,
       onChangenNewSelectedRangeStart,
       fixedRangeLength,
+      isDisabled,
+      skipDisabledDatesInRange,
       selectedMultiDates,
       onChangenSelectedMultiDates,
       onChangenSelectedDate,

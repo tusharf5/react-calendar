@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useCallback, useState } from 'react';
 import ReactJson from 'react-json-view';
 
@@ -271,6 +270,27 @@ function App() {
           </div>
           <div className='json'>
             <ReactJson name='value' enableClipboard={false} src={fiveteen} />
+          </div>
+        </div>
+      </div>
+      <div>
+        <div>
+          <p>Can enable skipping disabled dates when doing fixed range(5 here) selections</p>
+        </div>
+        <div>
+          <div className='calendar'>
+            <Calendar
+              isRangeSelector
+              fixedRange={5}
+              skipDisabledDatesInRange
+              isDisabled={(date) => {
+                return date.getDate() % 3 === 0;
+              }}
+              onChange={onChangeseven}
+            />
+          </div>
+          <div className='json'>
+            <ReactJson name='value' enableClipboard={false} src={seven} />
           </div>
         </div>
       </div>

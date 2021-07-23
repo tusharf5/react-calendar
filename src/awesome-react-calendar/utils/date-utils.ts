@@ -14,31 +14,26 @@ import { NATIVE_INDEX_TO_LABEL_WEEKDAY_MAP } from './constants';
 /**
  * Add number of days to a month.
  */
-export function addDays(date: Date, numberOfDaysToAdd: number): Date {
+export function addDays(
+  date: Date,
+  numberOfDaysToAdd: number,
+  isDisabled: (arg: Date) => boolean,
+  skipDisabledDatesInRange: boolean
+): Date {
   let daysLeftToAdd = numberOfDaysToAdd;
   let newDate = date;
 
   while (daysLeftToAdd > 0) {
-    const dayOfMonth = newDate.getDate();
-    const totalDaysInMonth = getNumberOfDaysInAMonth(newDate.getFullYear(), newDate.getMonth() as MonthIndices);
-    const remainingDaysInMonth = totalDaysInMonth - dayOfMonth;
-    let daysThatCanBeAddedInThisMonth = 0;
-
-    if (remainingDaysInMonth >= daysLeftToAdd) {
-      // all days can be added in this month
-      daysThatCanBeAddedInThisMonth = daysLeftToAdd;
-      daysLeftToAdd = 0;
-      newDate = new Date(newDate.getFullYear(), newDate.getMonth(), newDate.getDate() + daysThatCanBeAddedInThisMonth);
-    } else {
-      daysThatCanBeAddedInThisMonth = remainingDaysInMonth;
-      daysLeftToAdd = daysLeftToAdd - remainingDaysInMonth;
-      if (newDate.getMonth() === 11) {
-        newDate = new Date(newDate.getFullYear() + 1, 0, 1);
-        daysLeftToAdd = daysLeftToAdd - 1;
-      } else {
-        newDate = new Date(newDate.getFullYear(), newDate.getMonth() + 1, 1);
-        daysLeftToAdd = daysLeftToAdd - 1;
+    const nextCouldBeDate = getNextDate(newDate);
+    newDate = nextCouldBeDate;
+    if (skipDisabledDatesInRange) {
+      if (!isDisabled(nextCouldBeDate)) {
+        // if skipping is enabled and date is not disabled then decrement
+        daysLeftToAdd--;
       }
+    } else {
+      // if skipping is disabled then just decrement
+      daysLeftToAdd--;
     }
   }
 
@@ -217,6 +212,40 @@ export function getNumberOfDaysInAMonth(year: number, month: MonthIndices) {
   return map[month];
 }
 
+function isLastDayOfMonth(date: Date): boolean {
+  return getNumberOfDaysInAMonth(date.getFullYear(), date.getMonth() as MonthIndices) === date.getDate();
+}
+
+function isLastDayOfYear(date: Date): boolean {
+  return (date.getMonth() as MonthIndices) === 11 && isLastDayOfMonth(date);
+}
+
+export function getPreviousMonth(month: MonthIndices): MonthIndices {
+  return month === 0 ? 11 : ((month - 1) as MonthIndices);
+}
+
+export function getNextMonth(month: MonthIndices): MonthIndices {
+  return month === 11 ? 0 : ((month + 1) as MonthIndices);
+}
+
+export function getPreviousYear(year: number): number {
+  return year === 1 ? 1 : year - 1;
+}
+
+export function getNextYear(year: number): number {
+  return year + 1;
+}
+
+export function getNextDate(date: Date): Date {
+  if (isLastDayOfYear(date)) {
+    return new Date(date.getFullYear() + 1, 0, 1);
+  } else if (isLastDayOfMonth(date)) {
+    return new Date(date.getFullYear(), date.getMonth() + 1, 1);
+  } else {
+    return new Date(date.getFullYear(), date.getMonth(), date.getDate() + 1);
+  }
+}
+
 // WEEKDAY UTILS
 
 /**
@@ -353,22 +382,6 @@ export function getWeekendInfo(startOfTheWeek: number): WeekdayIndices[] {
   } else {
     return [0, 1];
   }
-}
-
-export function getPreviousMonth(month: MonthIndices): MonthIndices {
-  return month === 0 ? 11 : ((month - 1) as MonthIndices);
-}
-
-export function getNextMonth(month: MonthIndices): MonthIndices {
-  return month === 11 ? 0 : ((month + 1) as MonthIndices);
-}
-
-export function getPreviousYear(year: number): number {
-  return year === 1 ? 1 : year - 1;
-}
-
-export function getNextYear(year: number): number {
-  return year + 1;
 }
 
 // 1 - 20 (20 years in one range block)

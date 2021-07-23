@@ -324,6 +324,7 @@
   position: relative;
 }
 
+.arc_view-days-of-month .arc_view_cell.arc_disabled.arc_in_range.arc_wknd .arc_view_cell_value,
 .arc_view-days-of-month .arc_view_cell.arc_disabled.arc_in_range .arc_view_cell_value,
 .arc_view-days-of-month .arc_view_cell.arc_disabled.arc_wknd .arc_view_cell_value,
 .arc_view-days-of-month .arc_view_cell.arc_disabled .arc_view_cell_value {
