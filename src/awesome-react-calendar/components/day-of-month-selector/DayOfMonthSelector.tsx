@@ -5,6 +5,7 @@ import { DayOfMonthCell, MonthIndices, WeekdayIndices } from '../../types';
 import {
   addDays,
   getDaysOfMonthViewMetrix,
+  getNextDate,
   isBefore,
   isValid,
   toString,
@@ -24,11 +25,12 @@ interface Props {
   onChangeViewingMonth: (month: MonthIndices) => any;
   onChangenNewSelectedRangeEnd: (date: Date | undefined) => any;
   onChangenNewSelectedRangeStart: (date: Date | undefined) => any;
-  onChangenSelectedRangeStart: (date: Date) => any;
-  onChangenSelectedRangeEnd: (date: Date) => any;
+  onChangenSelectedRangeStart: (date: Date | undefined) => any;
+  onChangenSelectedRangeEnd: (date: Date | undefined) => any;
   onChangenSelectedMultiDates: (dates: Record<string, Date | undefined>) => any;
   onChangenSelectedDate: (dates: Date) => any;
   viewingMonth: MonthIndices;
+  allowFewerDatesThanRange: boolean;
   skipDisabledDatesInRange: boolean;
   viewingYear: number;
   weekStartIndex: WeekdayIndices;
@@ -79,6 +81,7 @@ function DayOfMonthSelectorComponent({
   onChangenSelectedMultiDates,
   selectedMultiDates,
   isMultiSelectorView,
+  today,
   viewingMonth,
   format,
   onChangenNewSelectedRangeEnd,
@@ -90,6 +93,7 @@ function DayOfMonthSelectorComponent({
   weekendIndices,
   onChange,
   viewingYear,
+  allowFewerDatesThanRange,
   disableFuture,
   disablePast,
   lockView,
@@ -241,24 +245,40 @@ function DayOfMonthSelectorComponent({
         }
       } else if (isFixedRangeView) {
         onChangenSelectedRangeStart(clickedDate);
-        const endDate = addDays(clickedDate, fixedRangeLength, isDisabled, skipDisabledDatesInRange);
-        onChangenSelectedRangeEnd(endDate);
-        onChange &&
-          onChange([
-            {
-              value: clickedDate,
-              formatted: formatter(
-                clickedDate.getFullYear(),
-                clickedDate.getMonth() + 1,
-                clickedDate.getDate(),
-                separator
-              ),
-            },
-            {
-              value: endDate,
-              formatted: formatter(endDate.getFullYear(), endDate.getMonth() + 1, endDate.getDate(), separator),
-            },
-          ]);
+        const { endDate, limitReached } = addDays(
+          clickedDate,
+          fixedRangeLength,
+          isDisabled,
+          skipDisabledDatesInRange,
+          lockView
+            ? new Date(clickedDate.getFullYear(), clickedDate.getMonth() + 1, 1)
+            : disableFuture
+            ? getNextDate(today)
+            : undefined
+        );
+
+        if (limitReached && !allowFewerDatesThanRange) {
+          onChangenSelectedRangeStart(undefined);
+          onChangenSelectedRangeEnd(undefined);
+        } else {
+          onChangenSelectedRangeEnd(endDate);
+          onChange &&
+            onChange([
+              {
+                value: clickedDate,
+                formatted: formatter(
+                  clickedDate.getFullYear(),
+                  clickedDate.getMonth() + 1,
+                  clickedDate.getDate(),
+                  separator
+                ),
+              },
+              {
+                value: endDate,
+                formatted: formatter(endDate.getFullYear(), endDate.getMonth() + 1, endDate.getDate(), separator),
+              },
+            ]);
+        }
       } else if (isMultiSelectorView) {
         const stringkey = toString(clickedDate);
         const newselectedMultiDates = { ...selectedMultiDates };
@@ -324,6 +344,9 @@ function DayOfMonthSelectorComponent({
       fixedRangeLength,
       isDisabled,
       skipDisabledDatesInRange,
+      disableFuture,
+      today,
+      allowFewerDatesThanRange,
       selectedMultiDates,
       onChangenSelectedMultiDates,
       onChangenSelectedDate,

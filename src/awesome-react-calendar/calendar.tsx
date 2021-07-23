@@ -81,6 +81,10 @@ interface Props {
    */
   skipDisabledDatesInRange?: boolean;
   /**
+   * Skip disabled dates when doing fixed range selection
+   */
+  allowFewerDatesThanRange?: boolean;
+  /**
    * Always select n number of days starting from the user's selected date
    */
   fixedRange?: number;
@@ -289,6 +293,7 @@ function Calendar({
   rangeStart: rangeStartValue,
   initialViewDate,
   rangeEnd: rangeEndValue,
+  allowFewerDatesThanRange = false,
   startOfWeek = 1,
   maxAllowedDate,
   skipDisabledDatesInRange = false,
@@ -590,6 +595,7 @@ function Calendar({
               setIsRangeSelectModeOn={setIsRangeSelectModeOn}
               layoutCalcs={styles}
               skipDisabledDatesInRange={!!skipDisabledDatesInRange}
+              allowFewerDatesThanRange={!!allowFewerDatesThanRange}
               selectedDate={selectedDate}
               selectedRangeStart={selectedRangeStart}
               selectedRangeEnd={selectedRangeEnd}

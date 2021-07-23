@@ -1,5 +1,6 @@
 import React, { useCallback, useState } from 'react';
 import ReactJson from 'react-json-view';
+import ReactDOMServer from 'react-dom/server';
 
 import Calendar from './awesome-react-calendar/calendar';
 
@@ -175,6 +176,7 @@ function App() {
               onChange={onChangeone}
             />
           </div>
+
           <div className='json'>
             <ReactJson name='value' enableClipboard={false} src={one} />
           </div>
@@ -291,6 +293,29 @@ function App() {
           </div>
           <div className='json'>
             <ReactJson name='value' enableClipboard={false} src={seven} />
+          </div>
+        </div>
+      </div>
+      <div>
+        <div>
+          <p>Can enable/disable selecting fewer dates than range if dates are not available</p>
+          <small>
+            Normally it will select 4 dates after the first one but when future dates are disabled then it can even
+            select lesser than 4 dates. This behaviour can be disabled.
+          </small>
+        </div>
+        <div>
+          <div className='calendar'>
+            <Calendar
+              allowFewerDatesThanRange
+              disableFuture
+              isRangeSelector
+              fixedRange={4}
+              onChange={onChangeThirteen}
+            />
+          </div>
+          <div className='json'>
+            <ReactJson name='value' enableClipboard={false} src={thirteen} />
           </div>
         </div>
       </div>
@@ -472,6 +497,25 @@ function App() {
             <Calendar fontSize={17} size={400} isMultiSelector />
           </div>
         </div>
+      </div>
+      <div>
+        <div>
+          <p>Can be rendered on the server-side</p>
+          <small>The following markup is created using ReactDomServer.renderToStaticMarkup() method</small>
+        </div>
+        <div
+          dangerouslySetInnerHTML={{
+            __html: ReactDOMServer.renderToStaticMarkup(
+              <Calendar
+                value={[new Date(2021, 6, 22), new Date(2021, 6, 25), new Date(2021, 6, 9)]}
+                isMultiSelector
+                disableToday
+                separator='/'
+                format='MM-DD-YYYY'
+                onChange={onChangeone}
+              />
+            ),
+          }}></div>
       </div>
     </div>
   );

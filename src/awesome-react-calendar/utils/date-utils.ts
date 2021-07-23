@@ -18,14 +18,29 @@ export function addDays(
   date: Date,
   numberOfDaysToAdd: number,
   isDisabled: (arg: Date) => boolean,
-  skipDisabledDatesInRange: boolean
-): Date {
+  skipDisabledDatesInRange: boolean,
+  upperLimit?: Date
+): { endDate: Date; limitReached: boolean } {
   let daysLeftToAdd = numberOfDaysToAdd;
   let newDate = date;
+  let limitReached = false;
+  let loopControl = 0;
 
   while (daysLeftToAdd > 0) {
+    if (loopControl === 1500) {
+      limitReached = true;
+      break;
+    }
+
     const nextCouldBeDate = getNextDate(newDate);
+
+    if (upperLimit && isEqual(upperLimit, nextCouldBeDate)) {
+      limitReached = true;
+      break;
+    }
+
     newDate = nextCouldBeDate;
+
     if (skipDisabledDatesInRange) {
       if (!isDisabled(nextCouldBeDate)) {
         // if skipping is enabled and date is not disabled then decrement
@@ -35,9 +50,10 @@ export function addDays(
       // if skipping is disabled then just decrement
       daysLeftToAdd--;
     }
+    loopControl++;
   }
 
-  return newDate;
+  return { endDate: newDate, limitReached };
 }
 
 /**
