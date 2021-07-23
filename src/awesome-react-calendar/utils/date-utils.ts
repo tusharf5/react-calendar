@@ -17,9 +17,11 @@ import { NATIVE_INDEX_TO_LABEL_WEEKDAY_MAP } from './constants';
 export function addDays(
   date: Date,
   numberOfDaysToAdd: number,
-  isDisabled: (arg: Date) => boolean,
-  skipDisabledDatesInRange: boolean,
-  upperLimit?: Date
+  options: {
+    isDisabled: (arg: Date) => boolean;
+    skipDisabledDatesInRange?: boolean;
+    upperLimit?: Date;
+  }
 ): { endDate: Date; limitReached: boolean } {
   let daysLeftToAdd = numberOfDaysToAdd;
   let newDate = date;
@@ -34,15 +36,17 @@ export function addDays(
 
     const nextCouldBeDate = getNextDate(newDate);
 
-    if (upperLimit && isEqual(upperLimit, nextCouldBeDate)) {
+    if (options.upperLimit && isEqual(options.upperLimit, nextCouldBeDate)) {
       limitReached = true;
       break;
     }
 
     newDate = nextCouldBeDate;
 
-    if (skipDisabledDatesInRange) {
-      if (!isDisabled(nextCouldBeDate)) {
+    if (options.skipDisabledDatesInRange) {
+      console.log('trigered');
+      if (options.skipDisabledDatesInRange && !options.isDisabled(nextCouldBeDate)) {
+        console.log('both so decrementing', nextCouldBeDate);
         // if skipping is enabled and date is not disabled then decrement
         daysLeftToAdd--;
       }
@@ -484,6 +488,16 @@ export function validateAndReturnDateFormatter(format: string) {
   };
 }
 
+export function checkIfWeekendHOF(weekends: WeekdayIndices[], startDayOfWeek: WeekdayIndices) {
+  const weekendMap = weekends.reduce((acc, curr) => {
+    acc[curr] = 1;
+    return acc;
+  }, {} as Record<WeekdayIndices, 1>);
+  return function checkIfWeekend(date: Date) {
+    return weekendMap[getInfluencedWeekDayIndexAsPerAStartDay(date.getDay(), startDayOfWeek)] === 1;
+  };
+}
+
 export function checkIfDateIsDisabledHOF(params: CheckIfDateIsDisabledHOFParams) {
   const { disablePast, disableToday, disableFuture, customDisabledCheck, maxDate, minDate, applyMax, applyMin } =
     params;
@@ -570,11 +584,11 @@ export function getDaysOfMonthViewMetrix(params: GetDaysOfMonthViewMetrixParams)
     newSelectedRangeEnd,
     isSelectMultiDate,
     selectedMultiDates,
-    weekendIndexes,
     yearInView,
     monthInView,
     startOfTheWeek,
     isDisabled,
+    checkIfWeekend,
   } = params;
 
   const matrix: Array<DayOfMonthCell>[] = [[], [], [], [], [], []];
@@ -584,8 +598,6 @@ export function getDaysOfMonthViewMetrix(params: GetDaysOfMonthViewMetrixParams)
     monthInView,
     startOfTheWeek
   );
-
-  const weekends = weekendIndexes;
 
   const today = new Date();
   const todaysDate = today.getDate();
@@ -650,7 +662,7 @@ export function getDaysOfMonthViewMetrix(params: GetDaysOfMonthViewMetrixParams)
           : !!selectedRangeEnd && isEqual(selectedRangeEnd, currDate)
         : false,
       year: currYear,
-      isWeekend: typeof weekends.find((c) => c === weekColumn) === 'number' ? true : false,
+      isWeekend: checkIfWeekend(currDate),
       dayOfWeek: getNativeWeekDayIndexFromAStartDayInfluencedIndex(weekColumn, startOfTheWeek),
       isToday: dayOfMonth === todaysDate && currMonth === todaysMonth && currYear === todaysYear,
       isFirstRow: row === 0,
@@ -713,7 +725,7 @@ export function getDaysOfMonthViewMetrix(params: GetDaysOfMonthViewMetrixParams)
         : false,
       year: currYear,
       dayOfWeek: getNativeWeekDayIndexFromAStartDayInfluencedIndex(weekColumn, startOfTheWeek),
-      isWeekend: typeof weekends.find((c) => c === weekColumn) === 'number' ? true : false,
+      isWeekend: checkIfWeekend(currDate),
       isToday: isToday,
       isFirstRow: row === 0,
       isLastRow: row === 5,
@@ -775,7 +787,7 @@ export function getDaysOfMonthViewMetrix(params: GetDaysOfMonthViewMetrixParams)
         : false,
       year: currYear,
       dayOfWeek: getNativeWeekDayIndexFromAStartDayInfluencedIndex(weekColumn, startOfTheWeek),
-      isWeekend: typeof weekends.find((c) => c === weekColumn) === 'number' ? true : false,
+      isWeekend: checkIfWeekend(currDate),
       isToday: dayOfMonth === todaysDate && currMonth === todaysMonth && currYear === todaysYear,
       isFirstRow: row === 0,
       isLastRow: row === 5,

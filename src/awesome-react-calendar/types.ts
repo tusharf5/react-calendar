@@ -54,6 +54,7 @@ export interface GetDaysOfMonthViewMetrixParams {
   disablePast: boolean;
   disableToday: boolean;
   isDisabled: (date: Date) => boolean;
+  checkIfWeekend: (date: Date) => boolean;
 }
 
 export interface CheckIfDateIsDisabledHOFParams {

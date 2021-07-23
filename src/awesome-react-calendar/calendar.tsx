@@ -16,6 +16,7 @@ import {
   isBefore,
   toString,
   checkIfDateIsDisabledHOF,
+  checkIfWeekendHOF,
 } from './utils/date-utils';
 
 import { Header } from './components/header/Header';
@@ -27,7 +28,7 @@ import { DayOfMonthSelector } from './components/day-of-month-selector/DayOfMont
 import './calendar.css';
 
 interface Value {
-  value: Date;
+  date: Date;
   formatted: string;
 }
 
@@ -67,7 +68,7 @@ interface Props {
    * Value of a single date or an array of dates in ISO format.
    * Only applicable if selectRange is false
    */
-  value?: Date | Date[];
+  value?: Date | Date[] | [Date, Date];
   /**
    * Renders a multiple dates selector view
    */
@@ -81,6 +82,10 @@ interface Props {
    */
   skipDisabledDatesInRange?: boolean;
   /**
+   * Skip weekends
+   */
+  skipWeekendsInRange?: boolean;
+  /**
    * Skip disabled dates when doing fixed range selection
    */
   allowFewerDatesThanRange?: boolean;
@@ -88,16 +93,6 @@ interface Props {
    * Always select n number of days starting from the user's selected date
    */
   fixedRange?: number;
-  /**
-   * Start date of the date range.
-   * Only applicable if selectRange is true.
-   */
-  rangeStart?: Date;
-  /**
-   * End date of the date range.
-   * Only applicable if selectRange is true.
-   */
-  rangeEnd?: Date;
   /**
    * Array of weekday number that are part of weekend.
    * The weekday number depends on the start of the week if provided one.
@@ -290,9 +285,8 @@ function Calendar({
   useDarkMode = false,
   weekends,
   highlights = [],
-  rangeStart: rangeStartValue,
+  skipWeekendsInRange = false,
   initialViewDate,
-  rangeEnd: rangeEndValue,
   allowFewerDatesThanRange = false,
   startOfWeek = 1,
   maxAllowedDate,
@@ -370,10 +364,10 @@ function Calendar({
 
   // selected range start date
   const [selectedRangeStart, setSelectedRangeStart] = useState(() => {
-    if (isRangeSelectorView && isValid(rangeStartValue)) {
-      const year = rangeStartValue.getFullYear();
-      const month = rangeStartValue.getMonth();
-      const date = rangeStartValue.getDate();
+    if (isRangeSelectorView && Array.isArray(value) && isValid(value[0])) {
+      const year = value[0].getFullYear();
+      const month = value[0].getMonth();
+      const date = value[0].getDate();
       return new Date(year, month, date);
     } else {
       return undefined;
@@ -384,12 +378,13 @@ function Calendar({
     if (
       isRangeSelectorView &&
       selectedRangeStart &&
-      isValid(rangeEndValue) &&
-      isBefore(rangeEndValue, selectedRangeStart)
+      Array.isArray(value) &&
+      isValid(value[1]) &&
+      isBefore(value[1], selectedRangeStart)
     ) {
-      const year = rangeEndValue.getFullYear();
-      const month = rangeEndValue.getMonth();
-      const date = rangeEndValue.getDate();
+      const year = value[1].getFullYear();
+      const month = value[1].getMonth();
+      const date = value[1].getDate();
       return new Date(year, month, date);
     } else {
       // TODO read from user's value prop
@@ -550,16 +545,25 @@ function Calendar({
       : false;
   });
 
-  const checkDisabledForADate = checkIfDateIsDisabledHOF({
-    disablePast,
-    disableToday,
-    disableFuture,
-    customDisabledCheck: isDisabled,
-    maxDate,
-    minDate,
-    applyMax: applyMaxConstraint,
-    applyMin: applyminConstraint,
-  });
+  const checkDisabledForADate = useMemo(
+    () =>
+      checkIfDateIsDisabledHOF({
+        disablePast,
+        disableToday,
+        disableFuture,
+        customDisabledCheck: isDisabled,
+        maxDate,
+        minDate,
+        applyMax: applyMaxConstraint,
+        applyMin: applyminConstraint,
+      }),
+    [applyMaxConstraint, applyminConstraint, disableFuture, disablePast, disableToday, isDisabled, maxDate, minDate]
+  );
+
+  const checkIfWeekend = useMemo(
+    () => checkIfWeekendHOF(weekendIndexes, startOfTheWeek),
+    [startOfTheWeek, weekendIndexes]
+  );
 
   return (
     <section style={styles.root.arc} className={computedClass}>
@@ -615,6 +619,7 @@ function Calendar({
               fixedRangeLength={fixedRangeLength}
               isFixedRangeView={isFixedRangeView}
               isDisabled={checkDisabledForADate}
+              checkIfWeekend={checkIfWeekend}
               selectedMultiDates={selectedMultiDates}
               isMultiSelectorView={isMultiSelectorView}
               viewingMonth={monthInView}
@@ -623,6 +628,7 @@ function Calendar({
               maxAllowedDate={maxAllowedDate}
               minAllowedDate={minAllowedDate}
               weekendIndices={weekendIndexes}
+              skipWeekendsInRange={!!skipWeekendsInRange}
               onChange={onChange}
               viewingYear={yearInView}
               disableFuture={disableFuture}

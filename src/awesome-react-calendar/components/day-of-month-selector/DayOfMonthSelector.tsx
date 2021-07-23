@@ -13,7 +13,7 @@ import {
 } from '../../utils/date-utils';
 
 interface Value {
-  value: Date;
+  date: Date;
   formatted: string;
 }
 
@@ -32,6 +32,7 @@ interface Props {
   viewingMonth: MonthIndices;
   allowFewerDatesThanRange: boolean;
   skipDisabledDatesInRange: boolean;
+  skipWeekendsInRange: boolean;
   viewingYear: number;
   weekStartIndex: WeekdayIndices;
   fixedRangeLength: number;
@@ -56,6 +57,7 @@ interface Props {
   separator?: string;
   highlights: Date[];
   isDisabled: (date: Date) => boolean;
+  checkIfWeekend: (date: Date) => boolean;
   format?: string;
   today: Date;
   onChange?: (value: Value | MultiValue | RangeValue) => any | Promise<any>;
@@ -97,6 +99,7 @@ function DayOfMonthSelectorComponent({
   disableFuture,
   disablePast,
   lockView,
+  checkIfWeekend,
   separator = '-',
   highlights,
   disableToday,
@@ -125,6 +128,7 @@ function DayOfMonthSelectorComponent({
       selectedRangeEnd: selectedRangeEnd,
       newSelectedRangeStart: newSelectedRangeStart,
       newSelectedRangeEnd: newSelectedRangeEnd,
+      checkIfWeekend,
       isRangeView: isRangeSelectorView || isFixedRangeView,
       isRangeSelectModeOn,
       weekendIndexes: weekendIndices,
@@ -148,6 +152,7 @@ function DayOfMonthSelectorComponent({
     isRangeSelectorView,
     isFixedRangeView,
     isRangeSelectModeOn,
+    checkIfWeekend,
     weekendIndices,
     selectedMultiDates,
     highlightsMap,
@@ -192,7 +197,7 @@ function DayOfMonthSelectorComponent({
             onChange &&
               onChange([
                 {
-                  value: startDate,
+                  date: startDate,
                   formatted: formatter(
                     startDate.getFullYear(),
                     startDate.getMonth() + 1,
@@ -201,7 +206,7 @@ function DayOfMonthSelectorComponent({
                   ),
                 },
                 {
-                  value: endDate,
+                  date: endDate,
                   formatted: formatter(endDate.getFullYear(), endDate.getMonth() + 1, endDate.getDate(), separator),
                 },
               ]);
@@ -217,7 +222,7 @@ function DayOfMonthSelectorComponent({
             onChange &&
               onChange([
                 {
-                  value: startDate,
+                  date: startDate,
                   formatted: formatter(
                     startDate.getFullYear(),
                     startDate.getMonth() + 1,
@@ -226,7 +231,7 @@ function DayOfMonthSelectorComponent({
                   ),
                 },
                 {
-                  value: endDate,
+                  date: endDate,
                   formatted: formatter(endDate.getFullYear(), endDate.getMonth() + 1, endDate.getDate(), separator),
                 },
               ]);
@@ -245,17 +250,15 @@ function DayOfMonthSelectorComponent({
         }
       } else if (isFixedRangeView) {
         onChangenSelectedRangeStart(clickedDate);
-        const { endDate, limitReached } = addDays(
-          clickedDate,
-          fixedRangeLength,
+        const { endDate, limitReached } = addDays(clickedDate, fixedRangeLength, {
           isDisabled,
           skipDisabledDatesInRange,
-          lockView
+          upperLimit: lockView
             ? new Date(clickedDate.getFullYear(), clickedDate.getMonth() + 1, 1)
             : disableFuture
             ? getNextDate(today)
-            : undefined
-        );
+            : undefined,
+        });
 
         if (limitReached && !allowFewerDatesThanRange) {
           onChangenSelectedRangeStart(undefined);
@@ -265,7 +268,7 @@ function DayOfMonthSelectorComponent({
           onChange &&
             onChange([
               {
-                value: clickedDate,
+                date: clickedDate,
                 formatted: formatter(
                   clickedDate.getFullYear(),
                   clickedDate.getMonth() + 1,
@@ -274,7 +277,7 @@ function DayOfMonthSelectorComponent({
                 ),
               },
               {
-                value: endDate,
+                date: endDate,
                 formatted: formatter(endDate.getFullYear(), endDate.getMonth() + 1, endDate.getDate(), separator),
               },
             ]);
@@ -296,7 +299,7 @@ function DayOfMonthSelectorComponent({
             Object.keys(newselectedMultiDates)
               .filter((dk) => !!newselectedMultiDates[dk])
               .map((dk) => ({
-                value: newselectedMultiDates[dk] as Date,
+                date: newselectedMultiDates[dk] as Date,
                 formatted: formatter(
                   (newselectedMultiDates[dk] as Date).getFullYear(),
                   (newselectedMultiDates[dk] as Date).getMonth() + 1,
@@ -310,7 +313,7 @@ function DayOfMonthSelectorComponent({
 
         onChange &&
           onChange({
-            value: clickedDate,
+            date: clickedDate,
             formatted: formatter(
               clickedDate.getFullYear(),
               clickedDate.getMonth() + 1,

@@ -39,3 +39,7 @@
 .json {
   flex: 1 1 auto;
 }
+
+.arc {
+  margin-bottom: 24px;
+}

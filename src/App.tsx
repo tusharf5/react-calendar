@@ -190,13 +190,11 @@ function App() {
           <div className='calendar'>
             <Calendar
               isRangeSelector
-              rangeStart={new Date(2021, 0, 8)}
-              rangeEnd={new Date(2021, 0, 9)}
+              disableToday
+              value={[new Date(2021, 0, 8), new Date(2021, 0, 20)]}
               separator='/'
               format='MM-DD-YYYY'
               onChange={onChangethree}
-              // startOfWeek={2}
-              value={new Date(2021, 1, 23)}
             />
           </div>
           <div className='json'>
@@ -421,7 +419,7 @@ function App() {
         <div>
           <p>Can be rendered inside a popover</p>
         </div>
-        <div>
+        <div style={{ justifyContent: 'flex-start' }}>
           <div className='input'>
             <input value={(ten as any).formatted as string} />
             <Popover
