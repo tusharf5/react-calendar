@@ -2,7 +2,7 @@ import React, { useCallback, useState } from 'react';
 import ReactJson from 'react-json-view';
 import ReactDOMServer from 'react-dom/server';
 
-import Calendar from './awesome-react-calendar/calendar';
+import Calendar, { giveDaysInRange, giveFormatter } from './awesome-react-calendar/calendar';
 
 import './App.css';
 import { Popover } from 'react-tiny-popover';
@@ -117,7 +117,7 @@ function App() {
     [setTweleve]
   );
 
-  const [thirteen, setThirteen] = useState<object>({});
+  const [thirteen, setThirteen] = useState<object>([]);
 
   const onChangeThirteen = useCallback(
     (value) => {
@@ -146,6 +146,8 @@ function App() {
 
   const maxDate = new Date(2021, 7, 28);
   const minDate = new Date(2021, 7, 4);
+
+  console.log(giveDaysInRange(thirteen as [Date, Date]));
   return (
     <div className='demo'>
       <div>
@@ -157,7 +159,7 @@ function App() {
             <Calendar onChange={onChangenine} />
           </div>
           <div className='json'>
-            <ReactJson name='value' enableClipboard={false} src={nine} />
+            <ReactJson name='value' enableClipboard={false} src={{ output: nine }} />
           </div>
         </div>
       </div>
@@ -171,14 +173,12 @@ function App() {
               value={[new Date(2021, 6, 22), new Date(2021, 6, 25), new Date(2021, 6, 9)]}
               isMultiSelector
               disableToday
-              separator='/'
-              format='MM-DD-YYYY'
               onChange={onChangeone}
             />
           </div>
 
           <div className='json'>
-            <ReactJson name='value' enableClipboard={false} src={one} />
+            <ReactJson name='value' enableClipboard={false} src={{ output: one }} />
           </div>
         </div>
       </div>
@@ -192,13 +192,11 @@ function App() {
               isRangeSelector
               disableToday
               value={[new Date(2021, 0, 8), new Date(2021, 0, 20)]}
-              separator='/'
-              format='MM-DD-YYYY'
               onChange={onChangethree}
             />
           </div>
           <div className='json'>
-            <ReactJson name='value' enableClipboard={false} src={three} />
+            <ReactJson name='value' enableClipboard={false} src={{ output: three }} />
           </div>
         </div>
       </div>
@@ -214,14 +212,12 @@ function App() {
               maxAllowedDate={maxDate}
               minAllowedDate={minDate}
               disableToday
-              separator='/'
-              format='MM-DD-YYYY'
               onChange={onChangetwo}
               // startOfWeek={2}
             />
           </div>
           <div className='json'>
-            <ReactJson name='value' enableClipboard={false} src={two} />
+            <ReactJson name='value' enableClipboard={false} src={{ output: two }} />
           </div>
         </div>
       </div>
@@ -234,7 +230,7 @@ function App() {
             <Calendar isRangeSelector fixedRange={6} onChange={onChangeThirteen} />
           </div>
           <div className='json'>
-            <ReactJson name='value' enableClipboard={false} src={thirteen} />
+            <ReactJson name='value' enableClipboard={false} src={{ output: thirteen }} />
           </div>
         </div>
       </div>
@@ -251,7 +247,7 @@ function App() {
             />
           </div>
           <div className='json'>
-            <ReactJson name='value' enableClipboard={false} src={fourteen} />
+            <ReactJson name='value' enableClipboard={false} src={{ output: fourteen }} />
           </div>
         </div>
       </div>
@@ -269,7 +265,7 @@ function App() {
             />
           </div>
           <div className='json'>
-            <ReactJson name='value' enableClipboard={false} src={fiveteen} />
+            <ReactJson name='value' enableClipboard={false} src={{ output: fiveteen }} />
           </div>
         </div>
       </div>
@@ -290,7 +286,7 @@ function App() {
             />
           </div>
           <div className='json'>
-            <ReactJson name='value' enableClipboard={false} src={seven} />
+            <ReactJson name='value' enableClipboard={false} src={{ output: seven }} />
           </div>
         </div>
       </div>
@@ -313,7 +309,7 @@ function App() {
             />
           </div>
           <div className='json'>
-            <ReactJson name='value' enableClipboard={false} src={thirteen} />
+            <ReactJson name='value' enableClipboard={false} src={{ output: thirteen }} />
           </div>
         </div>
       </div>
@@ -326,7 +322,7 @@ function App() {
             <Calendar startOfWeek={3} onChange={onChangefour} />
           </div>
           <div className='json'>
-            <ReactJson name='value' enableClipboard={false} src={four} />
+            <ReactJson name='value' enableClipboard={false} src={{ output: four }} />
           </div>
         </div>
       </div>
@@ -339,7 +335,7 @@ function App() {
             <Calendar weekends={[4, 5, 6]} onChange={onChangefive} />
           </div>
           <div className='json'>
-            <ReactJson name='value' enableClipboard={false} src={five} />
+            <ReactJson name='value' enableClipboard={false} src={{ output: five }} />
           </div>
         </div>
       </div>
@@ -352,7 +348,7 @@ function App() {
             <Calendar weekends={[]} onChange={onChangefive} />
           </div>
           <div className='json'>
-            <ReactJson name='value' enableClipboard={false} src={five} />
+            <ReactJson name='value' enableClipboard={false} src={{ output: five }} />
           </div>
         </div>
       </div>
@@ -385,7 +381,7 @@ function App() {
             <Calendar lockView onChange={onChangesix} />
           </div>
           <div className='json'>
-            <ReactJson name='value' enableClipboard={false} src={six} />
+            <ReactJson name='value' enableClipboard={false} src={{ output: six }} />
           </div>
         </div>
       </div>
@@ -395,11 +391,9 @@ function App() {
         </div>
         <div>
           <div className='calendar'>
-            <Calendar format='YYYY-DD-MM' onChange={onChangeTen} />
+            <Calendar onChange={onChangeTen} />
           </div>
-          <div className='json'>
-            <ReactJson name='value' enableClipboard={false} src={ten} />
-          </div>
+          <div className='json'>{giveFormatter('YYYY-DD-MM')(ten, '-')}</div>
         </div>
       </div>
       <div>
@@ -408,10 +402,10 @@ function App() {
         </div>
         <div>
           <div className='calendar'>
-            <Calendar separator='#' onChange={onChangeEleven} />
+            <Calendar onChange={onChangeEleven} />
           </div>
           <div className='json'>
-            <ReactJson name='value' enableClipboard={false} src={eleven} />
+            <div className='json'>{giveFormatter('YYYY-DD-MM')(eleven, '#')}</div>
           </div>
         </div>
       </div>
@@ -449,7 +443,7 @@ function App() {
             <Calendar initialViewDate={new Date(2020, 8, 9)} onChange={onChangeTweleve} />
           </div>
           <div className='json'>
-            <ReactJson name='value' enableClipboard={false} src={tweleve} />
+            <ReactJson name='value' enableClipboard={false} src={{ output: tweleve }} />
           </div>
         </div>
       </div>
@@ -508,8 +502,6 @@ function App() {
                 value={[new Date(2021, 6, 22), new Date(2021, 6, 25), new Date(2021, 6, 9)]}
                 isMultiSelector
                 disableToday
-                separator='/'
-                format='MM-DD-YYYY'
                 onChange={onChangeone}
               />
             ),

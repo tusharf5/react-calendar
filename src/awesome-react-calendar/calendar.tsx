@@ -17,6 +17,8 @@ import {
   toString,
   checkIfDateIsDisabledHOF,
   checkIfWeekendHOF,
+  giveRangeDays,
+  validateAndReturnDateFormatter,
 } from './utils/date-utils';
 
 import { Header } from './components/header/Header';
@@ -27,13 +29,7 @@ import { DayOfMonthSelector } from './components/day-of-month-selector/DayOfMont
 
 import './calendar.css';
 
-interface Value {
-  date: Date;
-  formatted: string;
-}
-
-type RangeValue = [Value, Value];
-type MultiValue = Value[];
+export type Value = Date | Date[] | [Date, Date];
 
 interface Props {
   /**
@@ -68,7 +64,7 @@ interface Props {
    * Value of a single date or an array of dates in ISO format.
    * Only applicable if selectRange is false
    */
-  value?: Date | Date[] | [Date, Date];
+  value?: Value;
   /**
    * Renders a multiple dates selector view
    */
@@ -105,17 +101,6 @@ interface Props {
    */
   startOfWeek?: WeekdayIndices;
   /**
-   * Separator to be used when formatting the date string.
-   * Default is '-' i.e 'DD-MM-YYYY'
-   */
-  separator?: string;
-  /**
-   * A combination of YYYY-MM-DD.
-   * Eg. MM-DD-YYYY, DD-MM-YYYY etc.
-   * Default is '-' i.e 'DD-MM-YYYY'
-   */
-  format?: string;
-  /**
    * A boolean flag to disable all past dates.
    */
   disablePast?: boolean;
@@ -146,7 +131,7 @@ interface Props {
   /**
    * OnChange callback functionn.
    */
-  onChange?: (value: Value | MultiValue | RangeValue) => any | Promise<any>;
+  onChange?: (value: Value) => any | Promise<any>;
 }
 
 // const getStyles: (size: number) => ComputedStyles = (size: number) => ({
@@ -296,8 +281,6 @@ function Calendar({
   isDisabled,
   onChange,
   lockView = false,
-  separator = '-',
-  format = 'DD-MM-YYYY',
   disableFuture = false,
   size = 276,
   fontSize = 16,
@@ -623,7 +606,6 @@ function Calendar({
               selectedMultiDates={selectedMultiDates}
               isMultiSelectorView={isMultiSelectorView}
               viewingMonth={monthInView}
-              format={format}
               today={today}
               maxAllowedDate={maxAllowedDate}
               minAllowedDate={minAllowedDate}
@@ -633,7 +615,6 @@ function Calendar({
               viewingYear={yearInView}
               disableFuture={disableFuture}
               disablePast={disablePast}
-              separator={separator}
               highlights={highlights}
               disableToday={disableToday}
             />
@@ -645,6 +626,15 @@ function Calendar({
 }
 
 export default Calendar;
+
+export const giveDaysInRange = giveRangeDays;
+
+/**
+ * A combination of YYYY-MM-DD.
+ * Eg. MM-DD-YYYY, DD-MM-YYYY etc.
+ * Default is '-' i.e 'DD-MM-YYYY'
+ */
+export const giveFormatter = (format: string) => validateAndReturnDateFormatter(format || 'DD-MM-YYYY');
 
 export interface CSSProps {
   root: {

@@ -266,6 +266,24 @@ export function getNextDate(date: Date): Date {
   }
 }
 
+export function giveRangeDays(range: [Date, Date]): Date[] {
+  if (!Array.isArray(range)) {
+    return [];
+  }
+  const [start, end] = range;
+  if (!isValid(start) || !isValid(end)) {
+    return [];
+  }
+  let date = start;
+  const dates = [];
+  while (isBefore(end, date)) {
+    dates.push(date);
+    date = getNextDate(date);
+  }
+  dates.push(end);
+  return dates;
+}
+
 // WEEKDAY UTILS
 
 /**
@@ -468,17 +486,25 @@ export function validateAndReturnDateFormatter(format: string) {
   if (!parts.every((part) => partsMap[part])) {
     throw new Error('Date format uses unknown parts.');
   }
-  return (year: number, month: number, date: number, separator: string): string => {
+
+  /**
+   * Separator to be used when formatting the date string.
+   * Default is '-' i.e 'DD-MM-YYYY'
+   */
+  return (date: any, separator: string): string | undefined => {
+    if (!isValid(date)) {
+      return;
+    }
     let string = '';
     parts.forEach((part, index) => {
       if (part === 'YYYY') {
-        string += year;
+        string += date.getFullYear();
       }
       if (part === 'MM') {
-        string += month;
+        string += date.getMonth();
       }
       if (part === 'DD') {
-        string += date;
+        string += date.getDate();
       }
       if (index !== 2) {
         string += separator;
@@ -600,9 +626,6 @@ export function getDaysOfMonthViewMetrix(params: GetDaysOfMonthViewMetrixParams)
   );
 
   const today = new Date();
-  const todaysDate = today.getDate();
-  const todaysMonth = today.getMonth();
-  const todaysYear = today.getFullYear();
   const totalDaysInCurrentMonth = getNumberOfDaysInAMonth(yearInView, monthInView);
 
   const isPrevMonthFromLastYear = monthInView === 0;
@@ -626,61 +649,33 @@ export function getDaysOfMonthViewMetrix(params: GetDaysOfMonthViewMetrixParams)
       weekColumn = 0;
       row++;
     }
-    const currMonth = getPreviousMonth(monthInView);
-    const currYear = isPrevMonthFromLastYear ? getPreviousYear(yearInView) : yearInView;
 
-    const currDate = new Date(currYear, currMonth, dayOfMonth);
-
-    // if new range dates are VALID
-    // then use them to compute in range values
-
-    matrix[row].push({
-      date: currDate,
-      dayOfMonth: dayOfMonth,
-      month: currMonth,
-      activeMonthInView: false,
-      isHighlight: highlightsMap[toString(currDate)] === 1,
-      isInRange: isRangeView
-        ? isRangeSelectModeOn
-          ? isValid(newSelectedRangeStart) && isValid(newSelectedRangeEnd)
-            ? isBefore(newSelectedRangeEnd, newSelectedRangeStart)
-              ? isPartOfRange(newSelectedRangeStart, newSelectedRangeEnd, currDate)
-              : isPartOfRange(newSelectedRangeEnd, newSelectedRangeStart, currDate)
-            : false
-          : !!selectedRangeStart && !!selectedRangeEnd && isPartOfRange(selectedRangeStart, selectedRangeEnd, currDate)
-        : false,
-      isRangeStart: isRangeView
-        ? isRangeSelectModeOn
-          ? isValid(newSelectedRangeStart)
-            ? isEqual(newSelectedRangeStart, currDate)
-            : false
-          : !!selectedRangeStart && isEqual(selectedRangeStart, currDate)
-        : false,
-      isRangeEnd: isRangeView
-        ? isRangeSelectModeOn
-          ? false
-          : !!selectedRangeEnd && isEqual(selectedRangeEnd, currDate)
-        : false,
-      year: currYear,
-      isWeekend: checkIfWeekend(currDate),
-      dayOfWeek: getNativeWeekDayIndexFromAStartDayInfluencedIndex(weekColumn, startOfTheWeek),
-      isToday: dayOfMonth === todaysDate && currMonth === todaysMonth && currYear === todaysYear,
-      isFirstRow: row === 0,
-      isLastRow: row === 5,
-      isFirsColumn: weekColumn === 0,
-      isLastColumn: weekColumn === 6,
-      isSelected: isSelectMultiDate
-        ? !!selectedMultiDates[toString(currDate)]
-        : isRangeView
-        ? false
-        : selectedDate
-        ? currMonth === selectedDate.getMonth() &&
-          currYear === selectedDate.getFullYear() &&
-          dayOfMonth === selectedDate.getDate()
-        : false,
-      // not modified
-      isDisabled: isDisabled(currDate),
-    });
+    matrix[row].push(
+      getCellValue({
+        currDate: new Date(
+          isPrevMonthFromLastYear ? getPreviousYear(yearInView) : yearInView,
+          getPreviousMonth(monthInView),
+          dayOfMonth
+        ),
+        activeMonthInView: false,
+        highlightsMap,
+        newSelectedRangeEnd,
+        newSelectedRangeStart,
+        selectedDate,
+        selectedRangeEnd,
+        selectedRangeStart,
+        isDisabled,
+        isRangeSelectModeOn,
+        isRangeView,
+        isSelectMultiDate,
+        row,
+        weekColumn,
+        checkIfWeekend,
+        today,
+        selectedMultiDates,
+        startOfTheWeek,
+      })
+    );
     weekColumn++;
   }
 
@@ -690,58 +685,29 @@ export function getDaysOfMonthViewMetrix(params: GetDaysOfMonthViewMetrixParams)
       weekColumn = 0;
       row++;
     }
-    const currMonth = monthInView;
-    const currYear = yearInView;
-    const isToday = dayOfMonth === todaysDate && monthInView === todaysMonth && yearInView === todaysYear;
 
-    const currDate = new Date(currYear, currMonth, dayOfMonth);
-
-    matrix[row].push({
-      date: currDate,
-      dayOfMonth: dayOfMonth,
-      month: currMonth,
-      activeMonthInView: true,
-      isHighlight: highlightsMap[toString(currDate)] === 1,
-      isInRange: isRangeView
-        ? isRangeSelectModeOn
-          ? isValid(newSelectedRangeStart) && isValid(newSelectedRangeEnd)
-            ? isBefore(newSelectedRangeEnd, newSelectedRangeStart)
-              ? isPartOfRange(newSelectedRangeStart, newSelectedRangeEnd, currDate)
-              : isPartOfRange(newSelectedRangeEnd, newSelectedRangeStart, currDate)
-            : false
-          : !!selectedRangeStart && !!selectedRangeEnd && isPartOfRange(selectedRangeStart, selectedRangeEnd, currDate)
-        : false,
-      isRangeStart: isRangeView
-        ? isRangeSelectModeOn
-          ? isValid(newSelectedRangeStart)
-            ? isEqual(newSelectedRangeStart, currDate)
-            : false
-          : !!selectedRangeStart && isEqual(selectedRangeStart, currDate)
-        : false,
-      isRangeEnd: isRangeView
-        ? isRangeSelectModeOn
-          ? false
-          : !!selectedRangeEnd && isEqual(selectedRangeEnd, currDate)
-        : false,
-      year: currYear,
-      dayOfWeek: getNativeWeekDayIndexFromAStartDayInfluencedIndex(weekColumn, startOfTheWeek),
-      isWeekend: checkIfWeekend(currDate),
-      isToday: isToday,
-      isFirstRow: row === 0,
-      isLastRow: row === 5,
-      isFirsColumn: weekColumn === 0,
-      isLastColumn: weekColumn === 6,
-      isSelected: isSelectMultiDate
-        ? !!selectedMultiDates[toString(currDate)]
-        : isRangeView
-        ? false
-        : selectedDate
-        ? currMonth === selectedDate.getMonth() &&
-          currYear === selectedDate.getFullYear() &&
-          dayOfMonth === selectedDate.getDate()
-        : false,
-      isDisabled: isDisabled(currDate),
-    });
+    matrix[row].push(
+      getCellValue({
+        currDate: new Date(yearInView, monthInView, dayOfMonth),
+        activeMonthInView: true,
+        highlightsMap,
+        newSelectedRangeEnd,
+        newSelectedRangeStart,
+        selectedDate,
+        selectedRangeEnd,
+        selectedRangeStart,
+        isDisabled,
+        isRangeSelectModeOn,
+        isRangeView,
+        isSelectMultiDate,
+        row,
+        weekColumn,
+        checkIfWeekend,
+        today,
+        selectedMultiDates,
+        startOfTheWeek,
+      })
+    );
     weekColumn++;
   }
 
@@ -753,60 +719,123 @@ export function getDaysOfMonthViewMetrix(params: GetDaysOfMonthViewMetrixParams)
       weekColumn = 0;
       row++;
     }
-    const currMonth = getNextMonth(monthInView);
-    const currYear = isCurrentMonthLast ? yearInView + 1 : yearInView;
-
-    const currDate = new Date(currYear, currMonth, dayOfMonth);
-
-    matrix[row].push({
-      date: currDate,
-      dayOfMonth: dayOfMonth,
-      month: currMonth,
-      activeMonthInView: false,
-      isHighlight: highlightsMap[toString(currDate)] === 1,
-      isInRange: isRangeView
-        ? isRangeSelectModeOn
-          ? isValid(newSelectedRangeStart) && isValid(newSelectedRangeEnd)
-            ? isBefore(newSelectedRangeEnd, newSelectedRangeStart)
-              ? isPartOfRange(newSelectedRangeStart, newSelectedRangeEnd, currDate)
-              : isPartOfRange(newSelectedRangeEnd, newSelectedRangeStart, currDate)
-            : false
-          : !!selectedRangeStart && !!selectedRangeEnd && isPartOfRange(selectedRangeStart, selectedRangeEnd, currDate)
-        : false,
-      isRangeStart: isRangeView
-        ? isRangeSelectModeOn
-          ? isValid(newSelectedRangeStart)
-            ? isEqual(newSelectedRangeStart, currDate)
-            : false
-          : !!selectedRangeStart && isEqual(selectedRangeStart, currDate)
-        : false,
-      isRangeEnd: isRangeView
-        ? isRangeSelectModeOn
-          ? false
-          : !!selectedRangeEnd && isEqual(selectedRangeEnd, currDate)
-        : false,
-      year: currYear,
-      dayOfWeek: getNativeWeekDayIndexFromAStartDayInfluencedIndex(weekColumn, startOfTheWeek),
-      isWeekend: checkIfWeekend(currDate),
-      isToday: dayOfMonth === todaysDate && currMonth === todaysMonth && currYear === todaysYear,
-      isFirstRow: row === 0,
-      isLastRow: row === 5,
-      isFirsColumn: weekColumn === 0,
-      isLastColumn: weekColumn === 6,
-      isSelected: isSelectMultiDate
-        ? !!selectedMultiDates[toString(currDate)]
-        : isRangeView
-        ? false
-        : selectedDate
-        ? currMonth === selectedDate.getMonth() &&
-          currYear === selectedDate.getFullYear() &&
-          dayOfMonth === selectedDate.getDate()
-        : false,
-      isDisabled: isDisabled(currDate),
-    });
+    matrix[row].push(
+      getCellValue({
+        currDate: new Date(isCurrentMonthLast ? yearInView + 1 : yearInView, getNextMonth(monthInView), dayOfMonth),
+        activeMonthInView: false,
+        highlightsMap,
+        newSelectedRangeEnd,
+        newSelectedRangeStart,
+        selectedDate,
+        selectedRangeEnd,
+        selectedRangeStart,
+        isDisabled,
+        isRangeSelectModeOn,
+        isRangeView,
+        isSelectMultiDate,
+        row,
+        weekColumn,
+        checkIfWeekend,
+        today,
+        selectedMultiDates,
+        startOfTheWeek,
+      })
+    );
     weekColumn++;
     dayOfMonth++;
   }
 
   return matrix;
+}
+
+interface GetCellValueParams
+  extends Pick<
+    GetDaysOfMonthViewMetrixParams,
+    | 'highlightsMap'
+    | 'isRangeView'
+    | 'isRangeSelectModeOn'
+    | 'newSelectedRangeStart'
+    | 'newSelectedRangeEnd'
+    | 'selectedRangeStart'
+    | 'selectedRangeEnd'
+    | 'isSelectMultiDate'
+    | 'isDisabled'
+    | 'selectedDate'
+    | 'selectedMultiDates'
+    | 'checkIfWeekend'
+    | 'startOfTheWeek'
+  > {
+  currDate: Date;
+  today: Date;
+  activeMonthInView: boolean;
+  row: number;
+  weekColumn: number;
+}
+
+function getCellValue({
+  currDate,
+  activeMonthInView,
+  highlightsMap,
+  newSelectedRangeEnd,
+  newSelectedRangeStart,
+  selectedDate,
+  selectedRangeEnd,
+  selectedRangeStart,
+  isDisabled,
+  isRangeSelectModeOn,
+  isRangeView,
+  isSelectMultiDate,
+  row,
+  weekColumn,
+  checkIfWeekend,
+  today,
+  selectedMultiDates,
+  startOfTheWeek,
+}: GetCellValueParams) {
+  return {
+    date: currDate,
+    dayOfMonth: currDate.getDate(),
+    month: currDate.getMonth() as MonthIndices,
+    activeMonthInView,
+    isHighlight: highlightsMap[toString(currDate)] === 1,
+    isInRange: isRangeView
+      ? isRangeSelectModeOn
+        ? isValid(newSelectedRangeStart) && isValid(newSelectedRangeEnd)
+          ? isBefore(newSelectedRangeEnd, newSelectedRangeStart)
+            ? isPartOfRange(newSelectedRangeStart, newSelectedRangeEnd, currDate)
+            : isPartOfRange(newSelectedRangeEnd, newSelectedRangeStart, currDate)
+          : false
+        : !!selectedRangeStart && !!selectedRangeEnd && isPartOfRange(selectedRangeStart, selectedRangeEnd, currDate)
+      : false,
+    isRangeStart: isRangeView
+      ? isRangeSelectModeOn
+        ? isValid(newSelectedRangeStart)
+          ? isEqual(newSelectedRangeStart, currDate)
+          : false
+        : !!selectedRangeStart && isEqual(selectedRangeStart, currDate)
+      : false,
+    isRangeEnd: isRangeView
+      ? isRangeSelectModeOn
+        ? false
+        : !!selectedRangeEnd && isEqual(selectedRangeEnd, currDate)
+      : false,
+    year: currDate.getFullYear(),
+    dayOfWeek: getNativeWeekDayIndexFromAStartDayInfluencedIndex(weekColumn, startOfTheWeek),
+    isWeekend: checkIfWeekend(currDate),
+    isToday: isEqual(currDate, today),
+    isFirstRow: row === 0,
+    isLastRow: row === 5,
+    isFirsColumn: weekColumn === 0,
+    isLastColumn: weekColumn === 6,
+    isSelected: isSelectMultiDate
+      ? !!selectedMultiDates[toString(currDate)]
+      : isRangeView
+      ? false
+      : selectedDate
+      ? currDate.getMonth() === selectedDate.getMonth() &&
+        currDate.getFullYear() === selectedDate.getFullYear() &&
+        currDate.getDate() === selectedDate.getDate()
+      : false,
+    isDisabled: isDisabled(currDate),
+  };
 }

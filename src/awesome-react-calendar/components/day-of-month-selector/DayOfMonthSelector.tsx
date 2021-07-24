@@ -1,24 +1,8 @@
 import React, { memo, useCallback, useMemo, useState } from 'react';
-import { CSSProps } from '../../calendar';
+import { CSSProps, Value } from '../../calendar';
 
 import { DayOfMonthCell, MonthIndices, WeekdayIndices } from '../../types';
-import {
-  addDays,
-  getDaysOfMonthViewMetrix,
-  getNextDate,
-  isBefore,
-  isValid,
-  toString,
-  validateAndReturnDateFormatter,
-} from '../../utils/date-utils';
-
-interface Value {
-  date: Date;
-  formatted: string;
-}
-
-type RangeValue = [Value, Value];
-type MultiValue = Value[];
+import { addDays, getDaysOfMonthViewMetrix, getNextDate, isBefore, isValid, toString } from '../../utils/date-utils';
 
 interface Props {
   onChangeViewingYear: (year: number) => any;
@@ -54,13 +38,11 @@ interface Props {
   lockView: boolean;
   maxAllowedDate?: Date;
   minAllowedDate?: Date;
-  separator?: string;
   highlights: Date[];
   isDisabled: (date: Date) => boolean;
   checkIfWeekend: (date: Date) => boolean;
-  format?: string;
   today: Date;
-  onChange?: (value: Value | MultiValue | RangeValue) => any | Promise<any>;
+  onChange?: (value: Value) => any | Promise<any>;
   layoutCalcs: CSSProps;
 }
 
@@ -85,7 +67,6 @@ function DayOfMonthSelectorComponent({
   isMultiSelectorView,
   today,
   viewingMonth,
-  format,
   onChangenNewSelectedRangeEnd,
   onChangenNewSelectedRangeStart,
   onChangenSelectedRangeEnd,
@@ -100,7 +81,6 @@ function DayOfMonthSelectorComponent({
   disablePast,
   lockView,
   checkIfWeekend,
-  separator = '-',
   highlights,
   disableToday,
 }: Props) {
@@ -115,11 +95,6 @@ function DayOfMonthSelectorComponent({
     }
     return {};
   });
-
-  // date formatter
-  const formatter = useMemo(() => {
-    return validateAndReturnDateFormatter(format || 'DD-MM-YYYY');
-  }, [format]);
 
   const daysOfMMonthViewMatrix = useMemo(() => {
     return getDaysOfMonthViewMetrix({
@@ -194,22 +169,7 @@ function DayOfMonthSelectorComponent({
 
             const endDate = previouslySelectedDate;
 
-            onChange &&
-              onChange([
-                {
-                  date: startDate,
-                  formatted: formatter(
-                    startDate.getFullYear(),
-                    startDate.getMonth() + 1,
-                    startDate.getDate(),
-                    separator
-                  ),
-                },
-                {
-                  date: endDate,
-                  formatted: formatter(endDate.getFullYear(), endDate.getMonth() + 1, endDate.getDate(), separator),
-                },
-              ]);
+            onChange && onChange([startDate, endDate]);
           } else {
             onChangenSelectedRangeStart(previouslySelectedDate);
 
@@ -219,22 +179,7 @@ function DayOfMonthSelectorComponent({
 
             const endDate = clickedDate;
 
-            onChange &&
-              onChange([
-                {
-                  date: startDate,
-                  formatted: formatter(
-                    startDate.getFullYear(),
-                    startDate.getMonth() + 1,
-                    startDate.getDate(),
-                    separator
-                  ),
-                },
-                {
-                  date: endDate,
-                  formatted: formatter(endDate.getFullYear(), endDate.getMonth() + 1, endDate.getDate(), separator),
-                },
-              ]);
+            onChange && onChange([startDate, endDate]);
           }
 
           onChangenNewSelectedRangeEnd(undefined);
@@ -265,22 +210,7 @@ function DayOfMonthSelectorComponent({
           onChangenSelectedRangeEnd(undefined);
         } else {
           onChangenSelectedRangeEnd(endDate);
-          onChange &&
-            onChange([
-              {
-                date: clickedDate,
-                formatted: formatter(
-                  clickedDate.getFullYear(),
-                  clickedDate.getMonth() + 1,
-                  clickedDate.getDate(),
-                  separator
-                ),
-              },
-              {
-                date: endDate,
-                formatted: formatter(endDate.getFullYear(), endDate.getMonth() + 1, endDate.getDate(), separator),
-              },
-            ]);
+          onChange && onChange([clickedDate, endDate]);
         }
       } else if (isMultiSelectorView) {
         const stringkey = toString(clickedDate);
@@ -298,29 +228,12 @@ function DayOfMonthSelectorComponent({
           onChange(
             Object.keys(newselectedMultiDates)
               .filter((dk) => !!newselectedMultiDates[dk])
-              .map((dk) => ({
-                date: newselectedMultiDates[dk] as Date,
-                formatted: formatter(
-                  (newselectedMultiDates[dk] as Date).getFullYear(),
-                  (newselectedMultiDates[dk] as Date).getMonth() + 1,
-                  (newselectedMultiDates[dk] as Date).getDate(),
-                  separator
-                ),
-              }))
+              .map((dk) => newselectedMultiDates[dk] as Date)
           );
       } else {
         onChangenSelectedDate(clickedDate);
 
-        onChange &&
-          onChange({
-            date: clickedDate,
-            formatted: formatter(
-              clickedDate.getFullYear(),
-              clickedDate.getMonth() + 1,
-              clickedDate.getDate(),
-              separator
-            ),
-          });
+        onChange && onChange(clickedDate);
       }
 
       onChangeViewingMonth(cell.month);
@@ -341,8 +254,6 @@ function DayOfMonthSelectorComponent({
       onChangenSelectedRangeStart,
       onChangenSelectedRangeEnd,
       onChange,
-      formatter,
-      separator,
       onChangenNewSelectedRangeStart,
       fixedRangeLength,
       isDisabled,
