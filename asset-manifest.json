@@ -1,22 +1,22 @@
 {
   "files": {
-    "main.css": "/react-calendar/static/css/main.ce4820d2.chunk.css",
-    "main.js": "/react-calendar/static/js/main.44103538.chunk.js",
-    "main.js.map": "/react-calendar/static/js/main.44103538.chunk.js.map",
-    "runtime-main.js": "/react-calendar/static/js/runtime-main.26d1cd8e.js",
-    "runtime-main.js.map": "/react-calendar/static/js/runtime-main.26d1cd8e.js.map",
-    "static/js/2.284410bb.chunk.js": "/react-calendar/static/js/2.284410bb.chunk.js",
-    "static/js/2.284410bb.chunk.js.map": "/react-calendar/static/js/2.284410bb.chunk.js.map",
-    "static/js/3.ef20f683.chunk.js": "/react-calendar/static/js/3.ef20f683.chunk.js",
-    "static/js/3.ef20f683.chunk.js.map": "/react-calendar/static/js/3.ef20f683.chunk.js.map",
+    "main.css": "/react-calendar/static/css/main.db1e4601.chunk.css",
+    "main.js": "/react-calendar/static/js/main.99ece7fd.chunk.js",
+    "main.js.map": "/react-calendar/static/js/main.99ece7fd.chunk.js.map",
+    "runtime-main.js": "/react-calendar/static/js/runtime-main.d6c2a6db.js",
+    "runtime-main.js.map": "/react-calendar/static/js/runtime-main.d6c2a6db.js.map",
+    "static/js/2.10f9758c.chunk.js": "/react-calendar/static/js/2.10f9758c.chunk.js",
+    "static/js/2.10f9758c.chunk.js.map": "/react-calendar/static/js/2.10f9758c.chunk.js.map",
+    "static/js/3.88a4f708.chunk.js": "/react-calendar/static/js/3.88a4f708.chunk.js",
+    "static/js/3.88a4f708.chunk.js.map": "/react-calendar/static/js/3.88a4f708.chunk.js.map",
     "index.html": "/react-calendar/index.html",
-    "static/css/main.ce4820d2.chunk.css.map": "/react-calendar/static/css/main.ce4820d2.chunk.css.map",
-    "static/js/2.284410bb.chunk.js.LICENSE.txt": "/react-calendar/static/js/2.284410bb.chunk.js.LICENSE.txt"
+    "static/css/main.db1e4601.chunk.css.map": "/react-calendar/static/css/main.db1e4601.chunk.css.map",
+    "static/js/2.10f9758c.chunk.js.LICENSE.txt": "/react-calendar/static/js/2.10f9758c.chunk.js.LICENSE.txt"
   },
   "entrypoints": [
-    "static/js/runtime-main.26d1cd8e.js",
-    "static/js/2.284410bb.chunk.js",
-    "static/css/main.ce4820d2.chunk.css",
-    "static/js/main.44103538.chunk.js"
+    "static/js/runtime-main.d6c2a6db.js",
+    "static/js/2.10f9758c.chunk.js",
+    "static/css/main.db1e4601.chunk.css",
+    "static/js/main.99ece7fd.chunk.js"
   ]
 }
